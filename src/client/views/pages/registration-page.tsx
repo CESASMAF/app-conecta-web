@@ -43,7 +43,15 @@ export const RegistrationPage: FC = () => {
         clearDraft()
         dispatch({ type: "SAVE_SUCCESS", message: "Cadastro salvo com sucesso!" })
       } else {
-        dispatch({ type: "SAVE_FAILURE", message: result.error.message })
+        const messages: Record<string, string> = {
+          UNAUTHORIZED: "Sessão expirada. Faça login novamente.",
+          FORBIDDEN: "Sem permissão para cadastrar.",
+          VALIDATION_ERROR: "Dados inválidos. Revise os campos.",
+          SERVER_ERROR: "Erro no servidor. Tente novamente.",
+          NETWORK_ERROR: "Sem conexão. Verifique sua internet.",
+          NOT_FOUND: "Serviço indisponível.",
+        }
+        dispatch({ type: "SAVE_FAILURE", message: messages[result.error] ?? "Erro desconhecido." })
       }
     } else {
       dispatch({ type: "NEXT_STEP" })
@@ -81,11 +89,7 @@ export const RegistrationPage: FC = () => {
           diagnoses={state.diagnoses}
           errors={errors}
           onUpdateEntry={(index, field, value) => {
-            // APPLY_QUICK_CID updates code+description; for date, we pass current values
-            const diag = state.diagnoses[index]
-            if (!diag) return
-            const updated = { ...diag, [field]: value }
-            dispatch({ type: "APPLY_QUICK_CID", index, code: updated.code, description: updated.description })
+            dispatch({ type: "UPDATE_DIAGNOSIS_FIELD", index, field, value })
           }}
           onAddDiagnosis={() => dispatch({ type: "ADD_DIAGNOSIS" })}
           onRemoveDiagnosis={(i) => dispatch({ type: "REMOVE_DIAGNOSIS", index: i })}

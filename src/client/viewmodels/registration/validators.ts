@@ -46,12 +46,15 @@ export function validateStep1(state: WizardState): ReadonlyMap<string, string> {
   if (!state.documents.birthDate.trim()) {
     errors.set("birthDate", "Data de nascimento obrigatória")
   } else {
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-    if (!dateRegex.test(state.documents.birthDate)) {
-      errors.set("birthDate", "Data deve estar no formato YYYY-MM-DD")
+    const digits = state.documents.birthDate.replace(/\D/g, "")
+    if (digits.length !== 8) {
+      errors.set("birthDate", "Data deve ter 8 dígitos (DD/MM/AAAA)")
     } else {
-      const parsed = new Date(state.documents.birthDate)
-      if (isNaN(parsed.getTime())) {
+      const day = digits.slice(0, 2)
+      const month = digits.slice(2, 4)
+      const year = digits.slice(4, 8)
+      const parsed = new Date(`${year}-${month}-${day}T00:00:00`)
+      if (isNaN(parsed.getTime()) || parsed.getDate() !== Number(day)) {
         errors.set("birthDate", "Data inválida")
       } else if (parsed > new Date()) {
         errors.set("birthDate", "Data não pode ser futura")

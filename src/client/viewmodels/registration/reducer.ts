@@ -68,6 +68,13 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
         diagnoses: state.diagnoses.filter((_, i) => i !== action.index),
       }
 
+    case "UPDATE_DIAGNOSIS_FIELD": {
+      const updated = state.diagnoses.map((d, i) =>
+        i === action.index ? { ...d, [action.field]: action.value } : d
+      )
+      return { ...state, diagnoses: updated }
+    }
+
     case "APPLY_QUICK_CID": {
       const updated = state.diagnoses.map((d, i) =>
         i === action.index ? { ...d, code: action.code, description: action.description } : d
