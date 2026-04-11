@@ -59,8 +59,8 @@ app.use("*", authGuard());
 
 app.route("/", healthRoutes);
 app.route("/", createAuthRoutes(authService));
-app.route("/", createApiRoutes(remoteClient));
 app.route("/", meRoutes);
+app.route("/", createApiRoutes(remoteClient));
 app.route("/", pageRoutes);
 
 // ---------------------------------------------------------------------------
