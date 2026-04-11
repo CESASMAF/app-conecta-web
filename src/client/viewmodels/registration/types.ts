@@ -10,10 +10,13 @@ export type DiagnosisEntry = Readonly<{
 export type FamilyMemberSnapshot = Readonly<{
   name: string
   birthDate: string
-  gender: string
   relationship: string
   livesWithPatient: boolean
   isDisabled: boolean
+  // BFF-aligned field (preferred); falls back to gender
+  sex?: string
+  // Deprecated alias — use sex instead
+  gender: string
 }>
 
 export type WizardState = Readonly<{
@@ -29,6 +32,10 @@ export type WizardState = Readonly<{
     socialName: string
     motherName: string
     nationality: string
+    sex: string
+    phone: string
+    birthDate: string
+    // Deprecated aliases — kept for backward compat with existing tests
     gender: string
     phoneNumber: string
   }>
@@ -41,12 +48,15 @@ export type WizardState = Readonly<{
     rgUf: string
     rgAgency: string
     rgDate: string
+    // Deprecated: birthDate moved to fields (Step 0) — kept for backward compat
     birthDate: string
   }>
   // Step 2: Endereço
   address: Readonly<{
     housingSituation: string
     residenceLocation: string
+    isShelter: boolean
+    isHomeless: boolean
     cep: string
     street: string
     number: string
@@ -88,6 +98,7 @@ export type WizardAction =
   | Readonly<{ type: "ADD_FAMILY_MEMBER"; member: FamilyMemberSnapshot }>
   | Readonly<{ type: "UPDATE_FAMILY_MEMBER"; index: number; member: FamilyMemberSnapshot }>
   | Readonly<{ type: "REMOVE_FAMILY_MEMBER"; index: number }>
+  | Readonly<{ type: "TOGGLE_ADDRESS_FLAG"; field: "isShelter" | "isHomeless" }>
   | Readonly<{ type: "TOGGLE_PROGRAM"; programId: string }>
   | Readonly<{ type: "SAVE_START" }>
   | Readonly<{ type: "SAVE_SUCCESS"; message: string }>
@@ -104,6 +115,10 @@ export const initialState: WizardState = {
     socialName: "",
     motherName: "",
     nationality: "",
+    sex: "",
+    phone: "",
+    birthDate: "",
+    // Deprecated aliases
     gender: "",
     phoneNumber: "",
   },
@@ -120,6 +135,8 @@ export const initialState: WizardState = {
   address: {
     housingSituation: "",
     residenceLocation: "",
+    isShelter: false,
+    isHomeless: false,
     cep: "",
     street: "",
     number: "",

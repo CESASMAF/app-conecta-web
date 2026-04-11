@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Social Care — Cadastro Redesign Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=display=swap" rel="stylesheet" />
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+   ═══════════════════════════════════════════ */
+:root {
+  --bg-deep: #0A0A0A;
+  --bg-base: #111111;
+  --bg-surface: #181818;
+  --bg-elevated: #1F1F1F;
+  --bg-hover: #262626;
+  --text-primary: #F0EDE8;
+  --text-secondary: rgba(240, 237, 232, 0.6);
+  --text-muted: rgba(240, 237, 232, 0.35);
+  --accent-warm: #D4A853;
+  --accent-warm-muted: rgba(212, 168, 83, 0.15);
+  --accent-warm-hover: #E0BA6A;
+  --success: #5A9A52;
+  --danger: #C4422B;
+  --warning: #C9960A;
+  --line: rgba(240, 237, 232, 0.08);
+  --line-hover: rgba(240, 237, 232, 0.15);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-ui: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --s1: 4px; --s2: 8px; --s3: 16px; --s4: 24px; --s5: 32px;
+  --s6: 40px; --s7: 48px; --s8: 56px; --s9: 64px; --s10: 80px;
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px;
+  --ease-out: cubic-bezier(0.25, 0, 0.25, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--font-ui); background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; overflow: hidden; }
+::selection { background: var(--accent-warm); color: var(--bg-deep); }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line-hover); border-radius: 2px; }
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════════ */
+.app {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR (same as home)
+   ═══════════════════════════════════════════ */
+.sidebar {
+  grid-row: 1 / -1;
+  background: var(--bg-base);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: var(--s6) 0;
+}
+.sidebar-logo { padding: 0 var(--s5); margin-bottom: var(--s9); }
+.sidebar-logo h1 { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+.sidebar-logo span { font-family: var(--font-display); font-style: italic; font-size: 12px; color: var(--text-muted); display: block; margin-top: var(--s1); }
+.sidebar-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); padding: 0 var(--s5); margin-bottom: var(--s3); }
+.sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.sidebar-nav a { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s5); font-size: 14px; color: var(--text-secondary); text-decoration: none; transition: all var(--duration-normal) var(--ease-out); position: relative; }
+.sidebar-nav a .nav-number { font-size: 11px; font-weight: 500; color: var(--text-muted); min-width: 20px; font-variant-numeric: tabular-nums; }
+.sidebar-nav a:hover { color: var(--text-primary); background: var(--bg-elevated); }
+.sidebar-nav a.active { color: var(--text-primary); font-weight: 600; }
+.sidebar-nav a.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 2px; height: 24px; background: var(--accent-warm); border-radius: 0 2px 2px 0; }
+.sidebar-nav a .badge { margin-left: auto; font-size: 11px; font-weight: 600; background: var(--accent-warm-muted); color: var(--accent-warm); padding: 2px 8px; border-radius: 100px; }
+.sidebar-footer { margin-top: auto; padding: var(--s4) var(--s5); border-top: 1px solid var(--line); }
+.sidebar-user { display: flex; align-items: center; gap: var(--s3); }
+.sidebar-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-elevated); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.sidebar-user-name { font-size: 13px; font-weight: 500; }
+.sidebar-user-role { font-size: 11px; color: var(--text-muted); }
+
+/* ═══════════════════════════════════════════
+   TOPBAR
+   ═══════════════════════════════════════════ */
+.topbar {
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--s6);
+  height: 64px;
+}
+.topbar-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.topbar-back {
+  display: flex; align-items: center; gap: var(--s2);
+  font-size: 14px; color: var(--text-secondary); text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.topbar-back:hover { color: var(--text-primary); }
+
+/* ═══════════════════════════════════════════
+   MAIN CONTENT
+   ═══════════════════════════════════════════ */
+.main-content {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--s7) var(--s6);
+}
+
+.wizard-container {
+  width: 100%;
+  max-width: 720px;
+}
+
+/* ═══════════════════════════════════════════
+   STEPPER
+   ═══════════════════════════════════════════ */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: var(--s7);
+  padding: 0 var(--s3);
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  white-space: nowrap;
+}
+
+.step-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-hover);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600;
+  color: var(--text-muted);
+  transition: all var(--duration-normal) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.step-label {
+  font-size: 12px; font-weight: 500;
+  color: var(--text-muted);
+  transition: color var(--duration-normal) var(--ease-out);
+}
+
+.step-item.active .step-dot {
+  background: var(--accent-warm);
+  border-color: var(--accent-warm);
+  color: var(--bg-deep);
+}
+.step-item.active .step-label { color: var(--text-primary); }
+
+.step-item.completed .step-dot {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+}
+.step-item.completed .step-label { color: var(--text-secondary); }
+
+.step-connector {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  margin: 0 var(--s2);
+  min-width: 12px;
+}
+.step-connector.completed { background: var(--success); }
+
+/* ═══════════════════════════════════════════
+   STEP HEADER
+   ═══════════════════════════════════════════ */
+.step-header {
+  margin-bottom: var(--s6);
+}
+
+.step-number {
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent-warm);
+  margin-bottom: var(--s2);
+}
+
+.step-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--s2);
+}
+
+.step-description {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+/* ═══════════════════════════════════════════
+   FORM FIELDS
+   ═══════════════════════════════════════════ */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s5) var(--s6);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.form-field.full { grid-column: 1 / -1; }
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+}
+
+.field-required::after {
+  content: ' *';
+  color: var(--accent-warm);
+}
+
+.field-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--line-hover);
+  padding: var(--s2) 0;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--duration-normal) var(--ease-out);
+  width: 100%;
+}
+
+.field-input::placeholder {
+  color: var(--text-muted);
+}
+
+.field-input:focus {
+  border-color: var(--accent-warm);
+}
+
+.field-input.error {
+  border-color: var(--danger);
+}
+
+.field-error {
+  font-size: 12px;
+  color: var(--danger);
+  min-height: 16px;
+}
+
+.field-select {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--line-hover);
+  padding: var(--s2) 0;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  color: var(--text-primary);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  transition: border-color var(--duration-normal) var(--ease-out);
+  width: 100%;
+}
+
+.field-select:focus { border-color: var(--accent-warm); }
+.field-select option { background: var(--bg-surface); color: var(--text-primary); }
+
+/* Textarea */
+.field-textarea {
+  background: transparent;
+  border: 1.5px solid var(--line-hover);
+  border-radius: var(--r-md);
+  padding: var(--s3);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color var(--duration-normal) var(--ease-out);
+  width: 100%;
+}
+.field-textarea:focus { border-color: var(--accent-warm); }
+.field-textarea::placeholder { color: var(--text-muted); }
+
+/* Section divider */
+.form-section-title {
+  grid-column: 1 / -1;
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+  margin-top: var(--s2);
+}
+
+/* ═══════════════════════════════════════════
+   DIAGNOSIS CARDS (Step 3)
+   ═══════════════════════════════════════════ */
+.diagnosis-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--s4);
+  position: relative;
+  animation: fadeInUp var(--duration-slow) var(--ease-out) both;
+}
+
+.diagnosis-card + .diagnosis-card { margin-top: var(--s3); }
+
+.diagnosis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s4) var(--s5);
+}
+
+.diagnosis-remove {
+  position: absolute;
+  top: var(--s3);
+  right: var(--s3);
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.diagnosis-remove:hover { border-color: var(--danger); color: var(--danger); background: rgba(196,66,43,0.08); }
+
+.quick-cids {
+  grid-column: 1 / -1;
+  display: flex; gap: var(--s2); flex-wrap: wrap;
+}
+
+.cid-chip {
+  font-family: var(--font-ui);
+  font-size: 12px; font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--line-hover);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.cid-chip:hover { border-color: var(--accent-warm); color: var(--accent-warm); background: var(--accent-warm-muted); }
+
+/* ═══════════════════════════════════════════
+   FAMILY MEMBER LIST (Step 4)
+   ═══════════════════════════════════════════ */
+.member-row {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--line);
+  animation: fadeInUp var(--duration-slow) var(--ease-out) both;
+}
+
+.member-index { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; min-width: 20px; }
+.member-name { font-size: 16px; font-weight: 500; }
+.member-meta { font-size: 14px; color: var(--text-secondary); }
+.member-remove {
+  width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line);
+  background: transparent; color: var(--text-muted); font-size: 14px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.member-remove:hover { border-color: var(--danger); color: var(--danger); }
+
+.empty-members {
+  text-align: center; padding: var(--s7) 0;
+  color: var(--text-muted); font-size: 15px;
+}
+
+/* ═══════════════════════════════════════════
+   PROGRAMS GRID (Step 6)
+   ═══════════════════════════════════════════ */
+.programs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s3);
+  margin-top: var(--s3);
+}
+
+.program-item {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.program-item:hover { border-color: var(--line-hover); background: var(--bg-surface); }
+.program-item.selected { border-color: var(--accent-warm); background: var(--accent-warm-muted); }
+
+.program-check {
+  width: 18px; height: 18px; border-radius: var(--r-sm); border: 1.5px solid var(--line-hover);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.program-item.selected .program-check { background: var(--accent-warm); border-color: var(--accent-warm); color: var(--bg-deep); }
+.program-label { font-size: 14px; color: var(--text-secondary); }
+.program-item.selected .program-label { color: var(--text-primary); }
+
+/* ═══════════════════════════════════════════
+   BUTTON BAR
+   ═══════════════════════════════════════════ */
+.button-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--s7);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--line);
+}
+
+.btn {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  padding: var(--s3) var(--s5);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  border: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--line-hover);
+  color: var(--text-secondary);
+}
+.btn-secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
+
+.btn-primary {
+  background: var(--accent-warm);
+  color: var(--bg-deep);
+}
+.btn-primary:hover { background: var(--accent-warm-hover); transform: translateY(-1px); }
+
+.btn-add {
+  background: transparent;
+  border: 1px dashed var(--line-hover);
+  color: var(--text-secondary);
+  width: 100%;
+  padding: var(--s3);
+  border-radius: var(--r-md);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  margin-top: var(--s3);
+}
+.btn-add:hover { border-color: var(--accent-warm); color: var(--accent-warm); background: var(--accent-warm-muted); }
+
+/* ═══════════════════════════════════════════
+   SUCCESS OVERLAY
+   ═══════════════════════════════════════════ */
+.success-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10,10,10,0.9);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 1000;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+.success-overlay.visible { opacity: 1; pointer-events: auto; }
+
+@keyframes successScale {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes checkDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+.success-circle {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: var(--success);
+  display: flex; align-items: center; justify-content: center;
+  animation: successScale 600ms var(--ease-spring) both;
+}
+
+.success-circle svg {
+  width: 36px; height: 36px;
+  stroke: white; stroke-width: 3;
+  fill: none; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 30; stroke-dashoffset: 30;
+  animation: checkDraw 500ms var(--ease-out) 400ms both;
+}
+
+.success-text {
+  font-family: var(--font-display);
+  font-size: 24px; font-weight: 700;
+  margin-top: var(--s5);
+  animation: fadeInUp var(--duration-slow) var(--ease-out) 600ms both;
+}
+
+.success-sub {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-top: var(--s2);
+  animation: fadeInUp var(--duration-slow) var(--ease-out) 750ms both;
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.step-content {
+  animation: fadeInUp var(--duration-slow) var(--ease-out) both;
+}
+
+/* ═══════════════════════════════════════════
+   SCENARIO PANEL
+   ═══════════════════════════════════════════ */
+.scenario-panel {
+  position: fixed; top: var(--s3); right: var(--s3);
+  background: rgba(30,30,30,0.95); backdrop-filter: blur(20px);
+  border: 1px solid var(--line-hover); border-radius: var(--r-lg);
+  padding: var(--s3); z-index: 1000; min-width: 180px;
+  cursor: default; user-select: none;
+}
+.scenario-panel .drag-handle {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: grab; margin-bottom: var(--s2);
+}
+.scenario-panel .drag-handle:active { cursor: grabbing; }
+.scenario-panel .drag-handle h3 { margin-bottom: 0; }
+.scenario-panel .drag-dots { color: var(--text-muted); font-size: 14px; letter-spacing: 2px; line-height: 1; }
+.scenario-panel h3 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: var(--s2); }
+.scenario-btn {
+  display: block; width: 100%; padding: var(--s2) var(--s3);
+  font-family: var(--font-ui); font-size: 12px; color: var(--text-secondary);
+  background: none; border: none; border-radius: var(--r-sm);
+  cursor: pointer; text-align: left;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.scenario-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.scenario-btn.active { background: var(--accent-warm-muted); color: var(--accent-warm); }
+
+/* ═══════════════════════════════════════════
+   ERROR BANNER
+   ═══════════════════════════════════════════ */
+@keyframes bannerSlide {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.error-banner {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  background: rgba(196,66,43,0.08);
+  border: 1px solid rgba(196,66,43,0.15);
+  border-radius: var(--r-md);
+  margin-bottom: var(--s5);
+  animation: bannerSlide var(--duration-slow) var(--ease-out);
+}
+.error-banner-icon { width: 22px; height: 22px; border-radius: 50%; background: var(--danger); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.error-banner-text { font-size: 14px; color: var(--danger); }
+
+/* ═══════════════════════════════════════════
+   CUSTOM CHECKBOX (matches CheckboxField)
+   ═══════════════════════════════════════════ */
+.checkbox-field {
+  display: flex; align-items: center; gap: var(--s3);
+  cursor: pointer; padding: 12px 0;
+  font-family: var(--font-ui); font-size: 14px; color: var(--text-secondary);
+}
+.checkbox-field input[type="checkbox"] { display: none; }
+.checkbox-box {
+  width: 18px; height: 18px; border-radius: var(--r-sm);
+  border: 1.5px solid var(--line-hover); background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--duration-fast) var(--ease-out); flex-shrink: 0;
+}
+.checkbox-field input:checked + .checkbox-box {
+  background: var(--success); border-color: var(--success);
+}
+.checkbox-field input:checked + .checkbox-box::after {
+  content: '✓'; color: white; font-size: 12px; font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════
+   RADIO GROUP (matches step-personal-data + step-address)
+   ═══════════════════════════════════════════ */
+.radio-group-label {
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-muted);
+}
+.radio-group { display: flex; gap: var(--s4); padding: 8px 0; }
+.radio-option {
+  display: flex; align-items: center; gap: var(--s2);
+  font-family: var(--font-ui); font-size: 16px; color: var(--text-primary); cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE STEPPER
+   ═══════════════════════════════════════════ */
+.stepper-mobile {
+  display: none;
+  font-family: var(--font-ui); font-size: 14px;
+  color: var(--text-secondary); text-align: center;
+  padding: var(--s3) 0; margin-bottom: var(--s5);
+}
+
+@media (max-width: 599px) {
+  .stepper { display: none !important; }
+  .stepper-mobile { display: block; }
+}
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .form-grid { grid-template-columns: 1fr; }
+  .programs-grid { grid-template-columns: 1fr; }
+  .diagnosis-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>Conecta</h1><span>Social Care Platform</span></div>
+    <div class="sidebar-section-label">Menu</div>
+    <ul class="sidebar-nav">
+      <li><a href="/prototype-home-redesign.html"><span class="nav-number">01</span> Familias <span class="badge">42</span></a></li>
+      <li><a href="/prototype-registration-redesign.html" class="active"><span class="nav-number">02</span> Cadastro</a></li>
+      <li><a href="#"><span class="nav-number">03</span> Relatorios</a></li>
+      <li><a href="#"><span class="nav-number">04</span> Configuracoes</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar">DF</div>
+        <div><div class="sidebar-user-name">Davi Franklin</div><div class="sidebar-user-role">Assistente Social</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:var(--s5)">
+      <a href="/prototype-home-redesign.html" class="topbar-back">&larr; Voltar</a>
+      <h2 class="topbar-title">Novo Cadastro</h2>
+    </div>
+    <span style="font-size:13px;color:var(--text-muted)">Rascunho salvo automaticamente</span>
+  </header>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <div class="wizard-container">
+      <!-- STEPPER -->
+      <div class="stepper" id="stepper"></div>
+      <div class="stepper-mobile" id="stepperMobile"></div>
+
+      <!-- STEP CONTENT -->
+      <div id="stepContent"></div>
+
+      <!-- BUTTON BAR -->
+      <div class="button-bar">
+        <button class="btn btn-secondary" id="btnBack" onclick="prevStep()">Voltar</button>
+        <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Proximo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-circle">
+    <svg viewBox="0 0 24 24"><polyline points="6 12 10 16 18 8" /></svg>
+  </div>
+  <div class="success-text">Cadastro realizado!</div>
+  <div class="success-sub">Paciente registrado com sucesso no sistema.</div>
+  <a href="/prototype-home-redesign.html" class="btn btn-primary" style="margin-top:var(--s5);text-decoration:none;animation:fadeInUp var(--duration-slow) var(--ease-out) 900ms both;">Ver familias</a>
+</div>
+
+<!-- SCENARIOS -->
+<div class="scenario-panel" id="scenarioPanel">
+  <div class="drag-handle" id="dragHandle">
+    <h3>Etapa</h3>
+    <span class="drag-dots">⠿</span>
+  </div>
+  <button class="scenario-btn active" onclick="goToStep(0)">0 — Dados Pessoais</button>
+  <button class="scenario-btn" onclick="goToStep(1)">1 — Documentos</button>
+  <button class="scenario-btn" onclick="goToStep(2)">2 — Endereco</button>
+  <button class="scenario-btn" onclick="goToStep(3)">3 — Diagnosticos</button>
+  <button class="scenario-btn" onclick="goToStep(4)">4 — Familia</button>
+  <button class="scenario-btn" onclick="goToStep(5)">5 — Especificidades</button>
+  <button class="scenario-btn" onclick="goToStep(6)">6 — Ingresso</button>
+  <button class="scenario-btn" onclick="showSuccess()">Sucesso</button>
+</div>
+
+<script>
+const STEPS = [
+  { number: "Etapa 01", title: "Dados Pessoais", desc: "Informacoes basicas da pessoa de referencia." },
+  { number: "Etapa 02", title: "Documentos", desc: "CPF, NIS, CNS e documentos de identificacao. Informe ao menos um." },
+  { number: "Etapa 03", title: "Endereco", desc: "Situacao de moradia e localizacao." },
+  { number: "Etapa 04", title: "Diagnosticos", desc: "Pelo menos um diagnostico e obrigatorio." },
+  { number: "Etapa 05", title: "Composicao Familiar", desc: "Membros da familia (opcional)." },
+  { number: "Etapa 06", title: "Especificidades", desc: "Identidade social, etnica ou cultural (opcional)." },
+  { number: "Etapa 07", title: "Ingresso", desc: "Tipo de ingresso e motivo do atendimento." },
+];
+
+const STEP_LABELS = ["Pessoais", "Docs", "Endereco", "Diag.", "Familia", "Espec.", "Ingresso"];
+
+let currentStep = 0;
+
+function field(label, name, placeholder, required = false, full = false) {
+  return `<div class="form-field ${full ? 'full' : ''}">
+    <label class="field-label ${required ? 'field-required' : ''}">${label}</label>
+    <input class="field-input" type="text" placeholder="${placeholder}" />
+  </div>`;
+}
+
+function select(label, name, options, required = false) {
+  const opts = options.map(o => `<option value="${o}">${o}</option>`).join('');
+  return `<div class="form-field">
+    <label class="field-label ${required ? 'field-required' : ''}">${label}</label>
+    <select class="field-select"><option value="">Selecione...</option>${opts}</select>
+  </div>`;
+}
+
+function textarea(label, placeholder, full = true) {
+  return `<div class="form-field ${full ? 'full' : ''}">
+    <label class="field-label">${label}</label>
+    <textarea class="field-textarea" placeholder="${placeholder}"></textarea>
+  </div>`;
+}
+
+const stepForms = [
+  // Step 0: Dados Pessoais
+  () => `<div class="form-grid">
+    ${field("Nome", "firstName", "Nome", true)}
+    ${field("Sobrenome", "lastName", "Sobrenome", true)}
+    ${field("Nome Social", "socialName", "Nome social (opcional)")}
+    ${field("Nome da Mae", "motherName", "Nome completo da mae", true)}
+    <div class="form-field">
+      <label class="field-label field-required">Data de Nascimento</label>
+      <input class="field-input" type="text" placeholder="DD/MM/AAAA" maxlength="10" oninput="maskDateInput(this)" />
+    </div>
+    ${select("Nacionalidade", "nationality", ["Brasileira", "Naturalizada", "Estrangeira"], true)}
+    <div class="form-field">
+      <label class="field-label field-required">Sexo</label>
+      <div class="programs-grid" style="margin-top:var(--s2)">
+        <div class="program-item" onclick="selectSingle(this)">
+          <div class="program-check">&#10003;</div>
+          <span class="program-label">Masculino</span>
+        </div>
+        <div class="program-item" onclick="selectSingle(this)">
+          <div class="program-check">&#10003;</div>
+          <span class="program-label">Feminino</span>
+        </div>
+        <div class="program-item" onclick="selectSingle(this)">
+          <div class="program-check">&#10003;</div>
+          <span class="program-label">Outro</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-field">
+      <label class="field-label">Telefone</label>
+      <input class="field-input" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" maxlength="15" />
+    </div>
+  </div>`,
+
+  // Step 1: Documentos
+  () => `<div class="form-grid">
+    ${field("CPF", "cpf", "000.000.000-00")}
+    ${field("NIS", "nis", "NIS")}
+    ${field("CNS", "cns", "Cartao Nacional de Saude")}
+    <div class="form-section-title">RG (preencha todos ou nenhum)</div>
+    ${field("Numero do RG", "rgNumber", "Numero")}
+    ${field("UF", "rgUf", "UF")}
+    ${field("Orgao Emissor", "rgAgency", "SSP, DETRAN...")}
+    ${field("Data de Emissao", "rgDate", "DD/MM/AAAA")}
+  </div>`,
+
+  // Step 2: Endereco
+  () => `<div class="form-grid">
+    ${select("Situacao de Moradia", "housing", ["Propria", "Alugada", "Cedida", "Situacao de rua", "Outros"], true)}
+    <div class="form-field">
+      <label class="field-label field-required">Localizacao</label>
+      <div class="programs-grid" style="margin-top:var(--s2)">
+        <div class="program-item" onclick="selectSingle(this)">
+          <div class="program-check">&#10003;</div>
+          <span class="program-label">Urbano</span>
+        </div>
+        <div class="program-item" onclick="selectSingle(this)">
+          <div class="program-check">&#10003;</div>
+          <span class="program-label">Rural</span>
+        </div>
+      </div>
+    </div>
+    ${field("CEP", "cep", "00000-000")}
+    ${field("Rua", "street", "Logradouro")}
+    ${field("Numero", "number", "N")}
+    ${field("Complemento", "complement", "Apto, bloco...")}
+    ${field("Bairro", "neighborhood", "Bairro")}
+    ${select("Estado", "state", ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"], true)}
+    ${field("Cidade", "city", "Cidade", true)}
+    <div class="form-field">
+      <label class="checkbox-field">
+        <input type="checkbox" name="isShelter" />
+        <span class="checkbox-box"></span>
+        Unidade de acolhimento / abrigo
+      </label>
+    </div>
+    <div class="form-field">
+      <label class="checkbox-field">
+        <input type="checkbox" name="isHomeless" />
+        <span class="checkbox-box"></span>
+        Pessoa em situacao de rua
+      </label>
+    </div>
+  </div>`,
+
+  // Step 3: Diagnosticos
+  () => `<div>
+    <div id="diagList">
+      <div class="diagnosis-card">
+        <button class="diagnosis-remove" title="Remover">&times;</button>
+        <div class="diagnosis-grid">
+          <div class="form-field"><label class="field-label field-required">Codigo CID</label><input class="field-input" placeholder="Ex: G80" /></div>
+          <div class="form-field"><label class="field-label field-required">Data</label><input class="field-input" placeholder="DD/MM/AAAA" /></div>
+          <div class="form-field full"><label class="field-label field-required">Descricao</label><input class="field-input" placeholder="Descricao do diagnostico" /></div>
+          <div class="quick-cids">
+            <button class="cid-chip">G80 — Paralisia cerebral</button>
+            <button class="cid-chip">Q90 — Sindrome de Down</button>
+            <button class="cid-chip">F84.0 — Autismo</button>
+            <button class="cid-chip">E70 — Fenilcetonuria</button>
+            <button class="cid-chip">G71.0 — Distrofia muscular</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addDiagnosis()">+ Adicionar diagnostico</button>
+  </div>`,
+
+  // Step 4: Familia
+  () => `<div>
+    <div id="memberList">
+      <div class="member-row" style="animation-delay:0ms">
+        <span class="member-index">01</span>
+        <span class="member-name">Silva, Maria Aparecida</span>
+        <span class="member-meta">Pessoa de referencia</span>
+        <span style="min-width:28px"></span>
+      </div>
+    </div>
+    <div id="familyForm" style="display:none"></div>
+    <button class="btn-add" id="btnAddMember" onclick="showFamilyForm()">+ Adicionar membro</button>
+  </div>`,
+
+  // Step 5: Especificidades
+  () => `<div class="form-grid">
+    ${select("Identidade Social", "identity", [
+      "Quilombola", "Indigena", "Ribeirinho", "Cigano",
+      "Extrativista", "Pescador artesanal", "Pertencente a comunidade de terreiro",
+      "Nenhuma das anteriores"
+    ])}
+    <div class="form-field"><label class="field-label">Descricao</label><input class="field-input" placeholder="Detalhes adicionais" /></div>
+    ${textarea("Observacoes", "Informacoes complementares sobre especificidades...")}
+  </div>`,
+
+  // Step 6: Ingresso
+  () => `<div class="form-grid">
+    ${select("Tipo de Ingresso", "ingressType", ["Demanda espontanea", "Busca ativa", "Encaminhamento", "Reincidencia"], true)}
+    ${field("Nome da Origem", "originName", "Instituicao de origem")}
+    ${field("Contato da Origem", "originContact", "Telefone ou email")}
+    ${textarea("Motivo do Atendimento", "Descreva o motivo do primeiro atendimento...", true)}
+    <div class="form-section-title">Programas sociais vinculados</div>
+    <div class="form-field full">
+      <div class="programs-grid">
+        <div class="program-item selected" onclick="this.classList.toggle('selected')">
+          <div class="program-check">&#10003;</div>
+          <span class="program-label">BPC (Beneficio de Prestacao Continuada)</span>
+        </div>
+        <div class="program-item" onclick="this.classList.toggle('selected')">
+          <div class="program-check">&#10003;</div>
+          <span class="program-label">Bolsa Familia</span>
+        </div>
+        <div class="program-item" onclick="this.classList.toggle('selected')">
+          <div class="program-check">&#10003;</div>
+          <span class="program-label">Auxilio Brasil</span>
+        </div>
+        <div class="program-item" onclick="this.classList.toggle('selected')">
+          <div class="program-check">&#10003;</div>
+          <span class="program-label">PETI</span>
+        </div>
+        <div class="program-item" onclick="this.classList.toggle('selected')">
+          <div class="program-check">&#10003;</div>
+          <span class="program-label">Outros programas</span>
+        </div>
+      </div>
+    </div>
+    ${textarea("Observacao", "Anotacoes gerais sobre o ingresso...")}
+  </div>`,
+];
+
+function renderStepper() {
+  const el = document.getElementById('stepper');
+  el.innerHTML = STEPS.map((s, i) => {
+    const cls = i === currentStep ? 'active' : i < currentStep ? 'completed' : '';
+    const connCls = i < currentStep ? 'completed' : '';
+    const dot = i < currentStep ? '&#10003;' : (i + 1);
+    let html = `<div class="step-item ${cls}" onclick="goToStep(${i})">
+      <div class="step-dot">${dot}</div>
+      <span class="step-label">${STEP_LABELS[i]}</span>
+    </div>`;
+    if (i < STEPS.length - 1) html += `<div class="step-connector ${connCls}"></div>`;
+    return html;
+  }).join('');
+}
+
+function renderStep() {
+  const step = STEPS[currentStep];
+  const content = document.getElementById('stepContent');
+  content.innerHTML = `
+    <div class="step-content" key="${currentStep}">
+      <div class="step-header">
+        <div class="step-number">${step.number}</div>
+        <h3 class="step-title">${step.title}</h3>
+        <p class="step-description">${step.desc}</p>
+      </div>
+      ${stepForms[currentStep]()}
+    </div>
+  `;
+
+  document.getElementById('btnBack').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+  const btnNext = document.getElementById('btnNext');
+  btnNext.textContent = currentStep === STEPS.length - 1 ? 'Salvar Cadastro' : 'Proximo';
+
+  // Mobile stepper
+  const mobileEl = document.getElementById('stepperMobile');
+  mobileEl.textContent = `Etapa ${currentStep + 1} de ${STEPS.length} — ${STEP_LABELS[currentStep]}`;
+
+  // Update scenario buttons
+  document.querySelectorAll('.scenario-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === currentStep);
+  });
+}
+
+function nextStep() {
+  if (currentStep < STEPS.length - 1) {
+    currentStep++;
+    renderStepper();
+    renderStep();
+  } else {
+    // Simulate saving state
+    const btn = document.getElementById('btnNext');
+    btn.textContent = 'Salvando...';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.disabled = false;
+      showSuccess();
+    }, 1500);
+  }
+}
+
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    renderStepper();
+    renderStep();
+  }
+}
+
+function goToStep(n) {
+  currentStep = n;
+  document.getElementById('successOverlay').classList.remove('visible');
+  renderStepper();
+  renderStep();
+}
+
+function showSuccess() {
+  // Gather form data and save to localStorage
+  const firstName = document.querySelector('[placeholder="Nome"]')?.value || 'Novo';
+  const lastName = document.querySelector('[placeholder="Sobrenome"]')?.value || 'Paciente';
+  const name = `${lastName}, ${firstName}`;
+  const registration = {
+    name,
+    diagnosis: 'Aguardando diagnostico',
+    members: 1,
+    status: 'active',
+  };
+  try {
+    const saved = JSON.parse(localStorage.getItem('conecta_registrations') || '[]');
+    saved.push(registration);
+    localStorage.setItem('conecta_registrations', JSON.stringify(saved));
+  } catch (_) { /* ignore */ }
+
+  document.getElementById('successOverlay').classList.add('visible');
+  document.querySelectorAll('.scenario-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === 7);
+  });
+}
+
+function addDiagnosis() {
+  const list = document.getElementById('diagList');
+  const card = document.createElement('div');
+  card.className = 'diagnosis-card';
+  card.innerHTML = `
+    <button class="diagnosis-remove" onclick="this.parentElement.remove()">&times;</button>
+    <div class="diagnosis-grid">
+      <div class="form-field"><label class="field-label field-required">Codigo CID</label><input class="field-input" placeholder="Ex: Q90" /></div>
+      <div class="form-field"><label class="field-label field-required">Data</label><input class="field-input" placeholder="DD/MM/AAAA" /></div>
+      <div class="form-field full"><label class="field-label field-required">Descricao</label><input class="field-input" placeholder="Descricao do diagnostico" /></div>
+    </div>
+  `;
+  list.appendChild(card);
+}
+
+// Masks (based on BFF feature specs)
+function maskPhone(el) {
+  let d = el.value.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 2) { el.value = d.length ? `(${d}` : ''; return; }
+  if (d.length <= 7) { el.value = `(${d.slice(0,2)}) ${d.slice(2)}`; return; }
+  el.value = `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+}
+
+// Family member form
+let familyCount = 1; // 01 is the reference person
+
+// Single-select toggle cards (reusable for Sexo, Localizacao, etc.)
+function selectSingle(el) {
+  el.closest('.programs-grid').querySelectorAll('.program-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// dominio_parentesco lookup (UPPER_SNAKE_CASE codes from backend)
+const PARENTESCO_LOOKUP = [
+  { codigo: "PESSOA_REFERENCIA", descricao: "Pessoa de Referencia" },
+  { codigo: "CONJUGE", descricao: "Conjuge / Companheiro(a)" },
+  { codigo: "FILHO", descricao: "Filho(a)" },
+  { codigo: "ENTEADO", descricao: "Enteado(a)" },
+  { codigo: "PAI", descricao: "Pai" },
+  { codigo: "MAE", descricao: "Mae" },
+  { codigo: "AVO", descricao: "Avo / Avo" },
+  { codigo: "NETO", descricao: "Neto(a)" },
+  { codigo: "IRMAO", descricao: "Irmao / Irma" },
+  { codigo: "TIO", descricao: "Tio(a)" },
+  { codigo: "SOBRINHO", descricao: "Sobrinho(a)" },
+  { codigo: "PRIMO", descricao: "Primo(a)" },
+  { codigo: "OUTRO_PARENTE", descricao: "Outro Parente" },
+  { codigo: "NAO_PARENTE", descricao: "Nao Parente" },
+];
+
+function maskDateInput(el) {
+  let d = el.value.replace(/\D/g, '').slice(0, 8);
+  if (d.length <= 2) { el.value = d; return; }
+  if (d.length <= 4) { el.value = d.slice(0,2) + '/' + d.slice(2); return; }
+  el.value = d.slice(0,2) + '/' + d.slice(2,4) + '/' + d.slice(4);
+}
+
+function showFamilyForm() {
+  const form = document.getElementById('familyForm');
+  document.getElementById('btnAddMember').style.display = 'none';
+  form.style.display = 'block';
+  const parentescoOpts = PARENTESCO_LOOKUP
+    .filter(p => p.codigo !== 'PESSOA_REFERENCIA')
+    .map(p => `<option value="${p.codigo}">${p.codigo} — ${p.descricao}</option>`)
+    .join('');
+  form.innerHTML = `
+    <div style="border:1px solid var(--accent-warm);border-radius:var(--r-lg);padding:var(--s4);margin-top:var(--s3);animation:fadeInUp var(--duration-slow) var(--ease-out) both;">
+      <div class="form-grid">
+        ${field("Nome", "fm_name", "Nome completo", true)}
+        <div class="form-field">
+          <label class="field-label">Data de nascimento</label>
+          <input class="field-input" id="fm_birth" type="text" placeholder="DD/MM/AAAA" maxlength="10" oninput="maskDateInput(this)" />
+        </div>
+        ${select("Sexo", "fm_sex", ["Masculino", "Feminino", "Outro"])}
+        <div class="form-field">
+          <label class="field-label field-required">Parentesco</label>
+          <select class="field-select" id="fm_rel"><option value="">Selecione...</option>${parentescoOpts}</select>
+        </div>
+        <div class="form-field">
+          <label class="checkbox-field">
+            <input type="checkbox" id="fm_lives" checked />
+            <span class="checkbox-box"></span>
+            Reside com o paciente
+          </label>
+        </div>
+        <div class="form-field">
+          <label class="checkbox-field">
+            <input type="checkbox" id="fm_disabled" />
+            <span class="checkbox-box"></span>
+            Pessoa com deficiencia
+          </label>
+        </div>
+      </div>
+      <div style="display:flex;gap:var(--s3);justify-content:flex-end;margin-top:var(--s4);">
+        <button class="btn btn-secondary" onclick="cancelFamilyForm()">Cancelar</button>
+        <button class="btn btn-primary" onclick="confirmFamilyMember()">Confirmar</button>
+      </div>
+    </div>
+  `;
+}
+
+function cancelFamilyForm() {
+  document.getElementById('familyForm').style.display = 'none';
+  document.getElementById('btnAddMember').style.display = '';
+}
+
+function confirmFamilyMember() {
+  const name = document.querySelector('[placeholder="Nome completo"]')?.value || 'Novo membro';
+  const relSelect = document.getElementById('fm_rel');
+  const relCode = relSelect?.value || '';
+  const relLabel = relSelect?.options[relSelect.selectedIndex]?.text || 'Familiar';
+  const sex = document.querySelector('[name="fm_sex"]')?.value || '';
+  const lives = document.getElementById('fm_lives')?.checked;
+  const birth = document.getElementById('fm_birth')?.value || '';
+
+  if (!name.trim() || !relCode) {
+    if (!relCode) relSelect.style.borderColor = 'var(--danger)';
+    return;
+  }
+
+  familyCount++;
+  const idx = String(familyCount).padStart(2, '0');
+  const meta = `${relLabel} | ${sex} | ${birth ? birth : ''} | ${lives ? 'Reside' : 'Nao reside'}`;
+
+  const row = document.createElement('div');
+  row.className = 'member-row';
+  row.style.animationDelay = '0ms';
+  row.innerHTML = `
+    <span class="member-index">${idx}</span>
+    <span class="member-name">${name}</span>
+    <span class="member-meta">${meta}</span>
+    <button class="member-remove" onclick="this.parentElement.remove()">&times;</button>
+  `;
+  document.getElementById('memberList').appendChild(row);
+  cancelFamilyForm();
+}
+
+// Draggable scenario panel
+(function() {
+  const panel = document.getElementById('scenarioPanel');
+  const handle = document.getElementById('dragHandle');
+  let isDragging = false, offsetX = 0, offsetY = 0;
+
+  handle.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    const rect = panel.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    panel.style.transition = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    panel.style.left = (e.clientX - offsetX) + 'px';
+    panel.style.top = (e.clientY - offsetY) + 'px';
+    panel.style.right = 'auto';
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    panel.style.transition = '';
+  });
+})();
+
+// Init
+renderStepper();
+renderStep();
+</script>
+</body>
+</html>

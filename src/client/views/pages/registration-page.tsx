@@ -82,7 +82,12 @@ export const RegistrationPage: FC = () => {
         <StepDocuments documents={state.documents} errors={errors} onUpdate={updateField("documents")} />
       )}
       {state.currentStep === 2 && (
-        <StepAddress address={state.address} errors={errors} onUpdate={updateField("address")} />
+        <StepAddress
+          address={state.address}
+          errors={errors}
+          onUpdate={updateField("address")}
+          onToggleFlag={(field) => dispatch({ type: "TOGGLE_ADDRESS_FLAG", field })}
+        />
       )}
       {state.currentStep === 3 && (
         <StepDiagnoses

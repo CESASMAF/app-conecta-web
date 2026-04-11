@@ -49,6 +49,27 @@ deno test tests/
 
 ---
 
+## Source of Truth Chain (MANDATORY)
+
+The client-side MUST always be a reflection of the server-side in terms of: **business rules**, **use cases**, and **behaviors** (masks, validations, enums, field constraints, required/optional).
+
+### Consultation Order (priority)
+1. **BFF server-side code** (`src/domain/`, `src/application/`, `src/adapters/`) — primary source
+2. **contracts/** (OpenAPI specs, AsyncAPI, `shared/validation-rules/`) — canonical API contracts
+3. Only then implement in client (`src/client/`)
+
+### What to verify
+- Enum values (e.g., gender options must match `registry.yaml` sex enum)
+- Required vs optional fields (e.g., CPF optional per `CD-001`, at least 1 doc required)
+- Input masks and formats (e.g., phone `(##) #####-####`, CPF `###.###.###-##`)
+- Field existence (e.g., `isShelter`, `isHomeless` in Address)
+- Validation rules and error codes
+
+### Pipeline Maestro for Errors
+When encountering test failures or errors — **even if they don't involve your changes** — consult `.claude/skills/pipeline-maestro/SKILL.md` and generate at least a diagnostic report. Route failures to the responsible agent/layer per the correction routing table.
+
+---
+
 ## Global Rules (All Layers)
 
 - **`throw` is FORBIDDEN** in domain and application. Allowed ONLY in adapters, and must convert to `Result` at the boundary.

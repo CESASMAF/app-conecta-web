@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Social Care — Home Redesign Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS — New Palette
+   ═══════════════════════════════════════════ */
+:root {
+  /* Background layers */
+  --bg-deep: #0A0A0A;
+  --bg-base: #111111;
+  --bg-surface: #181818;
+  --bg-elevated: #1F1F1F;
+  --bg-hover: #262626;
+
+  /* Text */
+  --text-primary: #F0EDE8;
+  --text-secondary: rgba(240, 237, 232, 0.6);
+  --text-muted: rgba(240, 237, 232, 0.35);
+  --text-accent: #D4A853;
+
+  /* Accent */
+  --accent-warm: #D4A853;
+  --accent-warm-muted: rgba(212, 168, 83, 0.15);
+  --accent-warm-hover: #E0BA6A;
+
+  /* Semantic */
+  --success: #5A9A52;
+  --danger: #C4422B;
+  --warning: #C9960A;
+
+  /* Structure */
+  --line: rgba(240, 237, 232, 0.08);
+  --line-hover: rgba(240, 237, 232, 0.15);
+
+  /* Accessible text (WCAG AA compliant on dark bg) */
+  --text-secondary-soft: rgba(240, 237, 232, 0.5);
+
+  /* Typography */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-ui: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Spacing (8px base) */
+  --s1: 4px; --s2: 8px; --s3: 16px; --s4: 24px; --s5: 32px;
+  --s6: 40px; --s7: 48px; --s8: 56px; --s9: 64px; --s10: 80px;
+
+  /* Radius */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.25, 0, 0.25, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-panel: 450ms;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+::selection {
+  background: var(--accent-warm);
+  color: var(--bg-deep);
+}
+
+/* ═══════════════════════════════════════════
+   LAYOUT STRUCTURE
+   ═══════════════════════════════════════════ */
+.app {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════ */
+.sidebar {
+  grid-row: 1 / -1;
+  background: var(--bg-base);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: var(--s6) 0;
+}
+
+.sidebar-logo {
+  padding: 0 var(--s5);
+  margin-bottom: var(--s9);
+}
+
+.sidebar-logo h1 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.sidebar-logo span {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text-muted);
+  display: block;
+  margin-top: var(--s1);
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  padding: 0 var(--s5);
+  margin-bottom: var(--s3);
+}
+
+.sidebar-nav {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-nav li {
+  position: relative;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s2) var(--s5);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all var(--duration-normal) var(--ease-out);
+  position: relative;
+}
+
+.sidebar-nav a .nav-number {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  min-width: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sidebar-nav a:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.sidebar-nav a.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.sidebar-nav a.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 24px;
+  background: var(--accent-warm);
+  border-radius: 0 2px 2px 0;
+}
+
+.sidebar-nav a .badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--accent-warm-muted);
+  color: var(--accent-warm);
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: var(--s4) var(--s5);
+  border-top: 1px solid var(--line);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+
+.sidebar-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.sidebar-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-role {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════
+   TOPBAR
+   ═══════════════════════════════════════════ */
+.topbar {
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--s6);
+  height: 64px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s7);
+}
+
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.topbar-counter {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.topbar-counter strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+}
+
+/* Search */
+.search-container {
+  position: relative;
+  width: 320px;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s2) var(--s3) var(--s2) 40px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--duration-normal) var(--ease-out);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.search-input:focus {
+  border-color: var(--accent-warm);
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   MAIN CONTENT
+   ═══════════════════════════════════════════ */
+.main-content {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+/* ═══════════════════════════════════════════
+   FAMILY LIST
+   ═══════════════════════════════════════════ */
+.family-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--s5) var(--s6);
+  transition: flex var(--duration-panel) var(--ease-standard);
+}
+
+.family-list-container.with-panel {
+  margin-right: 50%;
+}
+
+.family-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s4);
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--line);
+}
+
+.family-list-header-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-secondary-soft);
+}
+
+.sort-btn {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: var(--s1) var(--s2);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.sort-btn:hover {
+  border-color: var(--line-hover);
+  color: var(--text-secondary);
+}
+
+/* Family Item */
+.family-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s4) var(--s3);
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  position: relative;
+}
+
+.family-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-warm);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.family-item:hover {
+  background: var(--bg-surface);
+}
+
+.family-item:hover::after {
+  opacity: 0.02;
+}
+
+.family-item.selected {
+  background: var(--bg-surface);
+}
+
+.family-item.selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent-warm);
+}
+
+.family-item-index {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary-soft);
+  font-variant-numeric: tabular-nums;
+  min-width: 24px;
+}
+
+.family-item-info {
+  min-width: 0;
+}
+
+.family-item-name {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.family-item-diagnosis {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.family-item-members {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary-soft);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.family-item-members strong {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.family-item-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.active { background: var(--success); }
+.status-dot.inactive { background: var(--danger); }
+
+.status-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-label.active { color: var(--success); }
+.status-label.inactive { color: var(--danger); }
+
+/* Inactive row subtle background */
+.family-item.inactive-row {
+  background: rgba(196, 66, 43, 0.05);
+}
+.family-item.inactive-row:hover {
+  background: rgba(196, 66, 43, 0.08);
+}
+
+/* Meta row: hidden on desktop, visible on mobile */
+.family-item-meta { display: none; }
+
+/* ═══════════════════════════════════════════
+   DETAIL PANEL
+   ═══════════════════════════════════════════ */
+.detail-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+  background: var(--bg-base);
+  border-left: 1px solid var(--line);
+  transform: translateX(100%);
+  transition: transform var(--duration-panel) var(--ease-standard);
+}
+
+.detail-panel.open {
+  transform: translateX(0);
+}
+
+.detail-panel-inner {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity var(--duration-slow) var(--ease-out) 100ms,
+              transform var(--duration-slow) var(--ease-out) 100ms;
+}
+
+.detail-panel.open .detail-panel-inner {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.detail-header {
+  padding: var(--s5) var(--s5) var(--s4);
+  border-bottom: 1px solid var(--line);
+}
+
+.detail-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--s4);
+}
+
+.detail-name {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.detail-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-fast) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.detail-close:hover {
+  background: var(--bg-elevated);
+  border-color: var(--line-hover);
+  color: var(--text-primary);
+}
+
+.detail-subtitle {
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: var(--s3);
+}
+
+/* Panel Tabs */
+.panel-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-tab {
+  flex: 1;
+  padding: var(--s3) var(--s4);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color var(--duration-normal) var(--ease-out);
+}
+
+.panel-tab:hover {
+  color: var(--text-secondary);
+}
+
+.panel-tab.active {
+  color: var(--text-primary);
+}
+
+.panel-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: var(--s4);
+  right: var(--s4);
+  height: 1px;
+  background: var(--accent-warm);
+}
+
+/* Panel Content — Dados */
+.panel-body {
+  padding: var(--s4) var(--s5);
+}
+
+.data-section {
+  margin-bottom: var(--s5);
+}
+
+.data-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: var(--s3);
+  padding-bottom: var(--s2);
+  border-bottom: 1px solid var(--line);
+}
+
+.data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s3) var(--s5);
+}
+
+.data-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.data-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.data-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.data-value {
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: 17px;
+  color: var(--text-primary);
+}
+
+.data-value.empty {
+  color: var(--text-muted);
+}
+
+/* Panel Content — Fichas */
+.fichas-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.ficha-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.ficha-item:hover {
+  padding-left: var(--s2);
+}
+
+.ficha-number {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  min-width: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ficha-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.ficha-item:hover .ficha-name {
+  color: var(--text-primary);
+}
+
+.ficha-status {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+.ficha-status.filled {
+  background: rgba(90, 154, 82, 0.12);
+  color: var(--success);
+}
+
+.ficha-status.pending {
+  background: rgba(240, 237, 232, 0.06);
+  color: var(--text-muted);
+}
+
+.ficha-arrow {
+  font-size: 14px;
+  color: var(--text-muted);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.ficha-item:hover .ficha-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ═══════════════════════════════════════════
+   FAB
+   ═══════════════════════════════════════════ */
+.fab {
+  position: fixed;
+  bottom: var(--s5);
+  right: var(--s5);
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s3) var(--s4);
+  background: var(--accent-warm);
+  color: var(--bg-deep);
+  border: none;
+  border-radius: 100px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(212, 168, 83, 0.25);
+  transition: all var(--duration-normal) var(--ease-out);
+  z-index: 100;
+}
+
+.fab:hover {
+  background: var(--accent-warm-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(212, 168, 83, 0.35);
+}
+
+.fab svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ═══════════════════════════════════════════
+   SCENARIO PANEL (prototype controls)
+   ═══════════════════════════════════════════ */
+.scenario-panel {
+  position: fixed;
+  top: var(--s3);
+  right: var(--s3);
+  background: rgba(30, 30, 30, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--line-hover);
+  border-radius: var(--r-lg);
+  padding: var(--s3);
+  z-index: 1000;
+  min-width: 200px;
+  cursor: default;
+  user-select: none;
+}
+
+.scenario-panel .drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: grab;
+  margin-bottom: var(--s2);
+}
+
+.scenario-panel .drag-handle:active { cursor: grabbing; }
+
+.scenario-panel .drag-handle h3 { margin-bottom: 0; }
+
+.scenario-panel .drag-dots {
+  color: var(--text-muted);
+  font-size: 14px;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.scenario-panel h3 {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: var(--s2);
+}
+
+.scenario-btn {
+  display: block;
+  width: 100%;
+  padding: var(--s2) var(--s3);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.scenario-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.scenario-btn.active {
+  background: var(--accent-warm-muted);
+  color: var(--accent-warm);
+}
+
+/* ═══════════════════════════════════════════
+   EMPTY STATE
+   ═══════════════════════════════════════════ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s10) var(--s5);
+  text-align: center;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  color: var(--text-muted);
+  margin-bottom: var(--s4);
+  opacity: 0.4;
+}
+
+.empty-state-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: var(--s2);
+}
+
+.empty-state-desc {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 280px;
+}
+
+/* ═══════════════════════════════════════════
+   SKELETON LOADING
+   ═══════════════════════════════════════════ */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-elevated) 50%, var(--bg-surface) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.8s infinite ease-in-out;
+  border-radius: var(--r-sm);
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 24px 1fr 60px 60px;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s4) var(--s3);
+  border-bottom: 1px solid var(--line);
+}
+
+.skeleton-line {
+  height: 12px;
+}
+
+.skeleton-line.short { width: 60%; }
+.skeleton-line.tiny { width: 40%; }
+
+.skeleton-index { width: 16px; height: 12px; }
+
+/* ═══════════════════════════════════════════
+   STAGGER ANIMATION
+   ═══════════════════════════════════════════ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.family-item {
+  animation: fadeInUp var(--duration-slow) var(--ease-out) both;
+}
+
+.family-item:nth-child(1) { animation-delay: 0ms; }
+.family-item:nth-child(2) { animation-delay: 50ms; }
+.family-item:nth-child(3) { animation-delay: 100ms; }
+.family-item:nth-child(4) { animation-delay: 150ms; }
+.family-item:nth-child(5) { animation-delay: 200ms; }
+.family-item:nth-child(6) { animation-delay: 250ms; }
+.family-item:nth-child(7) { animation-delay: 300ms; }
+.family-item:nth-child(8) { animation-delay: 350ms; }
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--line-hover);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 1200px) {
+  .detail-panel { width: 50%; }
+  .detail-panel-inner { width: 100%; }
+  .family-list-container.with-panel { margin-right: 50%; }
+}
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .main-content { min-width: 0; width: 100%; overflow: hidden; }
+  .topbar { padding: 0 var(--s4); gap: var(--s3); }
+  .topbar-left { gap: var(--s3); }
+  .search-container { width: auto; flex: 1; min-width: 100px; }
+  .family-list-container { padding: var(--s4); }
+  .detail-panel.open { width: 100%; position: absolute; right: 0; top: 0; bottom: 0; z-index: 50; }
+
+  /* Compact card layout — preserve members + status */
+  .family-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px var(--s3);
+    padding: var(--s3);
+  }
+
+  .family-item-index {
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+
+  .family-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Hide desktop-only elements */
+  .family-list-header { display: none; }
+  .family-item-members,
+  .family-item-status {
+    display: none !important;
+  }
+
+  .family-item-meta {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    flex-basis: 100%;
+    margin-left: 36px;
+    margin-top: -2px;
+    font-size: 12px;
+    color: var(--text-secondary-soft);
+  }
+
+  .family-item-name { font-size: 16px; }
+  .family-item-diagnosis { font-size: 13px; }
+  .status-label { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Conecta</h1>
+      <span>Social Care Platform</span>
+    </div>
+
+    <div class="sidebar-section-label">Menu</div>
+    <ul class="sidebar-nav">
+      <li><a href="/prototype-home-redesign.html" class="active"><span class="nav-number">01</span> Familias <span class="badge" id="familyCount">42</span></a></li>
+      <li><a href="/prototype-registration-redesign.html"><span class="nav-number">02</span> Cadastro</a></li>
+      <li><a href="#"><span class="nav-number">03</span> Relatorios</a></li>
+      <li><a href="#"><span class="nav-number">04</span> Configuracoes</a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar">DF</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Davi Franklin</div>
+          <div class="sidebar-user-role">Assistente Social</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ TOPBAR ═══ -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <h2 class="topbar-title">Familias</h2>
+      <span class="topbar-counter"><strong>42</strong> cadastradas</span>
+    </div>
+    <div class="topbar-right">
+      <div class="search-container">
+        <span class="search-icon">&#8981;</span>
+        <input class="search-input" type="text" placeholder="Buscar por nome, CPF..." />
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <div class="main-content">
+    <!-- Family List -->
+    <div class="family-list-container" id="familyList">
+      <div class="family-list-header">
+        <span class="family-list-header-label">Referencia / Diagnostico / Membros / Status</span>
+        <button class="sort-btn">A-Z &darr;</button>
+      </div>
+
+      <div id="listContent">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Detail Panel -->
+    <div class="detail-panel" id="detailPanel">
+      <div class="detail-panel-inner">
+        <div class="detail-header">
+          <div class="detail-header-top">
+            <div>
+              <h3 class="detail-name" id="detailName">Maria Silva</h3>
+              <p class="detail-subtitle" id="detailDiagnosis">Paralisia cerebral (G80)</p>
+            </div>
+            <button class="detail-close" onclick="closePanel()">&times;</button>
+          </div>
+        </div>
+
+        <div class="panel-tabs">
+          <button class="panel-tab active" onclick="switchTab('dados', this)">Dados</button>
+          <button class="panel-tab" onclick="switchTab('fichas', this)">Fichas</button>
+        </div>
+
+        <!-- Dados View -->
+        <div class="panel-body" id="dadosView">
+          <div class="data-section">
+            <div class="data-section-title">Dados Pessoais</div>
+            <div class="data-grid">
+              <div class="data-field">
+                <span class="data-label">Nome Completo</span>
+                <span class="data-value">Maria Aparecida Silva</span>
+              </div>
+              <div class="data-field">
+                <span class="data-label">Data de Nascimento</span>
+                <span class="data-value">15/03/1985</span>
+              </div>
+              <div class="data-field">
+                <span class="data-label">CPF</span>
+                <span class="data-value">123.456.789-00</span>
+              </div>
+              <div class="data-field">
+                <span class="data-label">Telefone</span>
+                <span class="data-value">(11) 98765-4321</span>
+              </div>
+              <div class="data-field full-width">
+                <span class="data-label">Nome da Mae</span>
+                <span class="data-value">Joana Aparecida Silva</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="data-section">
+            <div class="data-section-title">Endereco</div>
+            <div class="data-grid">
+              <div class="data-field full-width">
+                <span class="data-label">Logradouro</span>
+                <span class="data-value">Rua das Flores, 123 — Jardim Primavera</span>
+              </div>
+              <div class="data-field">
+                <span class="data-label">Cidade</span>
+                <span class="data-value">Sao Paulo</span>
+              </div>
+              <div class="data-field">
+                <span class="data-label">CEP</span>
+                <span class="data-value">01234-567</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fichas View -->
+        <div class="panel-body" id="fichasView" style="display: none;">
+          <div class="fichas-list">
+            <div class="ficha-item" onclick="void(0)">
+              <span class="ficha-number">01</span>
+              <span class="ficha-name">Composicao familiar</span>
+              <span class="ficha-status filled">Preenchida</span>
+              <span class="ficha-arrow">&rarr;</span>
+            </div>
+            <div class="ficha-item">
+              <span class="ficha-number">02</span>
+              <span class="ficha-name">Acesso a beneficios eventuais</span>
+              <span class="ficha-status pending">Pendente</span>
+              <span class="ficha-arrow">&rarr;</span>
+            </div>
+            <div class="ficha-item">
+              <span class="ficha-number">03</span>
+              <span class="ficha-name">Condicoes de saude da familia</span>
+              <span class="ficha-status pending">Pendente</span>
+              <span class="ficha-arrow">&rarr;</span>
+            </div>
+            <div class="ficha-item">
+              <span class="ficha-number">04</span>
+              <span class="ficha-name">Convivencia familiar e comunitaria</span>
+              <span class="ficha-status filled">Preenchida</span>
+              <span class="ficha-arrow">&rarr;</span>
+            </div>
+            <div class="ficha-item">
+              <span class="ficha-number">05</span>
+              <span class="ficha-name">Condicoes educacionais da familia</span>
+              <span class="ficha-status pending">Pendente</span>
+              <span class="ficha-arrow">&rarr;</span>
+            </div>
+            <div class="ficha-item">
+              <span class="ficha-number">06</span>
+              <span class="ficha-name">Situacoes de violencia e violacao de direitos</span>
+              <span class="ficha-status pending">Pendente</span>
+              <span class="ficha-arrow">&rarr;</span>
+            </div>
+            <div class="ficha-item">
+              <span class="ficha-number">07</span>
+              <span class="ficha-name">Condicoes de trabalho e rendimento</span>
+              <span class="ficha-status filled">Preenchida</span>
+              <span class="ficha-arrow">&rarr;</span>
+            </div>
+            <div class="ficha-item">
+              <span class="ficha-number">08</span>
+              <span class="ficha-name">Especificidades sociais, etnicas ou culturais</span>
+              <span class="ficha-status pending">Pendente</span>
+              <span class="ficha-arrow">&rarr;</span>
+            </div>
+            <div class="ficha-item">
+              <span class="ficha-number">09</span>
+              <span class="ficha-name">Forma de ingresso e motivo do atendimento</span>
+              <span class="ficha-status filled">Preenchida</span>
+              <span class="ficha-arrow">&rarr;</span>
+            </div>
+            <div class="ficha-item">
+              <span class="ficha-number">10</span>
+              <span class="ficha-name">Condicoes habitacionais da familia</span>
+              <span class="ficha-status pending">Pendente</span>
+              <span class="ficha-arrow">&rarr;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<a href="/prototype-registration-redesign.html" class="fab" style="text-decoration:none;color:inherit;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  Novo Cadastro
+</a>
+
+<!-- Scenario Controls -->
+<div class="scenario-panel" id="scenarioPanel">
+  <div class="drag-handle" id="dragHandle">
+    <h3>Cenarios</h3>
+    <span class="drag-dots">⠿</span>
+  </div>
+  <button class="scenario-btn active" onclick="showScenario('normal')">Normal (com dados)</button>
+  <button class="scenario-btn" onclick="showScenario('loading')">Loading</button>
+  <button class="scenario-btn" onclick="showScenario('empty')">Vazio</button>
+  <button class="scenario-btn" onclick="showScenario('search')">Busca sem resultado</button>
+</div>
+
+<script>
+const families = [
+  { name: "Silva, Maria Aparecida", diagnosis: "Paralisia cerebral (G80)", members: 5, status: "active" },
+  { name: "Santos, Joao Pedro", diagnosis: "Sindrome de Down (Q90)", members: 3, status: "active" },
+  { name: "Oliveira, Ana Carolina", diagnosis: "Autismo infantil (F84.0)", members: 4, status: "active" },
+  { name: "Costa, Roberto Carlos", diagnosis: "Distrofia muscular (G71.0)", members: 6, status: "inactive" },
+  { name: "Pereira, Lucia Helena", diagnosis: "Fenilcetonuria (E70)", members: 2, status: "active" },
+  { name: "Rodrigues, Fernando", diagnosis: "Paralisia cerebral (G80)", members: 4, status: "active" },
+  { name: "Almeida, Patricia", diagnosis: "Autismo infantil (F84.0)", members: 3, status: "active" },
+  { name: "Ferreira, Jose Marcos", diagnosis: "Sindrome de Down (Q90)", members: 5, status: "inactive" },
+];
+
+let selectedIndex = -1;
+
+function renderFamilies() {
+  const container = document.getElementById('listContent');
+  container.innerHTML = families.map((f, i) => {
+    const selClass = i === selectedIndex ? 'selected' : '';
+    const inactiveClass = f.status === 'inactive' ? 'inactive-row' : '';
+    const statusText = f.status === 'active' ? 'Ativo' : 'Inativo';
+    return `
+    <div class="family-item ${selClass} ${inactiveClass}" onclick="selectFamily(${i})">
+      <span class="family-item-index">${String(i + 1).padStart(2, '0')}</span>
+      <div class="family-item-info">
+        <div class="family-item-name">${f.name}</div>
+        <div class="family-item-diagnosis">${f.diagnosis}</div>
+      </div>
+      <div class="family-item-members"><strong>${f.members}</strong> membros</div>
+      <div class="family-item-status">
+        <span class="status-dot ${f.status}"></span>
+        <span class="status-label ${f.status}">${statusText}</span>
+      </div>
+      <div class="family-item-meta">
+        <span><strong>${f.members}</strong> membros</span>
+        <span style="display:flex;align-items:center;gap:6px;">
+          <span class="status-dot ${f.status}"></span>
+          <span class="status-label ${f.status}">${statusText}</span>
+        </span>
+      </div>
+    </div>`;
+  }).join('');
+  // Sync header counter
+  const headerCount = document.querySelector('.topbar-counter strong');
+  if (headerCount) headerCount.textContent = families.length;
+}
+
+function selectFamily(index) {
+  if (selectedIndex === index) {
+    closePanel();
+    return;
+  }
+  selectedIndex = index;
+  const family = families[index];
+  document.getElementById('detailName').textContent = family.name.split(', ').reverse().join(' ');
+  document.getElementById('detailDiagnosis').textContent = family.diagnosis;
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('familyList').classList.add('with-panel');
+  renderFamilies();
+}
+
+function closePanel() {
+  selectedIndex = -1;
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('familyList').classList.remove('with-panel');
+  renderFamilies();
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('dadosView').style.display = tab === 'dados' ? 'block' : 'none';
+  document.getElementById('fichasView').style.display = tab === 'fichas' ? 'block' : 'none';
+}
+
+function showScenario(scenario) {
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  closePanel();
+
+  const container = document.getElementById('listContent');
+
+  switch (scenario) {
+    case 'normal':
+      renderFamilies();
+      break;
+
+    case 'loading':
+      container.innerHTML = Array.from({ length: 6 }, () => `
+        <div class="skeleton-row">
+          <div class="skeleton skeleton-index"></div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="skeleton skeleton-line short"></div>
+            <div class="skeleton skeleton-line tiny"></div>
+          </div>
+          <div class="skeleton skeleton-line"></div>
+          <div class="skeleton skeleton-line tiny"></div>
+        </div>
+      `).join('');
+      break;
+
+    case 'empty':
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">&#9673;</div>
+          <div class="empty-state-title">Nenhuma familia cadastrada</div>
+          <div class="empty-state-desc">Comece adicionando o primeiro cadastro usando o botao abaixo.</div>
+        </div>
+      `;
+      break;
+
+    case 'search':
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">&#8981;</div>
+          <div class="empty-state-title">Nenhum resultado</div>
+          <div class="empty-state-desc">Nenhuma familia encontrada para o termo buscado. Tente outro nome ou CPF.</div>
+        </div>
+      `;
+      break;
+  }
+}
+
+// Load registrations from localStorage (shared with registration page)
+function loadRegisteredFamilies() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('conecta_registrations') || '[]');
+    saved.forEach(reg => {
+      if (!families.find(f => f.name === reg.name)) {
+        families.push(reg);
+      }
+    });
+    document.getElementById('familyCount').textContent = families.length;
+  } catch (_) { /* ignore parse errors */ }
+}
+
+loadRegisteredFamilies();
+
+// Draggable scenario panel
+(function() {
+  const panel = document.getElementById('scenarioPanel');
+  const handle = document.getElementById('dragHandle');
+  let isDragging = false, offsetX = 0, offsetY = 0;
+
+  handle.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    const rect = panel.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    panel.style.transition = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    panel.style.left = (e.clientX - offsetX) + 'px';
+    panel.style.top = (e.clientY - offsetY) + 'px';
+    panel.style.right = 'auto';
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    panel.style.transition = '';
+  });
+})();
+
+// Initial render
+renderFamilies();
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closePanel();
+});
+</script>
+</body>
+</html>

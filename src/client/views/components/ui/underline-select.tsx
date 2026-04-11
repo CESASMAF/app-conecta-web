@@ -2,15 +2,19 @@ import type { FC } from "hono/jsx/dom"
 import { css, cx } from "hono/css"
 import { color, font, weight, space } from "../../../styles/tokens.ts"
 
-interface UnderlineInputProps {
+interface SelectOption {
+  readonly value: string
+  readonly label: string
+}
+
+interface UnderlineSelectProps {
   readonly label: string
   readonly value: string
+  readonly options: readonly SelectOption[]
   readonly onChange: (value: string) => void
   readonly error?: string
-  readonly type?: string
-  readonly disabled?: boolean
   readonly required?: boolean
-  readonly placeholder?: string
+  readonly disabled?: boolean
 }
 
 const wrapperStyle = css`
@@ -29,7 +33,7 @@ const labelStyle = css`
   color: ${color.textMuted};
 `
 
-const inputStyle = css`
+const selectStyle = css`
   border: none;
   border-bottom: 1px solid ${color.inputLine};
   padding: 8px 0;
@@ -39,16 +43,12 @@ const inputStyle = css`
   background: transparent;
   outline: none;
   width: 100%;
+  cursor: pointer;
   transition: border-color 0.2s;
   &:focus { border-bottom: 2px solid ${color.textPrimary}; }
-  &::placeholder {
-    color: ${color.textMuted};
-    font-family: ${font.satoshi};
-    font-weight: ${weight.regular};
-  }
 `
 
-const inputErrorStyle = css`
+const selectErrorBorderStyle = css`
   border-bottom: 2px solid ${color.danger};
   &:focus { border-bottom: 2px solid ${color.danger}; }
 `
@@ -66,18 +66,20 @@ const disabledStyle = css`
   pointer-events: none;
 `
 
-export const UnderlineInput: FC<UnderlineInputProps> = ({ label, value, onChange, error, type, disabled, required, placeholder }) => (
+export const UnderlineSelect: FC<UnderlineSelectProps> = ({ label, value, options, onChange, error, required, disabled }) => (
   <div class={cx(wrapperStyle, disabled ? disabledStyle : undefined)}>
     <label class={labelStyle}>{label}{required && " *"}</label>
-    <input
-      class={cx(inputStyle, error ? inputErrorStyle : undefined)}
-      type={type ?? "text"}
+    <select
+      class={cx(selectStyle, error ? selectErrorBorderStyle : undefined)}
       value={value}
-      onInput={(e) => onChange((e.target as HTMLInputElement).value)}
+      onChange={(e) => onChange((e.target as HTMLSelectElement).value)}
       disabled={disabled}
       aria-required={required}
-      placeholder={placeholder}
-    />
+    >
+      {options.map((opt) => (
+        <option value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
     {error && <span class={errorTextStyle}>{error}</span>}
   </div>
 )

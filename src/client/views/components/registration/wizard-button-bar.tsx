@@ -36,7 +36,7 @@ export const WizardButtonBar: FC<WizardButtonBarProps> = ({
         </Button>
       )}
       <Button variant="primary" onClick={onNext} disabled={saving}>
-        {isLast ? "Salvar" : "Proximo"}
+        {saving ? "Salvando..." : isLast ? "Salvar" : "Proximo"}
       </Button>
     </div>
   )

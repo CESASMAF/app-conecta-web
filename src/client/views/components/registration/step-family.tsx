@@ -4,6 +4,7 @@ import { css } from "hono/css"
 import { color, font, weight, space, radius } from "../../../styles/tokens.ts"
 import { UnderlineInput } from "../ui/underline-input.tsx"
 import { Button } from "../ui/button.tsx"
+import { CheckboxField } from "../ui/checkbox-field.tsx"
 import type { FamilyMemberSnapshot } from "../../../viewmodels/registration/types.ts"
 
 interface StepFamilyProps {
@@ -84,20 +85,11 @@ const emptyStyle = css`
   padding: ${space[4]} 0;
 `
 
-const checkboxLabel = css`
-  display: flex;
-  align-items: center;
-  gap: ${space[2]};
-  font-family: ${font.satoshi};
-  font-size: 14px;
-  color: ${color.textPrimary};
-  cursor: pointer;
-`
-
 const EMPTY_MEMBER: FamilyMemberSnapshot = {
   name: "",
   birthDate: "",
   gender: "",
+  sex: "",
   relationship: "",
   livesWithPatient: true,
   isDisabled: false,
@@ -126,7 +118,7 @@ export const StepFamily: FC<StepFamilyProps> = ({ familyMembers, onAddMember, on
           <div class={cardInfoStyle}>
             <span class={cardName}>{member.name}</span>
             <span class={cardDetail}>
-              {member.relationship} | {member.gender} | {member.livesWithPatient ? "Reside" : "Nao reside"}
+              {member.relationship} | {member.sex || member.gender} | {member.livesWithPatient ? "Reside" : "Nao reside"}
             </span>
           </div>
           <button
@@ -158,9 +150,9 @@ export const StepFamily: FC<StepFamilyProps> = ({ familyMembers, onAddMember, on
           </div>
           <div class={fieldItem}>
             <UnderlineInput
-              label="Genero"
-              value={draft.gender}
-              onChange={(v) => setDraft({ ...draft, gender: v })}
+              label="Sexo"
+              value={draft.sex || ""}
+              onChange={(v) => setDraft({ ...draft, sex: v })}
             />
           </div>
           <div class={fieldItem}>
@@ -171,24 +163,18 @@ export const StepFamily: FC<StepFamilyProps> = ({ familyMembers, onAddMember, on
             />
           </div>
           <div class={fieldItem}>
-            <label class={checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={draft.livesWithPatient}
-                onChange={() => setDraft({ ...draft, livesWithPatient: !draft.livesWithPatient })}
-              />
-              Reside com o paciente
-            </label>
+            <CheckboxField
+              label="Reside com o paciente"
+              checked={draft.livesWithPatient}
+              onChange={() => setDraft({ ...draft, livesWithPatient: !draft.livesWithPatient })}
+            />
           </div>
           <div class={fieldItem}>
-            <label class={checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={draft.isDisabled}
-                onChange={() => setDraft({ ...draft, isDisabled: !draft.isDisabled })}
-              />
-              Pessoa com deficiencia
-            </label>
+            <CheckboxField
+              label="Pessoa com deficiencia"
+              checked={draft.isDisabled}
+              onChange={() => setDraft({ ...draft, isDisabled: !draft.isDisabled })}
+            />
           </div>
           <div class={formActions}>
             <Button variant="danger" onClick={() => setShowForm(false)}>Cancelar</Button>

@@ -11,8 +11,7 @@ interface ButtonProps {
 
 const baseStyle = css`
   border-radius: ${radius.pill};
-  font-family: ${font.playfair};
-  font-style: italic;
+  font-family: ${font.satoshi};
   font-size: 16px;
   padding: 12px 24px;
   cursor: pointer;

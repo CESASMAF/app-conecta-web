@@ -102,6 +102,12 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
         familyMembers: state.familyMembers.filter((_, i) => i !== action.index),
       }
 
+    case "TOGGLE_ADDRESS_FLAG":
+      return {
+        ...state,
+        address: { ...state.address, [action.field]: !state.address[action.field] },
+      }
+
     case "TOGGLE_PROGRAM": {
       const programs = state.intake.selectedPrograms
       const exists = programs.includes(action.programId)

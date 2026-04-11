@@ -2,6 +2,7 @@ import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
 import { color, font, weight, space } from "../../../styles/tokens.ts"
 import { UnderlineInput } from "../ui/underline-input.tsx"
+import { UnderlineSelect } from "../ui/underline-select.tsx"
 import type { WizardState } from "../../../viewmodels/registration/types.ts"
 
 interface StepPersonalDataProps {
@@ -53,11 +54,27 @@ const radioErrorStyle = css`
   margin-top: ${space[1]};
 `
 
-const GENDER_OPTIONS = [
+const NATIONALITY_OPTIONS = [
+  { value: "", label: "Selecione..." },
+  { value: "Brasileira", label: "Brasileira" },
+  { value: "Naturalizada", label: "Naturalizada" },
+  { value: "Estrangeira", label: "Estrangeira" },
+] as const
+
+const SEX_OPTIONS = [
   { value: "MASCULINO", label: "Masculino" },
   { value: "FEMININO", label: "Feminino" },
-  { value: "NAO_BINARIO", label: "Nao binario" },
+  { value: "OUTRO", label: "Outro" },
 ] as const
+
+const formatDate = (raw: string): string => {
+  const digits = raw.replace(/\D/g, "").slice(0, 8)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+}
+
+const unformatToDigits = (value: string): string => value.replace(/\D/g, "")
 
 export const StepPersonalData: FC<StepPersonalDataProps> = ({ fields, errors, onUpdate }) => (
   <div class={gridStyle}>
@@ -67,6 +84,7 @@ export const StepPersonalData: FC<StepPersonalDataProps> = ({ fields, errors, on
         value={fields.firstName}
         onChange={(v) => onUpdate("firstName", v)}
         error={errors.get("firstName")}
+        required
       />
     </div>
     <div class={fieldItem}>
@@ -75,6 +93,7 @@ export const StepPersonalData: FC<StepPersonalDataProps> = ({ fields, errors, on
         value={fields.lastName}
         onChange={(v) => onUpdate("lastName", v)}
         error={errors.get("lastName")}
+        required
       />
     </div>
     <div class={fieldItem}>
@@ -90,39 +109,52 @@ export const StepPersonalData: FC<StepPersonalDataProps> = ({ fields, errors, on
         value={fields.motherName}
         onChange={(v) => onUpdate("motherName", v)}
         error={errors.get("motherName")}
+        required
       />
     </div>
     <div class={fieldItem}>
       <UnderlineInput
+        label="Data de nascimento"
+        value={formatDate(fields.birthDate)}
+        onChange={(v) => onUpdate("birthDate", unformatToDigits(v))}
+        error={errors.get("birthDate")}
+        placeholder="DD/MM/AAAA"
+        required
+      />
+    </div>
+    <div class={fieldItem}>
+      <UnderlineSelect
         label="Nacionalidade"
         value={fields.nationality}
+        options={NATIONALITY_OPTIONS}
         onChange={(v) => onUpdate("nationality", v)}
         error={errors.get("nationality")}
+        required
       />
     </div>
     <div class={fieldItem}>
       <div class={radioGroupStyle}>
-        <span class={radioGroupLabel}>Genero</span>
-        {GENDER_OPTIONS.map((opt) => (
+        <span class={radioGroupLabel}>Sexo *</span>
+        {SEX_OPTIONS.map((opt) => (
           <label class={radioOptionStyle}>
             <input
               type="radio"
-              name="gender"
+              name="sex"
               value={opt.value}
-              checked={fields.gender === opt.value}
-              onChange={() => onUpdate("gender", opt.value)}
+              checked={fields.sex === opt.value}
+              onChange={() => onUpdate("sex", opt.value)}
             />
             {opt.label}
           </label>
         ))}
-        {errors.get("gender") && <span class={radioErrorStyle}>{errors.get("gender")}</span>}
+        {errors.get("sex") && <span class={radioErrorStyle}>{errors.get("sex")}</span>}
       </div>
     </div>
     <div class={fieldItem}>
       <UnderlineInput
         label="Telefone"
-        value={fields.phoneNumber}
-        onChange={(v) => onUpdate("phoneNumber", v)}
+        value={fields.phone}
+        onChange={(v) => onUpdate("phone", v)}
       />
     </div>
   </div>

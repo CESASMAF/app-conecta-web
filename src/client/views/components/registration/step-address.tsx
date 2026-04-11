@@ -1,14 +1,16 @@
 import type { FC } from "hono/jsx/dom"
-import { useState } from "hono/jsx/dom"
 import { css } from "hono/css"
 import { color, font, weight, space } from "../../../styles/tokens.ts"
 import { UnderlineInput } from "../ui/underline-input.tsx"
+import { UnderlineSelect } from "../ui/underline-select.tsx"
+import { CheckboxField } from "../ui/checkbox-field.tsx"
 import type { WizardState } from "../../../viewmodels/registration/types.ts"
 
 interface StepAddressProps {
   readonly address: WizardState["address"]
   readonly errors: ReadonlyMap<string, string>
   readonly onUpdate: (field: string, value: string) => void
+  readonly onToggleFlag: (field: "isShelter" | "isHomeless") => void
 }
 
 const gridStyle = css`
@@ -22,34 +24,13 @@ const fieldItem = css`
   flex: 1;
 `
 
-const selectStyle = css`
-  border: none;
-  border-bottom: 1px solid ${color.inputLine};
-  padding: 8px 0;
-  font-family: ${font.satoshi};
-  font-size: 16px;
-  color: ${color.textPrimary};
-  background: transparent;
-  outline: none;
-  width: 100%;
-  cursor: pointer;
-  &:focus { border-bottom: 2px solid ${color.textPrimary}; }
-`
-
-const selectLabelStyle = css`
+const radioLabelStyle = css`
   font-family: ${font.satoshi};
   font-size: 13px;
   font-weight: ${weight.bold};
   letter-spacing: 0.65px;
   text-transform: uppercase;
   color: ${color.textMuted};
-`
-
-const selectErrorStyle = css`
-  font-family: ${font.satoshi};
-  font-size: 11px;
-  color: ${color.danger};
-  margin-top: 4px;
 `
 
 const radioGroupStyle = css`
@@ -68,16 +49,11 @@ const radioOptionStyle = css`
   cursor: pointer;
 `
 
-const checkboxLabelStyle = css`
-  display: flex;
-  align-items: center;
-  gap: ${space[2]};
+const radioErrorStyle = css`
   font-family: ${font.satoshi};
-  font-size: 14px;
-  color: ${color.textPrimary};
-  cursor: pointer;
-  padding: 8px 0;
-  width: 100%;
+  font-size: 12px;
+  color: ${color.danger};
+  margin-top: 4px;
 `
 
 const HOUSING_OPTIONS = [
@@ -90,9 +66,11 @@ const HOUSING_OPTIONS = [
 ] as const
 
 const UF_OPTIONS = [
-  "", "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
-  "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ",
-  "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+  { value: "", label: "Selecione..." },
+  ...["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
+    "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ",
+    "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+  ].map((uf) => ({ value: uf, label: uf })),
 ] as const
 
 const formatCep = (raw: string): string => {
@@ -101,43 +79,23 @@ const formatCep = (raw: string): string => {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`
 }
 
-export const StepAddress: FC<StepAddressProps> = ({ address, errors, onUpdate }) => {
-  const [homeless, setHomeless] = useState(address.housingSituation === "SITUACAO_DE_RUA")
-
-  const handleHousingChange = (value: string): void => {
-    const isHomeless = value === "SITUACAO_DE_RUA"
-    setHomeless(isHomeless)
-    onUpdate("housingSituation", value)
-    if (isHomeless) {
-      onUpdate("street", "")
-      onUpdate("number", "")
-      onUpdate("complement", "")
-      onUpdate("neighborhood", "")
-    }
-  }
+export const StepAddress: FC<StepAddressProps> = ({ address, errors, onUpdate, onToggleFlag }) => {
 
   return (
     <div class={gridStyle}>
       <div class={fieldItem}>
-        <div>
-          <label class={selectLabelStyle}>Situacao de moradia</label>
-          <select
-            class={selectStyle}
-            value={address.housingSituation}
-            onChange={(e) => handleHousingChange((e.target as HTMLSelectElement).value)}
-          >
-            {HOUSING_OPTIONS.map((opt) => (
-              <option value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-          {errors.get("housingSituation") && (
-            <span class={selectErrorStyle}>{errors.get("housingSituation")}</span>
-          )}
-        </div>
+        <UnderlineSelect
+          label="Situacao de moradia"
+          value={address.housingSituation}
+          options={HOUSING_OPTIONS}
+          onChange={(v) => onUpdate("housingSituation", v)}
+          error={errors.get("housingSituation")}
+          required
+        />
       </div>
       <div class={fieldItem}>
         <div>
-          <label class={selectLabelStyle}>Localizacao</label>
+          <label class={radioLabelStyle}>Localizacao *</label>
           <div class={radioGroupStyle}>
             <label class={radioOptionStyle}>
               <input
@@ -161,7 +119,7 @@ export const StepAddress: FC<StepAddressProps> = ({ address, errors, onUpdate })
             </label>
           </div>
           {errors.get("residenceLocation") && (
-            <span class={selectErrorStyle}>{errors.get("residenceLocation")}</span>
+            <span class={radioErrorStyle}>{errors.get("residenceLocation")}</span>
           )}
         </div>
       </div>
@@ -179,7 +137,7 @@ export const StepAddress: FC<StepAddressProps> = ({ address, errors, onUpdate })
           value={address.street}
           onChange={(v) => onUpdate("street", v)}
           error={errors.get("street")}
-          disabled={homeless}
+          disabled={address.isHomeless}
         />
       </div>
       <div class={fieldItem}>
@@ -188,7 +146,7 @@ export const StepAddress: FC<StepAddressProps> = ({ address, errors, onUpdate })
           value={address.number}
           onChange={(v) => onUpdate("number", v)}
           error={errors.get("number")}
-          disabled={homeless}
+          disabled={address.isHomeless}
         />
       </div>
       <div class={fieldItem}>
@@ -196,7 +154,7 @@ export const StepAddress: FC<StepAddressProps> = ({ address, errors, onUpdate })
           label="Complemento"
           value={address.complement}
           onChange={(v) => onUpdate("complement", v)}
-          disabled={homeless}
+          disabled={address.isHomeless}
         />
       </div>
       <div class={fieldItem}>
@@ -205,23 +163,18 @@ export const StepAddress: FC<StepAddressProps> = ({ address, errors, onUpdate })
           value={address.neighborhood}
           onChange={(v) => onUpdate("neighborhood", v)}
           error={errors.get("neighborhood")}
-          disabled={homeless}
+          disabled={address.isHomeless}
         />
       </div>
       <div class={fieldItem}>
-        <div>
-          <label class={selectLabelStyle}>Estado</label>
-          <select
-            class={selectStyle}
-            value={address.state}
-            onChange={(e) => onUpdate("state", (e.target as HTMLSelectElement).value)}
-          >
-            {UF_OPTIONS.map((uf) => (
-              <option value={uf}>{uf || "Selecione..."}</option>
-            ))}
-          </select>
-          {errors.get("state") && <span class={selectErrorStyle}>{errors.get("state")}</span>}
-        </div>
+        <UnderlineSelect
+          label="Estado"
+          value={address.state}
+          options={UF_OPTIONS}
+          onChange={(v) => onUpdate("state", v)}
+          error={errors.get("state")}
+          required
+        />
       </div>
       <div class={fieldItem}>
         <UnderlineInput
@@ -229,6 +182,21 @@ export const StepAddress: FC<StepAddressProps> = ({ address, errors, onUpdate })
           value={address.city}
           onChange={(v) => onUpdate("city", v)}
           error={errors.get("city")}
+          required
+        />
+      </div>
+      <div class={fieldItem}>
+        <CheckboxField
+          label="Unidade de acolhimento / abrigo"
+          checked={address.isShelter}
+          onChange={() => onToggleFlag("isShelter")}
+        />
+      </div>
+      <div class={fieldItem}>
+        <CheckboxField
+          label="Pessoa em situacao de rua"
+          checked={address.isHomeless}
+          onChange={() => onToggleFlag("isHomeless")}
         />
       </div>
     </div>

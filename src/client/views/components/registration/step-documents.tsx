@@ -61,14 +61,6 @@ export const StepDocuments: FC<StepDocumentsProps> = ({ documents, errors, onUpd
     </div>
     <div class={fieldItem}>
       <UnderlineInput
-        label="Data de nascimento"
-        value={formatDate(documents.birthDate)}
-        onChange={(v) => onUpdate("birthDate", unformatToDigits(v))}
-        error={errors.get("birthDate")}
-      />
-    </div>
-    <div class={fieldItem}>
-      <UnderlineInput
         label="NIS"
         value={documents.nis}
         onChange={(v) => onUpdate("nis", v)}

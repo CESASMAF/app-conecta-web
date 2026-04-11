@@ -5,6 +5,14 @@ import { UnderlineInput } from "../ui/underline-input.tsx"
 import { Button } from "../ui/button.tsx"
 import type { DiagnosisEntry } from "../../../viewmodels/registration/types.ts"
 
+const formatDate = (raw: string): string => {
+  const digits = raw.replace(/\D/g, "").slice(0, 8)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+}
+const unformatToDigits = (value: string): string => value.replace(/\D/g, "")
+
 interface StepDiagnosesProps {
   readonly diagnoses: readonly DiagnosisEntry[]
   readonly errors: ReadonlyMap<string, string>
@@ -125,6 +133,7 @@ export const StepDiagnoses: FC<StepDiagnosesProps> = ({
             value={diag.code}
             onChange={(v) => onUpdateEntry(index, "code", v)}
             error={errors.get(`diagnosis_${index}_code`)}
+            required
           />
           <div class={suggestionsStyle}>
             {QUICK_CIDS.map((cid) => (
@@ -141,9 +150,11 @@ export const StepDiagnoses: FC<StepDiagnosesProps> = ({
         <div class={fieldItem}>
           <UnderlineInput
             label="Data do diagnostico"
-            value={diag.date}
-            onChange={(v) => onUpdateEntry(index, "date", v)}
+            value={formatDate(diag.date)}
+            onChange={(v) => onUpdateEntry(index, "date", unformatToDigits(v))}
             error={errors.get(`diagnosis_${index}_date`)}
+            placeholder="DD/MM/AAAA"
+            required
           />
         </div>
         <div class={fieldItem}>
@@ -152,6 +163,7 @@ export const StepDiagnoses: FC<StepDiagnosesProps> = ({
             value={diag.description}
             onChange={(v) => onUpdateEntry(index, "description", v)}
             error={errors.get(`diagnosis_${index}_description`)}
+            required
           />
         </div>
       </div>

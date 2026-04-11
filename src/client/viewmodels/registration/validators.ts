@@ -30,16 +30,38 @@ export function validateStep0(state: WizardState): ReadonlyMap<string, string> {
   if (!state.fields.lastName.trim()) errors.set("lastName", "Sobrenome obrigatório")
   if (!state.fields.motherName.trim()) errors.set("motherName", "Nome da mãe obrigatório")
   if (!state.fields.nationality.trim()) errors.set("nationality", "Nacionalidade obrigatória")
-  if (!state.fields.gender.trim()) errors.set("gender", "Gênero obrigatório")
+  // Accept either sex (BFF-aligned) or gender (deprecated alias)
+  const sexValue = state.fields.sex || state.fields.gender
+  if (!sexValue.trim()) errors.set("gender", "Sexo obrigatório")
+
+  // birthDate format validation in Step 0 (if provided via fields.birthDate)
+  // Required check remains in Step 1 for backward compat
+  const birthDateInFields = state.fields.birthDate.trim()
+  if (birthDateInFields) {
+    const digits = birthDateInFields.replace(/\D/g, "")
+    if (digits.length !== 8) {
+      errors.set("birthDate", "Data deve ter 8 dígitos (DD/MM/AAAA)")
+    } else {
+      const day = digits.slice(0, 2)
+      const month = digits.slice(2, 4)
+      const year = digits.slice(4, 8)
+      const parsed = new Date(`${year}-${month}-${day}T00:00:00`)
+      if (isNaN(parsed.getTime()) || parsed.getDate() !== Number(day)) {
+        errors.set("birthDate", "Data inválida")
+      } else if (parsed > new Date()) {
+        errors.set("birthDate", "Data não pode ser futura")
+      }
+    }
+  }
+
   return errors
 }
 
 export function validateStep1(state: WizardState): ReadonlyMap<string, string> {
   const errors = new Map<string, string>()
+  // CPF é opcional, mas se preenchido deve ter 11 dígitos
   const cpfDigits = state.documents.cpf.replace(/\D/g, "")
-  if (!cpfDigits) {
-    errors.set("cpf", "CPF obrigatório")
-  } else if (cpfDigits.length !== 11) {
+  if (cpfDigits && cpfDigits.length !== 11) {
     errors.set("cpf", "CPF deve ter 11 dígitos")
   }
 
@@ -75,6 +97,12 @@ export function validateStep1(state: WizardState): ReadonlyMap<string, string> {
     if (!state.documents.rgUf.trim()) errors.set("rgUf", "UF do RG obrigatória")
     if (!state.documents.rgAgency.trim()) errors.set("rgAgency", "Órgão emissor obrigatório")
     if (!state.documents.rgDate.trim()) errors.set("rgDate", "Data de emissão obrigatória")
+  }
+
+  // Ao menos um documento civil deve ser informado (CPF, NIS ou RG) — CD-001
+  const hasRg = rgFilled.length === rgFields.length
+  if (!cpfDigits && !state.documents.nis.trim() && !hasRg) {
+    errors.set("cpf", "Informe ao menos um documento (CPF, NIS ou RG)")
   }
 
   return errors
