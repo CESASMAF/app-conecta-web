@@ -1,0 +1,27 @@
+# Environment
+.env
+.env.local
+.env.production
+.env.staging
+
+# Deno
+.deno/
+
+# Coverage
+cov_profile/
+coverage/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+_fresh/
+
+# Docker
+caddy_data/
+caddy_config/
