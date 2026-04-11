@@ -22,6 +22,9 @@ const createMockProxy = (
   const putCalls: { path: string; body: unknown; actorId: string }[] = [];
   return {
     putCalls,
+    get: async <T>(_path: string): Promise<Result<T, ProxyError>> => {
+      return ok(undefined as T);
+    },
     post: async <T>(_path: string, _body: unknown, _actorId: string): Promise<Result<T, ProxyError>> => {
       return ok(undefined as T);
     },

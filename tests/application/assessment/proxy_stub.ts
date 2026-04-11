@@ -31,6 +31,9 @@ export const createProxyStub = (
     reset: () => {
       calls.length = 0;
     },
+    get: async <T>(_path: string): Promise<Result<T, ProxyError>> => {
+      return returnValue as Result<T, ProxyError>;
+    },
     put: async <T>(path: string, body: unknown, actorId: string): Promise<Result<T, ProxyError>> => {
       calls.push({ method: "put", path, body, actorId });
       return returnValue as Result<T, ProxyError>;

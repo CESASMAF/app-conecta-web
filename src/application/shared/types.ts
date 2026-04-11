@@ -30,6 +30,7 @@ export type EventBus = Readonly<{
 
 /** Remote proxy port — the BFF proxies validated requests to the backend. */
 export type BackendProxy = Readonly<{
+  get: <T>(path: string) => Promise<Result<T, ProxyError>>;
   post: <T>(
     path: string,
     body: unknown,
