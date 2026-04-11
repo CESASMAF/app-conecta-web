@@ -403,7 +403,21 @@ Implement masks as pure formatting functions called onChange. The reducer stores
 
 ---
 
-## 5. UX IMPROVEMENTS (vs Flutter version)
+## 5. AUTH HUB (Landing + App Selector)
+
+> **Spec completa em pasta dedicada:** `features/auth-hub/`
+> Contém 4 documentos: feature-spec, components, states-and-flows, copy-a11y-responsive.
+> Protótipo interativo: `prototype-auth-hub.html` (raiz do projeto).
+
+**Route:** `/` (landing), `/hub` (app selector)
+**Client App:** `src/client/apps/auth-hub/entry.tsx`
+
+4 telas: Landing (pré-auth), App Hub (seleção de módulos), Auto-Redirect (1 app), Loading (transição).
+8 cenários: 4 happy paths (multi-app, admin, single-app, primeiro acesso) + 4 edge cases (sem permissão, erro auth, sessão expirada, erro de rede).
+
+---
+
+## 6. UX IMPROVEMENTS (vs Flutter version)
 
 | Area | Flutter (current) | Hono (improved) |
 |------|-------------------|-----------------|
