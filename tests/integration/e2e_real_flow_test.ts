@@ -149,6 +149,9 @@ const buildRealBFF = (
 // Helper: Follow the OIDC login flow step by step
 // ---------------------------------------------------------------------------
 
+// Cookie name depends on secureCookies config: __Host-session (HTTPS) or session (dev)
+const SESSION_COOKIE_NAME = TEST_CONFIG.secureCookies ? "__Host-session" : "session";
+
 const performFullLogin = async (
   bffBase: string,
 ): Promise<{ sessionCookie: string; callbackResponse: Response }> => {
@@ -172,14 +175,15 @@ const performFullLogin = async (
 
   const setCookieHeader = callbackRes.headers.get("set-cookie");
   assertNotEquals(setCookieHeader, null, "Callback must set session cookie");
-  assertStringIncludes(setCookieHeader!, "__Host-session=", "Cookie must be __Host-session");
+  assertStringIncludes(setCookieHeader!, `${SESSION_COOKIE_NAME}=`, `Cookie must be ${SESSION_COOKIE_NAME}`);
 
   // Extract the cookie value for subsequent requests
-  const cookieMatch = setCookieHeader!.match(/__Host-session=([^;]+)/);
+  const cookiePattern = new RegExp(`${SESSION_COOKIE_NAME}=([^;]+)`);
+  const cookieMatch = setCookieHeader!.match(cookiePattern);
   assertNotEquals(cookieMatch, null, "Must be able to extract cookie value");
 
   return {
-    sessionCookie: `__Host-session=${cookieMatch![1]}`,
+    sessionCookie: `${SESSION_COOKIE_NAME}=${cookieMatch![1]}`,
     callbackResponse: callbackRes,
   };
 };
@@ -247,7 +251,7 @@ describe({ name: "E2E Real Flow: BFF + Mock OIDC + Mock Backend", sanitizeResour
       assertEquals(redirectLocation, "/", "After callback, should redirect to /");
 
       // Verify session cookie contains a signature (has a dot separating id from sig)
-      const cookieValue = sessionCookie.replace("__Host-session=", "");
+      const cookieValue = sessionCookie.replace(`${SESSION_COOKIE_NAME}=`, "");
       assertStringIncludes(cookieValue, ".", "Session cookie must be HMAC-signed (contain dot)");
     });
 
