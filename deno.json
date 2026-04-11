@@ -8,7 +8,8 @@
     "check": "deno check src/**/*.ts src/**/*.tsx",
     "lint": "deno lint",
     "fmt": "deno fmt",
-    "fmt:check": "deno fmt --check"
+    "fmt:check": "deno fmt --check",
+    "build": "deno run -A scripts/build-client.ts"
   },
   "imports": {
     "@hono/hono": "jsr:@hono/hono@^4",

@@ -13,7 +13,7 @@ pageRoutes.get("/", (c) => c.redirect("/social-care"));
 
 // Login page (SSR-only, no client JS, public route)
 pageRoutes.get("/login", (c) => {
-  const nonce = c.get("cspNonce");
+  const nonce = c.get("secureHeadersNonce");
   return c.html(
     <AppLayout title="Login" nonce={nonce}>
       <LoginView />
@@ -23,7 +23,7 @@ pageRoutes.get("/login", (c) => {
 
 // Home — Social Care families list
 pageRoutes.get("/social-care", (c) => {
-  const nonce = c.get("cspNonce");
+  const nonce = c.get("secureHeadersNonce");
   return c.html(
     <AppLayout title="Familias" nonce={nonce} scripts={["/static/js/social-care.js"]}>
       <SocialCareView />
@@ -33,7 +33,7 @@ pageRoutes.get("/social-care", (c) => {
 
 // Patient Registration — 7-step wizard
 pageRoutes.get("/patient-registration", (c) => {
-  const nonce = c.get("cspNonce");
+  const nonce = c.get("secureHeadersNonce");
   return c.html(
     <AppLayout title="Cadastro" nonce={nonce} scripts={["/static/js/registration.js"]}>
       <RegistrationView />
@@ -44,7 +44,7 @@ pageRoutes.get("/patient-registration", (c) => {
 // Family Composition
 pageRoutes.get("/family-composition/:patientId", (c) => {
   const patientId = c.req.param("patientId");
-  const nonce = c.get("cspNonce");
+  const nonce = c.get("secureHeadersNonce");
   return c.html(
     <AppLayout title="Composicao Familiar" nonce={nonce} scripts={["/static/js/family-composition.js"]}>
       <FamilyView patientId={patientId} />

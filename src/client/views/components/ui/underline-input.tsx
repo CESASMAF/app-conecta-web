@@ -8,6 +8,7 @@ interface UnderlineInputProps {
   readonly onChange: (value: string) => void
   readonly error?: string
   readonly type?: string
+  readonly disabled?: boolean
 }
 
 const wrapperStyle = css`
@@ -58,14 +59,21 @@ const errorTextStyle = css`
   margin-top: ${space[1]};
 `
 
-export const UnderlineInput: FC<UnderlineInputProps> = ({ label, value, onChange, error, type }) => (
-  <div class={wrapperStyle}>
+const disabledStyle = css`
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+`
+
+export const UnderlineInput: FC<UnderlineInputProps> = ({ label, value, onChange, error, type, disabled }) => (
+  <div class={cx(wrapperStyle, disabled ? disabledStyle : undefined)}>
     <label class={labelStyle}>{label}</label>
     <input
       class={cx(inputStyle, error ? inputErrorStyle : undefined)}
       type={type ?? "text"}
       value={value}
       onInput={(e) => onChange((e.target as HTMLInputElement).value)}
+      disabled={disabled}
     />
     {error && <span class={errorTextStyle}>{error}</span>}
   </div>

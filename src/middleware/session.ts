@@ -3,7 +3,9 @@ import type { AppEnv } from "../types.ts";
 import { getCookie } from "@hono/hono/cookie";
 
 /** Cookie name for the opaque session ID. __Host- prefix requires Secure + Path=/ + no Domain. */
-export const SESSION_COOKIE = "__Host-session";
+export const SESSION_COOKIE_SECURE = "__Host-session";
+export const SESSION_COOKIE_DEV = "session";
+export const SESSION_COOKIE = SESSION_COOKIE_SECURE; // default for imports
 
 /** Refresh buffer — attempt refresh when token expires within this window. */
 const REFRESH_BUFFER_MS = 5 * 60 * 1000; // 5 minutes
@@ -21,7 +23,8 @@ const REFRESH_BUFFER_MS = 5 * 60 * 1000; // 5 minutes
  */
 export const sessionMiddleware = (): MiddlewareHandler<AppEnv> => {
   return async (c, next) => {
-    const rawCookie = getCookie(c, SESSION_COOKIE);
+    // Try secure cookie first, then dev cookie
+    const rawCookie = getCookie(c, SESSION_COOKIE_SECURE) ?? getCookie(c, SESSION_COOKIE_DEV);
     const sessionStore = c.get("sessionStore");
 
     // Verify HMAC signature and extract plain session ID

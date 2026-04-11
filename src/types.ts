@@ -37,7 +37,7 @@ export type AppVariables = {
   tokenRefresher: TokenRefresher;
   session: Session | undefined;
   sessionId: string | undefined;
-  cspNonce: string;
+  secureHeadersNonce: string; // from hono/secure-headers NONCE
 };
 
 /** Hono Env type for the entire app. */

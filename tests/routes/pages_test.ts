@@ -18,14 +18,14 @@ const validSession: Session = {
 /**
  * Helper: build a test app with page routes.
  * When `injectSession` is true, simulates an authenticated user.
- * Always injects a cspNonce to satisfy the views.
+ * Always injects a secureHeadersNonce to satisfy the views.
  */
 const createTestApp = (injectSession: boolean): Hono<AppEnv> => {
   const app = new Hono<AppEnv>();
 
-  // Inject cspNonce (simulates securityHeaders middleware)
+  // Inject secureHeadersNonce (simulates securityHeaders middleware)
   app.use("*", async (c, next) => {
-    c.set("cspNonce", "test-nonce-abc123");
+    c.set("secureHeadersNonce", "test-nonce-abc123");
     if (injectSession) {
       c.set("session", validSession);
       c.set("sessionId", "sid_abc");

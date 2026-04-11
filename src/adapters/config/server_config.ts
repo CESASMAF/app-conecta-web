@@ -14,6 +14,7 @@ export type ServerConfig = Readonly<{
     redirectUri: string;
   }>;
   sessionSecret: string;
+  secureCookies: boolean;
 }>;
 
 const requireEnv = (key: string): string => {
@@ -42,4 +43,5 @@ export const loadConfig = (): ServerConfig => ({
     redirectUri: requireEnv("OIDC_REDIRECT_URI"),
   },
   sessionSecret: requireEnv("SESSION_SECRET"),
+  secureCookies: requireEnv("OIDC_REDIRECT_URI").startsWith("https://"),
 });

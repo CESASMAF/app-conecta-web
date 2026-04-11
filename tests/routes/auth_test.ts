@@ -80,7 +80,7 @@ const createTestApp = (
     c.set("tokenRefresher", { refresh: async () => err("TOKEN_EXCHANGE_FAILED" as BFFAuthError), verifySessionCookie: async (v: string) => v.split(".")[0] });
     c.set("session", opts?.session ?? undefined);
     c.set("sessionId", opts?.sessionId ?? undefined);
-    c.set("cspNonce", "test-nonce");
+    c.set("secureHeadersNonce", "test-nonce");
     await next();
   });
 

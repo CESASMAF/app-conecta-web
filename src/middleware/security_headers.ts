@@ -1,40 +1,49 @@
-import type { MiddlewareHandler } from "@hono/hono";
-import type { AppEnv } from "../types.ts";
+// Security headers middleware using Hono's built-in secureHeaders.
+// Uses NONCE constant for automatic CSP nonce generation.
+// Nonce available via c.get("secureHeadersNonce") in routes.
 
-/** Generates a base64-encoded cryptographic nonce (128-bit). */
-const generateNonce = (): string => {
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return btoa(String.fromCharCode(...bytes));
-};
+import { secureHeaders as honoSecureHeaders, NONCE } from "@hono/hono/secure-headers";
+import type { SecureHeadersVariables } from "@hono/hono/secure-headers";
+
+// Re-export the Variables type for AppEnv integration
+export type { SecureHeadersVariables };
 
 /**
- * Security headers middleware. Must run FIRST in the middleware chain.
+ * Security headers middleware using Hono's built-in implementation.
  *
- * Sets: HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy,
- * Permissions-Policy, and Content-Security-Policy (with per-request nonce).
- *
- * The CSP nonce is stored in Hono context via `c.set("cspNonce", nonce)`
- * so that SSR layouts can inject it into `<script>` and `<style>` tags.
+ * Configured with:
+ * - CSP with per-request nonce for scripts (via NONCE constant)
+ * - Inline styles allowed (for SSR views + external font stylesheets)
+ * - External fonts from Google Fonts and Fontshare
+ * - Strict transport security, frame denial, referrer policy
+ * - Permissions policy restricting camera, microphone, geolocation
  */
-export const securityHeaders = (): MiddlewareHandler<AppEnv> => {
-  return async (c, next) => {
-    const nonce = generateNonce();
-    c.set("cspNonce", nonce);
+export const securityHeaders = () =>
+  honoSecureHeaders({
+    // Override defaults
+    strictTransportSecurity: "max-age=63072000; includeSubDomains",
+    xFrameOptions: "DENY",
+    referrerPolicy: "strict-origin-when-cross-origin",
+    crossOriginEmbedderPolicy: false,
 
-    await next();
+    contentSecurityPolicy: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [NONCE, "'strict-dynamic'"],
+      scriptSrcElem: [NONCE, "'strict-dynamic'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", "data:"],
+      styleSrcElem: ["'self'", "'unsafe-inline'", "https:", "data:"],
+      fontSrc: ["'self'", "https:", "data:"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      objectSrc: ["'none'"],
+    },
 
-    c.header(
-      "Strict-Transport-Security",
-      "max-age=63072000; includeSubDomains",
-    );
-    c.header("X-Content-Type-Options", "nosniff");
-    c.header("X-Frame-Options", "DENY");
-    c.header("Referrer-Policy", "strict-origin-when-cross-origin");
-    c.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-    c.header(
-      "Content-Security-Policy",
-      `default-src 'self'; script-src 'nonce-${nonce}' 'strict-dynamic'; style-src 'nonce-${nonce}' 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`,
-    );
-  };
-};
+    permissionsPolicy: {
+      camera: ["none"],
+      microphone: ["none"],
+      geolocation: ["none"],
+    },
+  });

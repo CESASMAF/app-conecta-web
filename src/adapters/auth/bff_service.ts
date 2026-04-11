@@ -217,8 +217,11 @@ const validateIdTokenClaims = (
 const formatSessionCookie = (
   sessionId: string,
   maxAgeSeconds: number,
+  secure: boolean,
 ): string =>
-  `__Host-session=${sessionId}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${maxAgeSeconds}`;
+  secure
+    ? `__Host-session=${sessionId}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${maxAgeSeconds}`
+    : `session=${sessionId}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAgeSeconds}`;
 
 // ---------------------------------------------------------------------------
 // PKCE store helpers
@@ -468,7 +471,7 @@ export const createBFFAuthService = (
       // HMAC-sign the session ID before placing in cookie
       const hmacKey = await hmacKeyPromise;
       const signedId = await signSessionId(sessionId, hmacKey);
-      const cookieValue = formatSessionCookie(signedId, maxAgeSeconds);
+      const cookieValue = formatSessionCookie(signedId, maxAgeSeconds, config.secureCookies);
 
       return ok({ sessionId, cookieValue });
     } catch {

@@ -23,5 +23,3 @@ Thumbs.db
 _fresh/
 
 # Docker
-caddy_data/
-caddy_config/
