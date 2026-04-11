@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from "@hono/hono";
 import type { AppEnv } from "../types.ts";
 
 /** Exact-match public paths (no prefix matching). */
-const PUBLIC_EXACT_PATHS: ReadonlySet<string> = new Set(["/health", "/ready"]);
+const PUBLIC_EXACT_PATHS: ReadonlySet<string> = new Set(["/health", "/ready", "/login"]);
 
 /** Prefix-match public paths (startsWith matching). */
 const PUBLIC_PREFIX_PATHS = ["/auth/", "/static/"] as const;

@@ -16,6 +16,7 @@ import { authGuard } from "./middleware/auth_guard.ts";
 import { healthRoutes } from "./routes/health.ts";
 import { createAuthRoutes } from "./routes/auth.ts";
 import { createApiRoutes } from "./routes/api.ts";
+import { pageRoutes } from "./routes/pages.tsx";
 
 // ---------------------------------------------------------------------------
 // Bootstrap
@@ -58,6 +59,7 @@ app.use("*", authGuard());
 app.route("/", healthRoutes);
 app.route("/", createAuthRoutes(authService));
 app.route("/", createApiRoutes(remoteClient));
+app.route("/", pageRoutes);
 
 // ---------------------------------------------------------------------------
 // Start

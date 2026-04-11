@@ -20,7 +20,7 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": false,
     "jsx": "react-jsx",
-    "jsxImportSource": "@hono/hono"
+    "jsxImportSource": "@hono/hono/jsx"
   },
   "exclude": [
     "contracts/",
