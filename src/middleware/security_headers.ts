@@ -42,8 +42,8 @@ export const securityHeaders = () =>
     },
 
     permissionsPolicy: {
-      camera: ["none"],
-      microphone: ["none"],
-      geolocation: ["none"],
+      camera: [],
+      microphone: [],
+      geolocation: [],
     },
   });

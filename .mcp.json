@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "deno-mcp": {
+      "command": "deno",
+      "args": ["run", "-A", "jsr:@udibo/deno-mcp"],
+      "cwd": "/Users/gabriel_aderaldo/Desktop/dev/envolve/acdg/social-care-deno"
+    }
+  }
+}

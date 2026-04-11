@@ -2,9 +2,11 @@
   "version": "5",
   "specifiers": {
     "jsr:@hono/hono@4": "4.12.12",
+    "jsr:@std/assert@*": "1.0.19",
     "jsr:@std/assert@1": "1.0.19",
     "jsr:@std/assert@^1.0.17": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.12",
+    "jsr:@std/testing@*": "1.0.17",
     "jsr:@std/testing@1": "1.0.17"
   },
   "jsr": {
