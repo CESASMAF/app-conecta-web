@@ -4,6 +4,51 @@
 
 ---
 
+## Contributor Safety Rules (MANDATORY for ALL contributors)
+
+These rules are enforced by git hooks and Claude Code hooks. Violation is blocked automatically.
+
+### Git Workflow
+- **NEVER commit directly to `main`** — Always create a branch first
+- **NEVER force push** (`git push --force` is blocked)
+- **NEVER `git reset --hard`** — Use `git stash` or `git checkout` instead
+- **Branch naming:** `feat/`, `fix/`, `ui/`, `chore/`, `docs/`, `refactor/`, `test/`
+- **For UI/UX work:** Use `ui/` prefix (e.g., `ui/melhorar-home-page`)
+- **Merge to main via Pull Request only** — PR triggers test verification
+
+### Before Committing
+- Run `deno test tests/` to verify zero regressions
+- Run `deno task build` to verify client bundles compile
+- The pre-push hook runs tests automatically — if they fail, push is blocked
+
+### UI/UX Contributors — Scope Restrictions
+- **ONLY modify files under:** `src/client/views/`, `src/client/styles/`, `src/views/`, `static/`
+- **DO NOT modify:** `src/domain/`, `src/application/`, `src/adapters/`, `src/middleware/`, `src/routes/`, `src/server.ts`, `src/types.ts`
+- **DO NOT modify test files** unless adding new view tests
+- **Styling:** Use ONLY `hono/css` with tokens from `src/client/styles/tokens.ts`. NO Tailwind, NO inline styles with hardcoded values
+- **Components:** Follow view-expert skill in `.claude/skills/view-expert/SKILL.md`
+- **If you need a new API endpoint or data field:** Ask the backend developer, don't modify server code
+
+### Setup for New Contributors
+```bash
+# 1. Clone and install hooks
+git clone git@github.com:acdgbrasil/app-conecta-web.git
+cd app-conecta-web
+git config core.hooksPath .githooks
+
+# 2. Create your branch
+git checkout -b ui/minha-feature
+
+# 3. Build and run
+deno task build
+docker compose up --build
+
+# 4. Run tests before pushing
+deno test tests/
+```
+
+---
+
 ## Global Rules (All Layers)
 
 - **`throw` is FORBIDDEN** in domain and application. Allowed ONLY in adapters, and must convert to `Result` at the boundary.

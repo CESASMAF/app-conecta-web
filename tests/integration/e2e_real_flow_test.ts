@@ -55,6 +55,7 @@ const TEST_CONFIG: ServerConfig = {
     redirectUri: "http://127.0.0.1:9081/auth/callback",
   },
   sessionSecret: "test-session-secret-at-least-32-chars-long!!",
+  secureCookies: false,
 };
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,34 @@
+#!/bin/bash
+# Pre-push hook: runs tests before pushing to catch regressions.
+# Install: git config core.hooksPath .githooks
+
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+# ── Block push to main ──────────────────────────────────────────────────────
+if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
+  echo ""
+  echo "╔══════════════════════════════════════════════════════════╗"
+  echo "║  ❌  BLOQUEADO: Push direto para '$BRANCH'              ║"
+  echo "║                                                          ║"
+  echo "║  Use Pull Request para mergear na main.                  ║"
+  echo "║    gh pr create --title 'minha feature'                  ║"
+  echo "╚══════════════════════════════════════════════════════════╝"
+  echo ""
+  exit 1
+fi
+
+# ── Run tests before push ───────────────────────────────────────────────────
+echo "🧪 Rodando testes antes do push..."
+echo ""
+
+deno test tests/domain/ tests/application/ tests/adapters/ tests/middleware/ tests/routes/ tests/client/ 2>&1
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌  BLOQUEADO: Testes falharam. Corrija antes de fazer push."
+  echo ""
+  exit 1
+fi
+
+echo ""
+echo "✅  Testes passaram. Push permitido."

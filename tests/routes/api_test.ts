@@ -28,6 +28,7 @@ const TEST_CONFIG: ServerConfig = {
     redirectUri: "http://localhost:8081/auth/callback",
   },
   sessionSecret: "test-secret-value",
+  secureCookies: false,
 };
 
 const TEST_SESSION: Session = {

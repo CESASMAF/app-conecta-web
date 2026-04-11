@@ -48,6 +48,7 @@ export const TEST_CONFIG: ServerConfig = {
     redirectUri: "http://localhost:8081/auth/callback",
   },
   sessionSecret: "test-session-secret-at-least-32-chars-long",
+  secureCookies: false,
 };
 
 // ---------------------------------------------------------------------------
