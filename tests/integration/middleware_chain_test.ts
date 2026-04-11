@@ -139,6 +139,7 @@ describe("Middleware Chain E2E - Auth Guard", () => {
     const req = new Request("http://localhost/api/v1/patients", {
       headers: {
         "Sec-Fetch-Site": "same-origin",
+        "X-Requested-With": "XMLHttpRequest",
       },
     });
     const res = await ctx.app.request(req);
@@ -195,7 +196,11 @@ describe("Middleware Chain E2E - Fetch Metadata", () => {
 
   it("allows requests without Sec-Fetch-Site header (non-browser clients)", async () => {
     const sessionId = setupAuthenticatedSession(ctx.sessionStore);
-    const req = await authenticatedRequest("/api/v1/patients", sessionId);
+    const req = await authenticatedRequest("/api/v1/patients", sessionId, {
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
     // No Sec-Fetch-Site header, should pass through
     const res = await ctx.app.request(req);
     assertEquals(res.status, 200);
@@ -323,6 +328,7 @@ describe("Middleware Chain E2E - Session Resolution", () => {
       headers: {
         Cookie: `__Host-session=nonexistent-session-id`,
         "Sec-Fetch-Site": "same-origin",
+        "X-Requested-With": "XMLHttpRequest",
       },
     });
     const res = await ctx.app.request(req);
@@ -368,7 +374,10 @@ describe("Middleware Chain E2E - Full Chain Execution", () => {
   it("security headers are present even on 401 responses", async () => {
     const ctx = createTestApp();
     const req = new Request("http://localhost/api/v1/patients", {
-      headers: { "Sec-Fetch-Site": "same-origin" },
+      headers: {
+        "Sec-Fetch-Site": "same-origin",
+        "X-Requested-With": "XMLHttpRequest",
+      },
     });
     const res = await ctx.app.request(req);
     assertEquals(res.status, 401);

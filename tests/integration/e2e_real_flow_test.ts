@@ -275,6 +275,7 @@ describe({ name: "E2E Real Flow: BFF + Mock OIDC + Mock Backend", sanitizeResour
         headers: {
           Cookie: state.sessionCookie!,
           "Sec-Fetch-Site": "same-origin",
+          "X-Requested-With": "XMLHttpRequest",
         },
       });
 
@@ -376,6 +377,7 @@ describe({ name: "E2E Real Flow: BFF + Mock OIDC + Mock Backend", sanitizeResour
         headers: {
           Cookie: state.sessionCookie!,
           "Sec-Fetch-Site": "same-origin",
+          "X-Requested-With": "XMLHttpRequest",
         },
       });
 
@@ -432,6 +434,7 @@ describe({ name: "E2E Real Flow: BFF + Mock OIDC + Mock Backend", sanitizeResour
         headers: {
           Cookie: sessionCookie,
           "Sec-Fetch-Site": "same-origin",
+          "X-Requested-With": "XMLHttpRequest",
         },
       });
 
@@ -499,6 +502,7 @@ describe({ name: "E2E Real Flow: BFF + Mock OIDC + Mock Backend", sanitizeResour
           headers: {
             Cookie: state.sessionCookie!,
             "Sec-Fetch-Site": "same-origin",
+            "X-Requested-With": "XMLHttpRequest",
           },
         });
         const text = await res.text();
@@ -521,6 +525,7 @@ describe({ name: "E2E Real Flow: BFF + Mock OIDC + Mock Backend", sanitizeResour
         headers: {
           Cookie: state.sessionCookie!,
           "Sec-Fetch-Site": "same-origin",
+          "X-Requested-With": "XMLHttpRequest",
         },
       });
 
@@ -539,7 +544,10 @@ describe({ name: "E2E Real Flow: BFF + Mock OIDC + Mock Backend", sanitizeResour
 
     it("unauthenticated API request returns 401", async () => {
       const res = await fetch(`${BFF_BASE}/api/v1/patients`, {
-        headers: { "Sec-Fetch-Site": "same-origin" },
+        headers: {
+          "Sec-Fetch-Site": "same-origin",
+          "X-Requested-With": "XMLHttpRequest",
+        },
       });
       assertEquals(res.status, 401, "No cookie should yield 401");
     });
@@ -660,12 +668,14 @@ describe({ name: "E2E Real Flow: BFF + Mock OIDC + Mock Backend", sanitizeResour
         headers: {
           Cookie: login1.sessionCookie,
           "Sec-Fetch-Site": "same-origin",
+          "X-Requested-With": "XMLHttpRequest",
         },
       });
       const res2 = await fetch(`${BFF_BASE}/api/v1/patients`, {
         headers: {
           Cookie: login2.sessionCookie,
           "Sec-Fetch-Site": "same-origin",
+          "X-Requested-With": "XMLHttpRequest",
         },
       });
 

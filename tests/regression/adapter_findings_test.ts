@@ -366,3 +366,21 @@ Deno.test("PKCE verifiers have max entries cap", async () => {
     "PKCE verifiers must cap at 1000 entries max",
   );
 });
+
+// =============================================================================
+// PENTEST-1: fetchMetadata must NOT limit X-Requested-With to mutating methods
+// =============================================================================
+
+Deno.test("PENTEST-1: fetch_metadata.ts does not restrict X-Requested-With to only POST/PUT/DELETE", async () => {
+  const source = await Deno.readTextFile("src/middleware/fetch_metadata.ts");
+  const hasMutatingOnlyCheck = source.includes('"POST" || method === "PUT" || method === "DELETE"') ||
+    source.includes("POST") && source.includes("PUT") && source.includes("DELETE") &&
+    source.includes("x-requested-with") && !source.includes("// ALL methods");
+  // The fix removes the method-specific check entirely — XRW is required on all /api/* methods
+  const hasMethodGateForXrw = /if\s*\(\s*method\s*===\s*"POST"\s*\|\|\s*method\s*===\s*"PUT"\s*\|\|\s*method\s*===\s*"DELETE"\s*\)/.test(source);
+  assertEquals(
+    hasMethodGateForXrw,
+    false,
+    "X-Requested-With must be required on ALL /api/* methods, not just POST/PUT/DELETE (pentest finding)",
+  );
+});
