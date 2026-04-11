@@ -15,6 +15,7 @@ RUN deno check src/**/*.ts
 
 # Bundle client-side apps for browser
 RUN mkdir -p static/js && \
+    deno bundle --platform browser --minify -o static/js/auth-hub.js src/client/apps/auth-hub/entry.tsx && \
     deno bundle --platform browser --minify -o static/js/social-care.js src/client/apps/social-care/entry.tsx && \
     deno bundle --platform browser --minify -o static/js/registration.js src/client/apps/registration/entry.tsx && \
     deno bundle --platform browser --minify -o static/js/family-composition.js src/client/apps/family-composition/entry.tsx
