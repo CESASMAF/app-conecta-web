@@ -1,13 +1,13 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { font, weight } from "../../../styles/tokens.ts"
+import { font, weight, color, alpha } from "../../../styles/tokens.ts"
 
 const taglineStyle = css`
   font-family: ${font.playfair};
   font-size: 18px;
   font-style: italic;
   font-weight: ${weight.light};
-  color: rgba(242, 226, 196, 0.82);
+  color: ${alpha(color.textOnDark, 0.82)};
   line-height: 1.6;
   max-width: 380px;
   text-align: center;

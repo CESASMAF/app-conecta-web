@@ -4,6 +4,7 @@ import { color, breakpoint } from "../../../styles/tokens.ts"
 import type { HubState } from "../../../viewmodels/auth-hub/types.ts"
 import { AUTH_HUB_STRINGS } from "../../../viewmodels/auth-hub/strings.ts"
 import { getGreeting } from "../../../viewmodels/auth-hub/reducer.ts"
+import { LoadingScreen } from "../ui/loading-screen.tsx"
 import { HubHeader } from "./hub-header.tsx"
 import { HubWelcome } from "./hub-welcome.tsx"
 import { RecentAppCard } from "./recent-app-card.tsx"
@@ -19,6 +20,7 @@ interface HubScreenProps {
 }
 
 const screenStyle = css`
+  width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
   background: ${color.background};
@@ -36,7 +38,7 @@ const mainStyle = css`
 
 export const HubScreen: FC<HubScreenProps> = ({ state, onSelectApp, onLogout, onRetry }) => {
   const { user, apps, lastUsedAppId, error } = state
-  if (!user) return null
+  if (!user) return <LoadingScreen context="loading-permissions" />
 
   const recentApp = lastUsedAppId !== null && apps.length > 1
     ? apps.find((a) => a.id === lastUsedAppId) ?? null

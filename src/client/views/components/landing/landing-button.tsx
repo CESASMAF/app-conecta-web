@@ -14,8 +14,8 @@ const spin = keyframes`
 const buttonStyle = css`
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 16px 40px;
+  justify-content: center;
+  padding: 16px 48px;
   border-radius: ${radius.pill};
   border: none;
   background: ${color.background};
@@ -44,15 +44,11 @@ const buttonStyle = css`
     cursor: not-allowed;
     transform: none;
   }
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
-`
-
-const arrowStyle = css`
-  transition: transform 300ms ease;
-  ${buttonStyle}:hover & {
-    transform: translateX(4px);
+  @media (max-width: 599px) {
+    padding: 14px 36px;
+    font-size: 16px;
+    white-space: nowrap;
+    min-height: 48px;
   }
   @media (prefers-reduced-motion: reduce) {
     transition: none;
@@ -68,13 +64,6 @@ const spinnerStyle = css`
   animation: ${spin} 0.8s linear infinite;
 `
 
-const ArrowIcon: FC = () => (
-  <svg class={arrowStyle} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <line x1="5" y1="12" x2="19" y2="12" />
-    <polyline points="12 5 19 12 12 19" />
-  </svg>
-)
-
 export const LandingButton: FC<LandingButtonProps> = ({ onClick, loading }) => (
   <button
     class={buttonStyle}
@@ -83,7 +72,8 @@ export const LandingButton: FC<LandingButtonProps> = ({ onClick, loading }) => (
     type="button"
     aria-label="Entrar na plataforma"
   >
-    Entrar na plataforma
-    {loading ? <div class={spinnerStyle} aria-hidden="true" /> : <ArrowIcon />}
+    {loading
+      ? <div class={spinnerStyle} aria-hidden="true" />
+      : "Entrar na plataforma"}
   </button>
 )

@@ -104,7 +104,7 @@ const logoutStyle = css`
   font-family: ${font.satoshi};
   font-size: 13px;
   font-weight: ${weight.semibold};
-  color: ${color.textMuted};
+  color: ${alpha(color.textPrimary, 0.7)};
   cursor: pointer;
   transition: border-color 200ms ease, color 200ms ease;
   &:hover {

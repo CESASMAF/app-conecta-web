@@ -85,14 +85,14 @@ const descStyle = css`
   font-size: 13px;
   font-style: italic;
   font-weight: ${weight.light};
-  color: rgba(242, 226, 196, 0.75);
+  color: ${alpha(color.textOnDark, 0.75)};
   margin: 0;
   line-height: 1.5;
 `
 
 const arrowStyle = css`
   font-size: 20px;
-  color: rgba(242, 226, 196, 0.6);
+  color: ${alpha(color.textOnDark, 0.75)};
   flex-shrink: 0;
   transition: transform 200ms ease, color 200ms ease;
   @media (prefers-reduced-motion: reduce) {
