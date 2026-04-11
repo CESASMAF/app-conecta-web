@@ -3,117 +3,175 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Social Care — Cadastro Redesign Prototype</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=display=swap" rel="stylesheet" />
+<title>Conecta — Cadastro Redesign Prototype</title>
 <style>
-/* ═══════════════════════════════════════════
-   DESIGN TOKENS
-   ═══════════════════════════════════════════ */
+@import url('https://api.fontshare.com/v2/css?f[]=erode@400,500,600,700&f[]=satoshi@400,500,600,700&display=swap');
+
+/* ===================================================================
+   DESIGN TOKENS — Sage Garden
+   =================================================================== */
 :root {
-  --bg-deep: #0A0A0A;
-  --bg-base: #111111;
-  --bg-surface: #181818;
-  --bg-elevated: #1F1F1F;
-  --bg-hover: #262626;
-  --text-primary: #F0EDE8;
-  --text-secondary: rgba(240, 237, 232, 0.6);
-  --text-muted: rgba(240, 237, 232, 0.35);
-  --accent-warm: #D4A853;
-  --accent-warm-muted: rgba(212, 168, 83, 0.15);
-  --accent-warm-hover: #E0BA6A;
-  --success: #5A9A52;
+  --bg-base: #F8F3EC;
+  --bg-warm: #F0E8DC;
+  --bg-sage: #E2E8DF;
+  --bg-sage-deep: #D4DDD0;
+  --bg-card: rgba(255,255,255,0.45);
+  --bg-card-hover: rgba(255,255,255,0.65);
+  --bg-card-border: rgba(255,255,255,0.6);
+  --bg-card-border-hover: rgba(79,132,72,0.2);
+
+  --text-primary: #1E2B1A;
+  --text-secondary: #3D5235;
+  --text-muted: #6B7F65;
+  --text-soft: #8B9E85;
+
+  --green-primary: #4F8448;
+  --green-dark: #3D6A37;
+  --green-light: rgba(79,132,72,0.08);
+
   --danger: #C4422B;
-  --warning: #C9960A;
-  --line: rgba(240, 237, 232, 0.08);
-  --line-hover: rgba(240, 237, 232, 0.15);
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-ui: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --s1: 4px; --s2: 8px; --s3: 16px; --s4: 24px; --s5: 32px;
-  --s6: 40px; --s7: 48px; --s8: 56px; --s9: 64px; --s10: 80px;
-  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px;
-  --ease-out: cubic-bezier(0.25, 0, 0.25, 1);
-  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --danger-light: rgba(196,66,43,0.08);
+
+  --sidebar-width: 64px;
+
+  --font-display: 'Erode', Georgia, serif;
+  --font-body: 'Satoshi', system-ui, -apple-system, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --duration-fast: 150ms;
-  --duration-normal: 250ms;
-  --duration-slow: 400ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+  --s6: 32px; --s7: 40px; --s8: 48px; --s9: 64px; --s10: 80px;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-pill: 100px;
+
+  --line: rgba(79,132,72,0.08);
+  --line-hover: rgba(79,132,72,0.15);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; -webkit-font-smoothing: antialiased; }
-body { font-family: var(--font-ui); background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; overflow: hidden; }
-::selection { background: var(--accent-warm); color: var(--bg-deep); }
-::-webkit-scrollbar { width: 4px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::selection { background: var(--green-primary); color: #fff; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--line-hover); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: rgba(79,132,72,0.2); border-radius: 3px; }
 
-/* ═══════════════════════════════════════════
+/* ===================================================================
+   FIXED BACKGROUND — gradient + blobs
+   =================================================================== */
+.bg-gradient {
+  position: fixed; inset: 0; z-index: 0;
+  background: linear-gradient(155deg, var(--bg-base) 0%, var(--bg-warm) 25%, var(--bg-sage) 55%, var(--bg-sage-deep) 100%);
+}
+.bg-blob-1 {
+  position: fixed; top: -10%; right: 5%; width: 450px; height: 450px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,132,72,0.06) 0%, transparent 70%); z-index: 0;
+}
+.bg-blob-2 {
+  position: fixed; bottom: -15%; left: 10%; width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(180,160,100,0.04) 0%, transparent 70%); z-index: 0;
+}
+
+/* ===================================================================
    LAYOUT
-   ═══════════════════════════════════════════ */
-.app {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  grid-template-rows: auto 1fr;
-  height: 100vh;
-}
+   =================================================================== */
+.app { position: relative; z-index: 1; display: flex; min-height: 100vh; }
 
-/* ═══════════════════════════════════════════
-   SIDEBAR (same as home)
-   ═══════════════════════════════════════════ */
+/* ===================================================================
+   SIDEBAR — 64px icon bar, expands to 220px on hover
+   =================================================================== */
 .sidebar {
-  grid-row: 1 / -1;
-  background: var(--bg-base);
-  border-right: 1px solid var(--line);
-  display: flex;
-  flex-direction: column;
-  padding: var(--s6) 0;
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-width);
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(79,132,72,0.08);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 0; z-index: 40;
+  transition: width var(--duration-normal) var(--ease-out);
+  overflow: hidden;
 }
-.sidebar-logo { padding: 0 var(--s5); margin-bottom: var(--s9); }
-.sidebar-logo h1 { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
-.sidebar-logo span { font-family: var(--font-display); font-style: italic; font-size: 12px; color: var(--text-muted); display: block; margin-top: var(--s1); }
-.sidebar-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); padding: 0 var(--s5); margin-bottom: var(--s3); }
-.sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 2px; }
-.sidebar-nav a { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s5); font-size: 14px; color: var(--text-secondary); text-decoration: none; transition: all var(--duration-normal) var(--ease-out); position: relative; }
-.sidebar-nav a .nav-number { font-size: 11px; font-weight: 500; color: var(--text-muted); min-width: 20px; font-variant-numeric: tabular-nums; }
-.sidebar-nav a:hover { color: var(--text-primary); background: var(--bg-elevated); }
-.sidebar-nav a.active { color: var(--text-primary); font-weight: 600; }
-.sidebar-nav a.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 2px; height: 24px; background: var(--accent-warm); border-radius: 0 2px 2px 0; }
-.sidebar-nav a .badge { margin-left: auto; font-size: 11px; font-weight: 600; background: var(--accent-warm-muted); color: var(--accent-warm); padding: 2px 8px; border-radius: 100px; }
-.sidebar-footer { margin-top: auto; padding: var(--s4) var(--s5); border-top: 1px solid var(--line); }
-.sidebar-user { display: flex; align-items: center; gap: var(--s3); }
-.sidebar-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-elevated); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
-.sidebar-user-name { font-size: 13px; font-weight: 500; }
-.sidebar-user-role { font-size: 11px; color: var(--text-muted); }
+.sidebar:hover { width: 220px; }
 
-/* ═══════════════════════════════════════════
-   TOPBAR
-   ═══════════════════════════════════════════ */
-.topbar {
-  background: var(--bg-base);
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--s6);
-  height: 64px;
+.sidebar-logo {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-family: var(--font-display); font-size: 16px; font-weight: 700;
+  margin-bottom: 8px; flex-shrink: 0;
 }
-.topbar-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
-.topbar-back {
-  display: flex; align-items: center; gap: var(--s2);
-  font-size: 14px; color: var(--text-secondary); text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-out);
+.sidebar-brand {
+  font-family: var(--font-display); font-size: 14px; color: var(--text-secondary); font-weight: 600;
+  white-space: nowrap; opacity: 0; transform: translateX(-8px);
+  transition: all var(--duration-normal) var(--ease-out); margin-bottom: 32px;
 }
-.topbar-back:hover { color: var(--text-primary); }
+.sidebar:hover .sidebar-brand { opacity: 1; transform: translateX(0); }
 
-/* ═══════════════════════════════════════════
-   MAIN CONTENT
-   ═══════════════════════════════════════════ */
+.sidebar-nav { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 0 12px; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-radius: var(--r-sm); cursor: pointer;
+  transition: all var(--duration-fast) ease; text-decoration: none;
+  color: var(--text-muted); white-space: nowrap;
+}
+.sidebar-item:hover { background: var(--green-light); color: var(--text-secondary); }
+.sidebar-item.active { background: var(--green-light); color: var(--green-primary); }
+.sidebar-icon {
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 16px;
+}
+.sidebar-label {
+  font-size: 13px; font-weight: 500; opacity: 0; transform: translateX(-8px);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+.sidebar:hover .sidebar-label { opacity: 1; transform: translateX(0); }
+.sidebar-badge {
+  margin-left: auto; font-size: 11px; font-weight: 600;
+  background: var(--green-light); color: var(--green-primary);
+  padding: 2px 8px; border-radius: var(--r-pill);
+  opacity: 0; transition: opacity var(--duration-normal) var(--ease-out);
+}
+.sidebar:hover .sidebar-badge { opacity: 1; }
+
+.sidebar-footer { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 0 12px; width: 100%; }
+.sidebar-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-sage), var(--bg-sage-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--green-dark); flex-shrink: 0;
+}
+.sidebar-username {
+  font-size: 12px; color: var(--text-muted); white-space: nowrap;
+  opacity: 0; transition: opacity var(--duration-normal) var(--ease-out);
+}
+.sidebar:hover .sidebar-username { opacity: 1; }
+
+/* ===================================================================
+   MAIN WIZARD AREA
+   =================================================================== */
 .main-content {
-  overflow-y: auto;
+  margin-left: var(--sidebar-width);
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--s7) var(--s6);
+  padding: 40px 32px;
+  overflow-y: auto;
+  min-height: 100vh;
 }
 
 .wizard-container {
@@ -121,147 +179,198 @@ body { font-family: var(--font-ui); background: var(--bg-deep); color: var(--tex
   max-width: 720px;
 }
 
-/* ═══════════════════════════════════════════
-   STEPPER
-   ═══════════════════════════════════════════ */
-.stepper {
+/* ===================================================================
+   TOP BAR — back link + step indicator
+   =================================================================== */
+.wizard-topbar {
+  width: 100%;
+  max-width: 720px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+.back-link {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-muted); text-decoration: none;
+  transition: color var(--duration-fast) ease; cursor: pointer;
+}
+.back-link:hover { color: var(--text-secondary); }
+
+/* ===================================================================
+   STEPPER — progress bar + dots
+   =================================================================== */
+.stepper {
+  display: flex;
+  flex-direction: column;
   gap: 0;
   margin-bottom: var(--s7);
-  padding: 0 var(--s3);
+  width: 100%;
+  max-width: 720px;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 3px;
+  background: rgba(79,132,72,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--green-primary), var(--green-dark));
+  border-radius: 2px;
+  transition: width 0.6s var(--ease-out);
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
 }
 
 .step-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--s2);
+  gap: 6px;
   cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-out);
-  white-space: nowrap;
+  transition: all var(--duration-fast) ease;
 }
 
 .step-dot {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  border: 1.5px solid var(--line-hover);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 600;
-  color: var(--text-muted);
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(79,132,72,0.15);
+  border: 2px solid transparent;
   transition: all var(--duration-normal) var(--ease-out);
-  flex-shrink: 0;
+}
+
+.step-dot.completed {
+  background: var(--green-primary);
+  box-shadow: 0 0 0 3px rgba(79,132,72,0.1);
+}
+
+.step-dot.current {
+  background: #fff;
+  border-color: var(--green-primary);
+  box-shadow: 0 0 0 3px rgba(79,132,72,0.12);
 }
 
 .step-label {
-  font-size: 12px; font-weight: 500;
-  color: var(--text-muted);
-  transition: color var(--duration-normal) var(--ease-out);
+  font-size: 10px;
+  color: var(--text-soft);
+  white-space: nowrap;
+  font-weight: 500;
+  transition: color var(--duration-fast) ease;
+}
+.step-label.completed { color: var(--green-primary); }
+.step-label.current { color: var(--text-secondary); font-weight: 600; }
+
+.stepper-mobile {
+  display: none;
+  font-family: var(--font-body); font-size: 12px;
+  color: var(--text-soft); text-align: center; font-weight: 500;
+  padding: var(--s3) 0; margin-bottom: var(--s5);
 }
 
-.step-item.active .step-dot {
-  background: var(--accent-warm);
-  border-color: var(--accent-warm);
-  color: var(--bg-deep);
+/* ===================================================================
+   GLASS WIZARD CARD
+   =================================================================== */
+.step-content {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--r-xl);
+  padding: 40px 44px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.03);
+  animation: containerFadeIn 0.6s var(--ease-out);
 }
-.step-item.active .step-label { color: var(--text-primary); }
 
-.step-item.completed .step-dot {
-  background: var(--success);
-  border-color: var(--success);
-  color: white;
+@keyframes containerFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.step-item.completed .step-label { color: var(--text-secondary); }
 
-.step-connector {
-  flex: 1;
-  height: 1px;
-  background: var(--line);
-  margin: 0 var(--s2);
-  min-width: 12px;
-}
-.step-connector.completed { background: var(--success); }
-
-/* ═══════════════════════════════════════════
+/* ===================================================================
    STEP HEADER
-   ═══════════════════════════════════════════ */
+   =================================================================== */
 .step-header {
   margin-bottom: var(--s6);
 }
-
 .step-number {
-  font-size: 12px; font-weight: 700;
+  font-size: 11px; font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: var(--accent-warm);
+  color: var(--text-soft);
   margin-bottom: var(--s2);
 }
-
 .step-title {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
-  letter-spacing: -0.03em;
-  margin-bottom: var(--s2);
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: var(--s1);
 }
-
 .step-description {
-  font-size: 15px;
-  color: var(--text-secondary);
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
 
-/* ═══════════════════════════════════════════
-   FORM FIELDS
-   ═══════════════════════════════════════════ */
+/* ===================================================================
+   FORM FIELDS — underline style
+   =================================================================== */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--s5) var(--s6);
+  gap: 24px 28px;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: var(--s2);
+  gap: 6px;
 }
-
 .form-field.full { grid-column: 1 / -1; }
 
 .field-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text-muted);
+  letter-spacing: 1px;
+  color: var(--text-soft);
 }
-
 .field-required::after {
   content: ' *';
-  color: var(--accent-warm);
+  color: var(--danger);
 }
 
 .field-input {
   background: transparent;
   border: none;
-  border-bottom: 1.5px solid var(--line-hover);
-  padding: var(--s2) 0;
-  font-family: var(--font-ui);
-  font-size: 16px;
+  border-bottom: 1.5px solid rgba(79,132,72,0.15);
+  padding: 10px 0;
+  font-family: var(--font-body);
+  font-size: 15px;
   color: var(--text-primary);
   outline: none;
   transition: border-color var(--duration-normal) var(--ease-out);
   width: 100%;
 }
-
 .field-input::placeholder {
-  color: var(--text-muted);
+  color: var(--text-soft);
+  font-style: italic;
 }
-
 .field-input:focus {
-  border-color: var(--accent-warm);
+  border-color: var(--green-primary);
 }
-
 .field-input.error {
   border-color: var(--danger);
+}
+.field-input.filled {
+  border-color: rgba(79,132,72,0.3);
 }
 
 .field-error {
@@ -273,29 +382,28 @@ body { font-family: var(--font-ui); background: var(--bg-deep); color: var(--tex
 .field-select {
   background: transparent;
   border: none;
-  border-bottom: 1.5px solid var(--line-hover);
-  padding: var(--s2) 0;
-  font-family: var(--font-ui);
-  font-size: 16px;
+  border-bottom: 1.5px solid rgba(79,132,72,0.15);
+  padding: 10px 0;
+  font-family: var(--font-body);
+  font-size: 15px;
   color: var(--text-primary);
   outline: none;
   cursor: pointer;
+  -webkit-appearance: none;
   appearance: none;
   transition: border-color var(--duration-normal) var(--ease-out);
   width: 100%;
 }
+.field-select:focus { border-color: var(--green-primary); }
+.field-select option { background: #fff; color: var(--text-primary); }
 
-.field-select:focus { border-color: var(--accent-warm); }
-.field-select option { background: var(--bg-surface); color: var(--text-primary); }
-
-/* Textarea */
 .field-textarea {
-  background: transparent;
-  border: 1.5px solid var(--line-hover);
+  background: rgba(255,255,255,0.25);
+  border: 1.5px solid rgba(79,132,72,0.12);
   border-radius: var(--r-md);
   padding: var(--s3);
-  font-family: var(--font-ui);
-  font-size: 16px;
+  font-family: var(--font-body);
+  font-size: 15px;
   color: var(--text-primary);
   outline: none;
   resize: vertical;
@@ -303,93 +411,163 @@ body { font-family: var(--font-ui); background: var(--bg-deep); color: var(--tex
   transition: border-color var(--duration-normal) var(--ease-out);
   width: 100%;
 }
-.field-textarea:focus { border-color: var(--accent-warm); }
-.field-textarea::placeholder { color: var(--text-muted); }
+.field-textarea:focus { border-color: var(--green-primary); }
+.field-textarea::placeholder { color: var(--text-soft); font-style: italic; }
 
-/* Section divider */
 .form-section-title {
   grid-column: 1 / -1;
-  font-size: 12px; font-weight: 700;
+  font-size: 11px; font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
+  letter-spacing: 1px;
+  color: var(--text-soft);
   padding-top: var(--s3);
-  border-top: 1px solid var(--line);
+  border-top: 1px solid rgba(79,132,72,0.08);
   margin-top: var(--s2);
 }
 
-/* ═══════════════════════════════════════════
+/* ===================================================================
+   CARD SELECTORS — glass-style pills (Sexo, Localizacao)
+   =================================================================== */
+.card-selector-group {
+  display: flex;
+  gap: 10px;
+  margin-top: var(--s2);
+}
+.card-selector {
+  flex: 1;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.4);
+  border: 1.5px solid rgba(79,132,72,0.1);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.card-selector:hover {
+  background: rgba(255,255,255,0.6);
+  border-color: rgba(79,132,72,0.2);
+}
+.card-selector.selected {
+  background: var(--green-light);
+  border-color: var(--green-primary);
+  color: var(--green-primary);
+  font-weight: 600;
+  box-shadow: 0 0 0 3px rgba(79,132,72,0.08);
+}
+
+/* ===================================================================
+   PROGRAMS GRID — checkable items (Step 6)
+   =================================================================== */
+.programs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s3);
+  margin-top: var(--s3);
+}
+.program-item {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border: 1.5px solid rgba(79,132,72,0.1);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  background: rgba(255,255,255,0.3);
+}
+.program-item:hover { border-color: rgba(79,132,72,0.2); background: rgba(255,255,255,0.5); }
+.program-item.selected {
+  border-color: var(--green-primary);
+  background: var(--green-light);
+  box-shadow: 0 0 0 3px rgba(79,132,72,0.08);
+}
+.program-check {
+  width: 18px; height: 18px; border-radius: var(--r-sm);
+  border: 1.5px solid rgba(79,132,72,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0; color: transparent;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.program-item.selected .program-check {
+  background: var(--green-primary); border-color: var(--green-primary); color: #fff;
+}
+.program-label { font-size: 14px; color: var(--text-muted); }
+.program-item.selected .program-label { color: var(--green-primary); font-weight: 500; }
+
+/* ===================================================================
    DIAGNOSIS CARDS (Step 3)
-   ═══════════════════════════════════════════ */
+   =================================================================== */
 .diagnosis-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.5);
   border-radius: var(--r-lg);
-  padding: var(--s4);
+  padding: var(--s5);
   position: relative;
   animation: fadeInUp var(--duration-slow) var(--ease-out) both;
 }
-
 .diagnosis-card + .diagnosis-card { margin-top: var(--s3); }
-
 .diagnosis-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--s4) var(--s5);
 }
-
 .diagnosis-remove {
-  position: absolute;
-  top: var(--s3);
-  right: var(--s3);
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 16px;
-  cursor: pointer;
+  position: absolute; top: var(--s3); right: var(--s3);
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid rgba(79,132,72,0.15); background: rgba(255,255,255,0.3);
+  color: var(--text-muted); font-size: 16px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: all var(--duration-fast) var(--ease-out);
 }
-.diagnosis-remove:hover { border-color: var(--danger); color: var(--danger); background: rgba(196,66,43,0.08); }
+.diagnosis-remove:hover {
+  border-color: var(--danger); color: var(--danger);
+  background: var(--danger-light);
+}
 
 .quick-cids {
   grid-column: 1 / -1;
   display: flex; gap: var(--s2); flex-wrap: wrap;
 }
-
 .cid-chip {
-  font-family: var(--font-ui);
+  font-family: var(--font-body);
   font-size: 12px; font-weight: 500;
   padding: 4px 12px;
-  border-radius: 100px;
-  border: 1px solid var(--line-hover);
-  background: transparent;
-  color: var(--text-secondary);
+  border-radius: var(--r-pill);
+  border: 1px solid rgba(79,132,72,0.15);
+  background: rgba(255,255,255,0.3);
+  color: var(--text-muted);
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-out);
 }
-.cid-chip:hover { border-color: var(--accent-warm); color: var(--accent-warm); background: var(--accent-warm-muted); }
+.cid-chip:hover {
+  border-color: var(--green-primary); color: var(--green-primary);
+  background: var(--green-light);
+}
 
-/* ═══════════════════════════════════════════
+/* ===================================================================
    FAMILY MEMBER LIST (Step 4)
-   ═══════════════════════════════════════════ */
+   =================================================================== */
 .member-row {
   display: grid;
   grid-template-columns: auto 1fr 1fr auto;
   align-items: center;
   gap: var(--s4);
   padding: var(--s3) 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(79,132,72,0.08);
   animation: fadeInUp var(--duration-slow) var(--ease-out) both;
 }
-
-.member-index { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; min-width: 20px; }
-.member-name { font-size: 16px; font-weight: 500; }
-.member-meta { font-size: 14px; color: var(--text-secondary); }
+.member-index {
+  font-size: 12px; color: var(--text-soft);
+  font-variant-numeric: tabular-nums; min-width: 20px;
+}
+.member-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.member-meta { font-size: 14px; color: var(--text-muted); }
 .member-remove {
-  width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line);
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid rgba(79,132,72,0.15);
   background: transparent; color: var(--text-muted); font-size: 14px;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: all var(--duration-fast) var(--ease-out);
@@ -398,97 +576,74 @@ body { font-family: var(--font-ui); background: var(--bg-deep); color: var(--tex
 
 .empty-members {
   text-align: center; padding: var(--s7) 0;
-  color: var(--text-muted); font-size: 15px;
+  color: var(--text-soft); font-size: 15px;
 }
 
-/* ═══════════════════════════════════════════
-   PROGRAMS GRID (Step 6)
-   ═══════════════════════════════════════════ */
-.programs-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--s3);
-  margin-top: var(--s3);
-}
-
-.program-item {
-  display: flex; align-items: center; gap: var(--s3);
-  padding: var(--s3) var(--s4);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out);
-}
-.program-item:hover { border-color: var(--line-hover); background: var(--bg-surface); }
-.program-item.selected { border-color: var(--accent-warm); background: var(--accent-warm-muted); }
-
-.program-check {
-  width: 18px; height: 18px; border-radius: var(--r-sm); border: 1.5px solid var(--line-hover);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; flex-shrink: 0;
-  transition: all var(--duration-fast) var(--ease-out);
-}
-.program-item.selected .program-check { background: var(--accent-warm); border-color: var(--accent-warm); color: var(--bg-deep); }
-.program-label { font-size: 14px; color: var(--text-secondary); }
-.program-item.selected .program-label { color: var(--text-primary); }
-
-/* ═══════════════════════════════════════════
-   BUTTON BAR
-   ═══════════════════════════════════════════ */
+/* ===================================================================
+   BUTTON BAR — pill buttons
+   =================================================================== */
 .button-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: var(--s7);
   padding-top: var(--s5);
-  border-top: 1px solid var(--line);
+  border-top: 1px solid rgba(79,132,72,0.08);
 }
 
 .btn {
-  font-family: var(--font-ui);
+  font-family: var(--font-body);
   font-size: 14px;
   font-weight: 600;
-  padding: var(--s3) var(--s5);
-  border-radius: 100px;
+  padding: 12px 28px;
+  border-radius: var(--r-pill);
   cursor: pointer;
   transition: all var(--duration-normal) var(--ease-out);
   border: none;
 }
-
 .btn-secondary {
   background: transparent;
-  border: 1px solid var(--line-hover);
-  color: var(--text-secondary);
+  border: 1.5px solid rgba(79,132,72,0.2);
+  color: var(--text-muted);
+  padding: 10px 20px;
 }
-.btn-secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
+.btn-secondary:hover { border-color: rgba(79,132,72,0.4); color: var(--text-secondary); }
 
 .btn-primary {
-  background: var(--accent-warm);
-  color: var(--bg-deep);
+  background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(79,132,72,0.2);
 }
-.btn-primary:hover { background: var(--accent-warm-hover); transform: translateY(-1px); }
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(79,132,72,0.3);
+}
 
 .btn-add {
-  background: transparent;
-  border: 1px dashed var(--line-hover);
-  color: var(--text-secondary);
+  background: rgba(255,255,255,0.25);
+  border: 1.5px dashed rgba(79,132,72,0.2);
+  color: var(--text-muted);
   width: 100%;
   padding: var(--s3);
   border-radius: var(--r-md);
-  font-family: var(--font-ui);
+  font-family: var(--font-body);
   font-size: 14px;
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-out);
   margin-top: var(--s3);
 }
-.btn-add:hover { border-color: var(--accent-warm); color: var(--accent-warm); background: var(--accent-warm-muted); }
+.btn-add:hover {
+  border-color: var(--green-primary); color: var(--green-primary);
+  background: var(--green-light);
+}
 
-/* ═══════════════════════════════════════════
-   SUCCESS OVERLAY
-   ═══════════════════════════════════════════ */
+/* ===================================================================
+   SUCCESS OVERLAY — glass container, spring animation
+   =================================================================== */
 .success-overlay {
   position: fixed; inset: 0;
-  background: rgba(10,10,10,0.9);
+  background: rgba(248,243,236,0.88);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   z-index: 1000;
@@ -497,27 +652,46 @@ body { font-family: var(--font-ui); background: var(--bg-deep); color: var(--tex
 }
 .success-overlay.visible { opacity: 1; pointer-events: auto; }
 
+.success-glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--r-xl);
+  padding: 48px 56px;
+  text-align: center;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+}
+
+.success-overlay.visible .success-glass {
+  animation: successIn 0.8s var(--ease-spring) both;
+}
+
 @keyframes successScale {
   0% { transform: scale(0); }
   60% { transform: scale(1.1); }
   100% { transform: scale(1); }
 }
-
 @keyframes checkDraw {
   to { stroke-dashoffset: 0; }
 }
-
-.success-circle {
-  width: 80px; height: 80px;
-  border-radius: 50%;
-  background: var(--success);
-  display: flex; align-items: center; justify-content: center;
-  animation: successScale 600ms var(--ease-spring) both;
+@keyframes successIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
+.success-circle {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 4px 20px rgba(79,132,72,0.25);
+  animation: successScale 600ms var(--ease-spring) both;
+}
 .success-circle svg {
-  width: 36px; height: 36px;
-  stroke: white; stroke-width: 3;
+  width: 28px; height: 28px;
+  stroke: white; stroke-width: 2.5;
   fill: none; stroke-linecap: round; stroke-linejoin: round;
   stroke-dasharray: 30; stroke-dashoffset: 30;
   animation: checkDraw 500ms var(--ease-out) 400ms both;
@@ -526,38 +700,99 @@ body { font-family: var(--font-ui); background: var(--bg-deep); color: var(--tex
 .success-text {
   font-family: var(--font-display);
   font-size: 24px; font-weight: 700;
-  margin-top: var(--s5);
+  color: var(--text-primary);
+  margin-bottom: 8px;
   animation: fadeInUp var(--duration-slow) var(--ease-out) 600ms both;
 }
-
 .success-sub {
-  font-size: 15px;
-  color: var(--text-secondary);
-  margin-top: var(--s2);
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 24px;
   animation: fadeInUp var(--duration-slow) var(--ease-out) 750ms both;
 }
+.success-actions {
+  display: flex; gap: 12px; justify-content: center;
+  animation: fadeInUp var(--duration-slow) var(--ease-out) 900ms both;
+}
 
-/* ═══════════════════════════════════════════
+/* ===================================================================
    ANIMATIONS
-   ═══════════════════════════════════════════ */
+   =================================================================== */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.step-content {
-  animation: fadeInUp var(--duration-slow) var(--ease-out) both;
+/* ===================================================================
+   ERROR BANNER
+   =================================================================== */
+@keyframes bannerSlide {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.error-banner {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  background: var(--danger-light);
+  border: 1px solid rgba(196,66,43,0.15);
+  border-radius: var(--r-md);
+  margin-bottom: var(--s5);
+  animation: bannerSlide var(--duration-slow) var(--ease-out);
+}
+.error-banner-icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--danger); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.error-banner-text { font-size: 14px; color: var(--danger); }
+
+/* ===================================================================
+   CUSTOM CHECKBOX
+   =================================================================== */
+.checkbox-field {
+  display: flex; align-items: center; gap: var(--s3);
+  cursor: pointer; padding: 12px 0;
+  font-family: var(--font-body); font-size: 14px; color: var(--text-muted);
+}
+.checkbox-field input[type="checkbox"] { display: none; }
+.checkbox-box {
+  width: 18px; height: 18px; border-radius: var(--r-sm);
+  border: 1.5px solid rgba(79,132,72,0.2); background: rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--duration-fast) var(--ease-out); flex-shrink: 0;
+}
+.checkbox-field input:checked + .checkbox-box {
+  background: var(--green-primary); border-color: var(--green-primary);
+}
+.checkbox-field input:checked + .checkbox-box::after {
+  content: '\2713'; color: white; font-size: 12px; font-weight: 700;
 }
 
-/* ═══════════════════════════════════════════
-   SCENARIO PANEL
-   ═══════════════════════════════════════════ */
+/* ===================================================================
+   RADIO GROUP
+   =================================================================== */
+.radio-group-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-soft);
+}
+.radio-group { display: flex; gap: var(--s4); padding: 8px 0; }
+.radio-option {
+  display: flex; align-items: center; gap: var(--s2);
+  font-family: var(--font-body); font-size: 15px; color: var(--text-primary); cursor: pointer;
+}
+
+/* ===================================================================
+   SCENARIO PANEL — draggable
+   =================================================================== */
 .scenario-panel {
   position: fixed; top: var(--s3); right: var(--s3);
-  background: rgba(30,30,30,0.95); backdrop-filter: blur(20px);
-  border: 1px solid var(--line-hover); border-radius: var(--r-lg);
+  background: rgba(255,255,255,0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(79,132,72,0.12); border-radius: var(--r-lg);
   padding: var(--s3); z-index: 1000; min-width: 180px;
   cursor: default; user-select: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
 }
 .scenario-panel .drag-handle {
   display: flex; align-items: center; justify-content: space-between;
@@ -565,129 +800,84 @@ body { font-family: var(--font-ui); background: var(--bg-deep); color: var(--tex
 }
 .scenario-panel .drag-handle:active { cursor: grabbing; }
 .scenario-panel .drag-handle h3 { margin-bottom: 0; }
-.scenario-panel .drag-dots { color: var(--text-muted); font-size: 14px; letter-spacing: 2px; line-height: 1; }
-.scenario-panel h3 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: var(--s2); }
+.scenario-panel .drag-dots { color: var(--text-soft); font-size: 14px; letter-spacing: 2px; line-height: 1; }
+.scenario-panel h3 {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--text-soft); margin-bottom: var(--s2);
+}
 .scenario-btn {
   display: block; width: 100%; padding: var(--s2) var(--s3);
-  font-family: var(--font-ui); font-size: 12px; color: var(--text-secondary);
+  font-family: var(--font-body); font-size: 12px; color: var(--text-muted);
   background: none; border: none; border-radius: var(--r-sm);
   cursor: pointer; text-align: left;
   transition: all var(--duration-fast) var(--ease-out);
 }
-.scenario-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-.scenario-btn.active { background: var(--accent-warm-muted); color: var(--accent-warm); }
+.scenario-btn:hover { background: var(--green-light); color: var(--text-secondary); }
+.scenario-btn.active { background: var(--green-light); color: var(--green-primary); font-weight: 600; }
 
-/* ═══════════════════════════════════════════
-   ERROR BANNER
-   ═══════════════════════════════════════════ */
-@keyframes bannerSlide {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.error-banner {
-  display: flex; align-items: center; gap: var(--s3);
-  padding: var(--s3) var(--s4);
-  background: rgba(196,66,43,0.08);
-  border: 1px solid rgba(196,66,43,0.15);
-  border-radius: var(--r-md);
-  margin-bottom: var(--s5);
-  animation: bannerSlide var(--duration-slow) var(--ease-out);
-}
-.error-banner-icon { width: 22px; height: 22px; border-radius: 50%; background: var(--danger); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
-.error-banner-text { font-size: 14px; color: var(--danger); }
-
-/* ═══════════════════════════════════════════
-   CUSTOM CHECKBOX (matches CheckboxField)
-   ═══════════════════════════════════════════ */
-.checkbox-field {
-  display: flex; align-items: center; gap: var(--s3);
-  cursor: pointer; padding: 12px 0;
-  font-family: var(--font-ui); font-size: 14px; color: var(--text-secondary);
-}
-.checkbox-field input[type="checkbox"] { display: none; }
-.checkbox-box {
-  width: 18px; height: 18px; border-radius: var(--r-sm);
-  border: 1.5px solid var(--line-hover); background: transparent;
-  display: flex; align-items: center; justify-content: center;
-  transition: all var(--duration-fast) var(--ease-out); flex-shrink: 0;
-}
-.checkbox-field input:checked + .checkbox-box {
-  background: var(--success); border-color: var(--success);
-}
-.checkbox-field input:checked + .checkbox-box::after {
-  content: '✓'; color: white; font-size: 12px; font-weight: 700;
-}
-
-/* ═══════════════════════════════════════════
-   RADIO GROUP (matches step-personal-data + step-address)
-   ═══════════════════════════════════════════ */
-.radio-group-label {
-  font-size: 12px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.8px; color: var(--text-muted);
-}
-.radio-group { display: flex; gap: var(--s4); padding: 8px 0; }
-.radio-option {
-  display: flex; align-items: center; gap: var(--s2);
-  font-family: var(--font-ui); font-size: 16px; color: var(--text-primary); cursor: pointer;
-}
-
-/* ═══════════════════════════════════════════
-   MOBILE RESPONSIVE STEPPER
-   ═══════════════════════════════════════════ */
-.stepper-mobile {
-  display: none;
-  font-family: var(--font-ui); font-size: 14px;
-  color: var(--text-secondary); text-align: center;
-  padding: var(--s3) 0; margin-bottom: var(--s5);
-}
-
-@media (max-width: 599px) {
-  .stepper { display: none !important; }
-  .stepper-mobile { display: block; }
-}
-
-@media (max-width: 900px) {
-  .app { grid-template-columns: 1fr; }
+/* ===================================================================
+   RESPONSIVE — Mobile
+   =================================================================== */
+@media (max-width: 768px) {
   .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 16px; }
+  .step-content { padding: 28px 24px; }
   .form-grid { grid-template-columns: 1fr; }
   .programs-grid { grid-template-columns: 1fr; }
   .diagnosis-grid { grid-template-columns: 1fr; }
+  .progress-steps { display: none; }
+  .stepper-mobile { display: block; }
+  .card-selector-group { flex-direction: column; }
+  .member-row { grid-template-columns: auto 1fr auto; gap: var(--s2); }
+  .member-meta { grid-column: 2; font-size: 12px; }
 }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-logo"><h1>Conecta</h1><span>Social Care Platform</span></div>
-    <div class="sidebar-section-label">Menu</div>
-    <ul class="sidebar-nav">
-      <li><a href="/prototype-home-redesign.html"><span class="nav-number">01</span> Familias <span class="badge">42</span></a></li>
-      <li><a href="/prototype-registration-redesign.html" class="active"><span class="nav-number">02</span> Cadastro</a></li>
-      <li><a href="#"><span class="nav-number">03</span> Relatorios</a></li>
-      <li><a href="#"><span class="nav-number">04</span> Configuracoes</a></li>
-    </ul>
-    <div class="sidebar-footer">
-      <div class="sidebar-user">
-        <div class="sidebar-user-avatar">DF</div>
-        <div><div class="sidebar-user-name">Davi Franklin</div><div class="sidebar-user-role">Assistente Social</div></div>
-      </div>
-    </div>
-  </aside>
+<!-- Background -->
+<div class="bg-gradient"></div>
+<div class="bg-blob-1"></div>
+<div class="bg-blob-2"></div>
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div style="display:flex;align-items:center;gap:var(--s5)">
-      <a href="/prototype-home-redesign.html" class="topbar-back">&larr; Voltar</a>
-      <h2 class="topbar-title">Novo Cadastro</h2>
+<div class="app">
+  <!-- SIDEBAR — 64px icon, expands on hover -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">C</div>
+    <div class="sidebar-brand">Conecta</div>
+    <div class="sidebar-nav">
+      <a class="sidebar-item" href="/prototype-home-redesign.html">
+        <span class="sidebar-icon">&#9776;</span>
+        <span class="sidebar-label">Familias</span>
+        <span class="sidebar-badge">42</span>
+      </a>
+      <a class="sidebar-item active" href="/prototype-registration-redesign.html">
+        <span class="sidebar-icon">&#43;</span>
+        <span class="sidebar-label">Cadastro</span>
+      </a>
+      <a class="sidebar-item">
+        <span class="sidebar-icon">&#9638;</span>
+        <span class="sidebar-label">Relatorios</span>
+      </a>
+      <a class="sidebar-item">
+        <span class="sidebar-icon">&#9881;</span>
+        <span class="sidebar-label">Config</span>
+      </a>
     </div>
-    <span style="font-size:13px;color:var(--text-muted)">Rascunho salvo automaticamente</span>
-  </header>
+    <div class="sidebar-footer">
+      <div class="sidebar-avatar">DF</div>
+      <div class="sidebar-username">Davi Franklin</div>
+    </div>
+  </nav>
 
   <!-- MAIN -->
-  <div class="main-content">
+  <main class="main-content">
+    <!-- Top bar -->
+    <div class="wizard-topbar">
+      <a href="/prototype-home-redesign.html" class="back-link">&#8592; Voltar para Familias</a>
+      <span style="font-size:12px;color:var(--text-soft);font-weight:500;">Rascunho salvo automaticamente</span>
+    </div>
+
     <div class="wizard-container">
       <!-- STEPPER -->
       <div class="stepper" id="stepper"></div>
@@ -696,38 +886,39 @@ body { font-family: var(--font-ui); background: var(--bg-deep); color: var(--tex
       <!-- STEP CONTENT -->
       <div id="stepContent"></div>
 
-      <!-- BUTTON BAR -->
-      <div class="button-bar">
-        <button class="btn btn-secondary" id="btnBack" onclick="prevStep()">Voltar</button>
-        <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Proximo</button>
-      </div>
+      <!-- BUTTON BAR (inside glass card rendered by JS) is part of step content rendering -->
     </div>
-  </div>
+  </main>
 </div>
 
 <!-- SUCCESS OVERLAY -->
 <div class="success-overlay" id="successOverlay">
-  <div class="success-circle">
-    <svg viewBox="0 0 24 24"><polyline points="6 12 10 16 18 8" /></svg>
+  <div class="success-glass">
+    <div class="success-circle">
+      <svg viewBox="0 0 24 24"><polyline points="6 12 10 16 18 8" /></svg>
+    </div>
+    <div class="success-text">Cadastro realizado!</div>
+    <div class="success-sub">A familia foi cadastrada com sucesso no sistema Conecta.</div>
+    <div class="success-actions">
+      <button class="btn btn-secondary" onclick="goToStep(0)">Novo cadastro</button>
+      <a href="/prototype-home-redesign.html" class="btn btn-primary" style="text-decoration:none;">Ver familias &#8594;</a>
+    </div>
   </div>
-  <div class="success-text">Cadastro realizado!</div>
-  <div class="success-sub">Paciente registrado com sucesso no sistema.</div>
-  <a href="/prototype-home-redesign.html" class="btn btn-primary" style="margin-top:var(--s5);text-decoration:none;animation:fadeInUp var(--duration-slow) var(--ease-out) 900ms both;">Ver familias</a>
 </div>
 
-<!-- SCENARIOS -->
+<!-- SCENARIOS PANEL -->
 <div class="scenario-panel" id="scenarioPanel">
   <div class="drag-handle" id="dragHandle">
     <h3>Etapa</h3>
-    <span class="drag-dots">⠿</span>
+    <span class="drag-dots">&#10303;</span>
   </div>
-  <button class="scenario-btn active" onclick="goToStep(0)">0 — Dados Pessoais</button>
-  <button class="scenario-btn" onclick="goToStep(1)">1 — Documentos</button>
-  <button class="scenario-btn" onclick="goToStep(2)">2 — Endereco</button>
-  <button class="scenario-btn" onclick="goToStep(3)">3 — Diagnosticos</button>
-  <button class="scenario-btn" onclick="goToStep(4)">4 — Familia</button>
-  <button class="scenario-btn" onclick="goToStep(5)">5 — Especificidades</button>
-  <button class="scenario-btn" onclick="goToStep(6)">6 — Ingresso</button>
+  <button class="scenario-btn active" onclick="goToStep(0)">0 -- Dados Pessoais</button>
+  <button class="scenario-btn" onclick="goToStep(1)">1 -- Documentos</button>
+  <button class="scenario-btn" onclick="goToStep(2)">2 -- Endereco</button>
+  <button class="scenario-btn" onclick="goToStep(3)">3 -- Diagnosticos</button>
+  <button class="scenario-btn" onclick="goToStep(4)">4 -- Familia</button>
+  <button class="scenario-btn" onclick="goToStep(5)">5 -- Especificidades</button>
+  <button class="scenario-btn" onclick="goToStep(6)">6 -- Ingresso</button>
   <button class="scenario-btn" onclick="showSuccess()">Sucesso</button>
 </div>
 
@@ -782,19 +973,10 @@ const stepForms = [
     ${select("Nacionalidade", "nationality", ["Brasileira", "Naturalizada", "Estrangeira"], true)}
     <div class="form-field">
       <label class="field-label field-required">Sexo</label>
-      <div class="programs-grid" style="margin-top:var(--s2)">
-        <div class="program-item" onclick="selectSingle(this)">
-          <div class="program-check">&#10003;</div>
-          <span class="program-label">Masculino</span>
-        </div>
-        <div class="program-item" onclick="selectSingle(this)">
-          <div class="program-check">&#10003;</div>
-          <span class="program-label">Feminino</span>
-        </div>
-        <div class="program-item" onclick="selectSingle(this)">
-          <div class="program-check">&#10003;</div>
-          <span class="program-label">Outro</span>
-        </div>
+      <div class="card-selector-group">
+        <div class="card-selector" onclick="selectSingle(this)">Masculino</div>
+        <div class="card-selector" onclick="selectSingle(this)">Feminino</div>
+        <div class="card-selector" onclick="selectSingle(this)">Outro</div>
       </div>
     </div>
     <div class="form-field">
@@ -820,15 +1002,9 @@ const stepForms = [
     ${select("Situacao de Moradia", "housing", ["Propria", "Alugada", "Cedida", "Situacao de rua", "Outros"], true)}
     <div class="form-field">
       <label class="field-label field-required">Localizacao</label>
-      <div class="programs-grid" style="margin-top:var(--s2)">
-        <div class="program-item" onclick="selectSingle(this)">
-          <div class="program-check">&#10003;</div>
-          <span class="program-label">Urbano</span>
-        </div>
-        <div class="program-item" onclick="selectSingle(this)">
-          <div class="program-check">&#10003;</div>
-          <span class="program-label">Rural</span>
-        </div>
+      <div class="card-selector-group">
+        <div class="card-selector" onclick="selectSingle(this)">Urbano</div>
+        <div class="card-selector" onclick="selectSingle(this)">Rural</div>
       </div>
     </div>
     ${field("CEP", "cep", "00000-000")}
@@ -864,11 +1040,11 @@ const stepForms = [
           <div class="form-field"><label class="field-label field-required">Data</label><input class="field-input" placeholder="DD/MM/AAAA" /></div>
           <div class="form-field full"><label class="field-label field-required">Descricao</label><input class="field-input" placeholder="Descricao do diagnostico" /></div>
           <div class="quick-cids">
-            <button class="cid-chip">G80 — Paralisia cerebral</button>
-            <button class="cid-chip">Q90 — Sindrome de Down</button>
-            <button class="cid-chip">F84.0 — Autismo</button>
-            <button class="cid-chip">E70 — Fenilcetonuria</button>
-            <button class="cid-chip">G71.0 — Distrofia muscular</button>
+            <button class="cid-chip">G80 -- Paralisia cerebral</button>
+            <button class="cid-chip">Q90 -- Sindrome de Down</button>
+            <button class="cid-chip">F84.0 -- Autismo</button>
+            <button class="cid-chip">E70 -- Fenilcetonuria</button>
+            <button class="cid-chip">G71.0 -- Distrofia muscular</button>
           </div>
         </div>
       </div>
@@ -938,22 +1114,30 @@ const stepForms = [
 
 function renderStepper() {
   const el = document.getElementById('stepper');
-  el.innerHTML = STEPS.map((s, i) => {
-    const cls = i === currentStep ? 'active' : i < currentStep ? 'completed' : '';
-    const connCls = i < currentStep ? 'completed' : '';
-    const dot = i < currentStep ? '&#10003;' : (i + 1);
-    let html = `<div class="step-item ${cls}" onclick="goToStep(${i})">
-      <div class="step-dot">${dot}</div>
-      <span class="step-label">${STEP_LABELS[i]}</span>
+  // Progress bar
+  const pct = ((currentStep) / (STEPS.length - 1)) * 100;
+  let html = `
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width:${pct}%"></div>
+    </div>
+    <div class="progress-steps">
+  `;
+  html += STEPS.map((s, i) => {
+    const dotCls = i < currentStep ? 'completed' : i === currentStep ? 'current' : '';
+    const lblCls = i < currentStep ? 'completed' : i === currentStep ? 'current' : '';
+    return `<div class="step-item" onclick="goToStep(${i})">
+      <div class="step-dot ${dotCls}"></div>
+      <span class="step-label ${lblCls}">${STEP_LABELS[i]}</span>
     </div>`;
-    if (i < STEPS.length - 1) html += `<div class="step-connector ${connCls}"></div>`;
-    return html;
   }).join('');
+  html += `</div>`;
+  el.innerHTML = html;
 }
 
 function renderStep() {
   const step = STEPS[currentStep];
   const content = document.getElementById('stepContent');
+  const isLastStep = currentStep === STEPS.length - 1;
   content.innerHTML = `
     <div class="step-content" key="${currentStep}">
       <div class="step-header">
@@ -962,16 +1146,16 @@ function renderStep() {
         <p class="step-description">${step.desc}</p>
       </div>
       ${stepForms[currentStep]()}
+      <div class="button-bar">
+        <button class="btn btn-secondary" id="btnBack" onclick="prevStep()" style="${currentStep === 0 ? 'visibility:hidden' : ''}">&#8592; Anterior</button>
+        <button class="btn btn-primary" id="btnNext" onclick="nextStep()">${isLastStep ? 'Salvar Cadastro' : 'Proximo &#8594;'}</button>
+      </div>
     </div>
   `;
 
-  document.getElementById('btnBack').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
-  const btnNext = document.getElementById('btnNext');
-  btnNext.textContent = currentStep === STEPS.length - 1 ? 'Salvar Cadastro' : 'Proximo';
-
   // Mobile stepper
   const mobileEl = document.getElementById('stepperMobile');
-  mobileEl.textContent = `Etapa ${currentStep + 1} de ${STEPS.length} — ${STEP_LABELS[currentStep]}`;
+  mobileEl.textContent = `Etapa ${currentStep + 1} de ${STEPS.length} \u2014 ${STEP_LABELS[currentStep]}`;
 
   // Update scenario buttons
   document.querySelectorAll('.scenario-btn').forEach((b, i) => {
@@ -1062,7 +1246,7 @@ let familyCount = 1; // 01 is the reference person
 
 // Single-select toggle cards (reusable for Sexo, Localizacao, etc.)
 function selectSingle(el) {
-  el.closest('.programs-grid').querySelectorAll('.program-item').forEach(i => i.classList.remove('selected'));
+  el.closest('.card-selector-group').querySelectorAll('.card-selector').forEach(i => i.classList.remove('selected'));
   el.classList.add('selected');
 }
 
@@ -1097,10 +1281,10 @@ function showFamilyForm() {
   form.style.display = 'block';
   const parentescoOpts = PARENTESCO_LOOKUP
     .filter(p => p.codigo !== 'PESSOA_REFERENCIA')
-    .map(p => `<option value="${p.codigo}">${p.codigo} — ${p.descricao}</option>`)
+    .map(p => `<option value="${p.codigo}">${p.codigo} \u2014 ${p.descricao}</option>`)
     .join('');
   form.innerHTML = `
-    <div style="border:1px solid var(--accent-warm);border-radius:var(--r-lg);padding:var(--s4);margin-top:var(--s3);animation:fadeInUp var(--duration-slow) var(--ease-out) both;">
+    <div style="border:1.5px solid var(--green-primary);border-radius:var(--r-lg);padding:var(--s5);margin-top:var(--s3);background:rgba(255,255,255,0.3);backdrop-filter:blur(12px);animation:fadeInUp var(--duration-slow) var(--ease-out) both;">
       <div class="form-grid">
         ${field("Nome", "fm_name", "Nome completo", true)}
         <div class="form-field">
