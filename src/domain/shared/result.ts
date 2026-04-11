@@ -38,5 +38,6 @@ export const combine = <T, E>(
   for (const r of results) {
     if (!r.ok) return r;
   }
+  // Safe: all results verified as Ok above
   return ok(results.map((r) => (r as Ok<T>).value));
 };

@@ -11,7 +11,7 @@ RUN deno install
 COPY src/ src/
 
 # Type-check
-RUN deno check src/**/*.ts
+RUN deno check src/**/*.ts src/**/*.tsx
 
 # Bundle client-side apps for browser
 RUN mkdir -p static/js && \

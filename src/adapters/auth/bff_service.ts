@@ -1,19 +1,14 @@
 import type { Result } from "../../domain/shared/result.ts";
 import { ok, err } from "../../domain/shared/result.ts";
 import type { ServerConfig } from "../config/server_config.ts";
-import type { Session, SessionStore } from "../../types.ts";
+import type { Session, SessionStore, TokenRefreshError } from "../../types.ts";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-export type BFFAuthError =
-  | "OIDC_DISCOVERY_FAILED"
-  | "TOKEN_EXCHANGE_FAILED"
-  | "ID_TOKEN_DECODE_FAILED"
-  | "INVALID_STATE"
-  | "PKCE_EXPIRED"
-  | "USERINFO_FAILED";
+/** BFFAuthError is an alias for TokenRefreshError — keeps adapter aligned with contract. */
+export type BFFAuthError = TokenRefreshError;
 
 type OIDCDiscovery = Readonly<{
   authorization_endpoint: string;

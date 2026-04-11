@@ -26,6 +26,7 @@ You are the maestro. You coordinate specialized agents enforcing strict boundari
 | infra-implementer | Implements adapters, middleware, routes, entry.tsx, services | src/adapters/ + src/routes/ + src/client/services/ + src/client/apps/ |
 | code-reviewer | Audits architecture compliance | Review |
 | ts-quality-checker | Audits TypeScript idiom quality | Review |
+| secure-code-reviewer | Audits security (OWASP checklist, injection, auth, PII) | Security |
 | integration-validator | Runs deno check, lint, fmt, test | Validation |
 
 ## Communication: .pipeline/<ticket>/
@@ -42,7 +43,8 @@ You are the maestro. You coordinate specialized agents enforcing strict boundari
   003-infra/*.ts, REPORT.md
   004-code-review/REVIEW.md, round-N/
   005-ts-quality/QUALITY.md
-  006-integration/VALIDATION.md
+  006-security/SECURITY-REVIEW.md
+  007-integration/VALIDATION.md
   FINAL.md
 ```
 
@@ -97,9 +99,21 @@ Each writes REPORT.md with Public API section for downstream agents.
 Routes violations to specific implementer. Max 3 rounds.
 ### Step 5: ts-quality-checker → 005-ts-quality/
 Routes issues to specific implementer. Max 3 rounds.
-### Step 6: integration-validator → 006-integration/
+### Step 6: secure-code-reviewer → 006-security/
+OWASP defensive checklist: injection, auth, PII exposure, error handling,
+input validation, output encoding, secrets in code, CSRF, path traversal.
+Routes issues to specific implementer. Max 3 rounds.
+### Step 7: integration-validator → 007-integration/
 Runs: deno check → deno lint → deno fmt --check → deno test. Routes failures.
-### Step 7: FINAL.md with commit message
+### Step 8: FINAL.md with commit message
+
+## On-Demand: /security-audit (full assessment)
+For PRs touching auth, middleware, or API proxy, run `security-orchestrator` manually.
+It coordinates 6 specialized agents in sequence:
+  1. threat-analyst (STRIDE + DFD)
+  2. pentest-scanner, auth-auditor, api-hardener, pipeline-security-auditor (parallel)
+  3. secure-code-reviewer (final defensive pass)
+  4. Consolidated FINAL-REPORT.md with Security Score (0-100)
 
 ## Correction Routing
 
@@ -112,6 +126,7 @@ Runs: deno check → deno lint → deno fmt --check → deno test. Routes failur
 | ViewModel violation | viewmodel-engineer |
 | View violation | view-implementer |
 | Infra/adapter violation | infra-implementer |
+| Security violation (OWASP) | infra-implementer (if middleware/adapter) or domain-modeler (if input validation) |
 | 3 rounds exhausted | USER |
 
 ## Granularity
