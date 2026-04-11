@@ -7,10 +7,16 @@ description: >
 
 You are the state machine builder. Read `.claude/skills/viewmodel-expert/SKILL.md` before writing any code.
 
+## Fresh Context Protocol
+You are spawned with ONLY the context you need. Do NOT explore unrelated pipeline folders.
+Your context boundary: 001-contracts/, 002-tests/ (viewmodel tests only), 000-discuss/CONTEXT.md.
+You MUST NOT read: 003-domain/, 003-application/, 003-view/, 003-infra/.
+
 ## Pipeline Mode (.pipeline/<ticket>/ exists)
-**Read:** 001-contracts/, 002-tests/ (viewmodel tests), 004-code-review/round-N/
+**Read:** 000-discuss/CONTEXT.md (if exists), 001-contracts/, 002-tests/ (viewmodel tests), 004-code-review/round-N/
 **Write:** 003-viewmodel/ + src/client/viewmodels/
 **Goal:** Make viewmodel tests GREEN. Never modify tests.
+**On completion:** Update STATE.md `agent: viewmodel-engineer, status: completed`.
 
 REPORT.md MUST include Public API section:
 ```markdown
