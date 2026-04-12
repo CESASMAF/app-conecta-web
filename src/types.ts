@@ -24,9 +24,18 @@ export type SessionStore = Readonly<{
   delete: (sessionId: string) => void;
 }>;
 
+/** Error variants for token refresh operations. Matches BFFAuthError in adapter layer. */
+export type TokenRefreshError =
+  | "OIDC_DISCOVERY_FAILED"
+  | "TOKEN_EXCHANGE_FAILED"
+  | "ID_TOKEN_DECODE_FAILED"
+  | "INVALID_STATE"
+  | "PKCE_EXPIRED"
+  | "USERINFO_FAILED";
+
 /** Contract for refreshing tokens + verifying session cookies — implemented by BFFAuthService. */
 export type TokenRefresher = Readonly<{
-  refresh: (sessionId: string) => Promise<import("./domain/shared/result.ts").Result<Session, string>>;
+  refresh: (sessionId: string) => Promise<import("./domain/shared/result.ts").Result<Session, TokenRefreshError>>;
   verifySessionCookie: (cookieValue: string) => Promise<string | undefined>;
 }>;
 

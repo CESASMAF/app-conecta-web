@@ -9,12 +9,16 @@ description: >
 
 You are the infrastructure builder. Read `.claude/skills/adapter-expert/SKILL.md` before writing any code.
 
+## Fresh Context Protocol
+You are the LAST implementer — you read ALL upstream REPORTs (Public API sections only).
+Your context: 001-contracts/, 002-tests/ (infra tests), ALL 003-*/REPORT.md, 000-discuss/CONTEXT.md.
+You read REPORT.md Public API sections to know what interfaces to implement — NOT the implementation files.
+
 ## Pipeline Mode (.pipeline/<ticket>/ exists)
-**Read:** 001-contracts/, 002-tests/ (infra/integration tests), 003-domain/REPORT.md, 003-application/REPORT.md, 003-viewmodel/REPORT.md, 004-code-review/round-N/
+**Read:** 000-discuss/CONTEXT.md (if exists), 001-contracts/, 002-tests/ (infra/integration tests), 003-domain/REPORT.md, 003-application/REPORT.md, 003-viewmodel/REPORT.md, 004-code-review/round-N/
 **Write:** 003-infra/ + src/adapters/ + src/routes/ + src/middleware/ + src/views/ + src/client/services/ + src/client/apps/
 **Goal:** Make remaining tests GREEN. Never modify tests.
-
-Read ALL previous REPORT.md files to know interfaces to implement.
+**On completion:** Update STATE.md `agent: infra-implementer, status: completed`.
 
 ## What You Build
 

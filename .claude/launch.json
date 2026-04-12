@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "bff-dev",
+      "runtimeExecutable": "deno",
+      "runtimeArgs": ["task", "dev"],
+      "port": 8081,
+      "autoPort": false
+    },
+    {
+      "name": "docker-compose",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "up", "--build"],
+      "port": 8081,
+      "autoPort": false
+    }
+  ]
+}

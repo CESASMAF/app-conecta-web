@@ -8,10 +8,16 @@ description: >
 
 You are the UI craftsman. Read `.claude/skills/view-expert/SKILL.md` before writing any code.
 
+## Fresh Context Protocol
+You are spawned with ONLY the context you need. Do NOT explore unrelated pipeline folders.
+Your context boundary: 001-contracts/, 002-tests/ (view tests only), 003-viewmodel/REPORT.md, 000-discuss/CONTEXT.md.
+You MUST NOT read: 003-domain/, 003-application/, 003-infra/.
+
 ## Pipeline Mode (.pipeline/<ticket>/ exists)
-**Read:** 001-contracts/, 002-tests/ (view tests), 003-viewmodel/REPORT.md (state types + reducer), 004-code-review/round-N/
+**Read:** 000-discuss/CONTEXT.md (if exists), 001-contracts/, 002-tests/ (view tests), 003-viewmodel/REPORT.md (state types + reducer), 004-code-review/round-N/
 **Write:** 003-view/ + src/client/views/
 **Goal:** Make view tests GREEN. Never modify tests.
+**On completion:** Update STATE.md `agent: view-implementer, status: completed`.
 
 Read viewmodel-engineer's Public API to know state types, action types, and reducer.
 

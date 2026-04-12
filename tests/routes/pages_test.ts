@@ -44,11 +44,19 @@ const createTestApp = (injectSession: boolean): Hono<AppEnv> => {
 
 // ---------- Redirect ----------
 
-Deno.test("GET / - redirects to /social-care", async () => {
+Deno.test("GET / - with session redirects to /hub", async () => {
   const app = createTestApp(true);
   const res = await app.request("/");
   assertEquals(res.status, 302);
-  assertEquals(res.headers.get("location"), "/social-care");
+  assertEquals(res.headers.get("location"), "/hub");
+});
+
+Deno.test("GET / - without session renders landing page", async () => {
+  const app = createTestApp(false);
+  const res = await app.request("/");
+  assertEquals(res.status, 200);
+  const html = await res.text();
+  assertEquals(html.includes("auth-hub-app"), true);
 });
 
 // ---------- Login page (public, SSR-only) ----------

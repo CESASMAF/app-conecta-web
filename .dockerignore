@@ -1,0 +1,16 @@
+.git
+.github
+.githooks
+.claude
+.pipeline
+.env
+.env.*
+.envrc
+tests
+contracts
+handbook
+cov_profile
+coverage
+node_modules
+*.md
+!src/**/*.md
