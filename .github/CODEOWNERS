@@ -1,0 +1,42 @@
+# =============================================================================
+# CODEOWNERS — app-conecta-web (ACDG)
+# =============================================================================
+# Define quem e responsavel por cada area do codigo.
+# PRs que tocam esses arquivos notificam automaticamente os owners.
+#
+# IMPORTANTE para o designer:
+#   Substitua @DESIGNER-HANDLE-AQUI pelo seu GitHub username.
+#   Exemplo: se seu GitHub e @maria-design, troque para @maria-design
+# =============================================================================
+
+# --- Dev: server-side, seguranca, estados, reatividade ---
+
+src/domain/                         @gabriel-aderaldo
+src/application/                    @gabriel-aderaldo
+src/adapters/                       @gabriel-aderaldo
+src/middleware/                     @gabriel-aderaldo
+src/routes/                         @gabriel-aderaldo
+src/server.ts                       @gabriel-aderaldo
+src/types.ts                        @gabriel-aderaldo
+src/client/viewmodels/              @gabriel-aderaldo
+src/client/services/                @gabriel-aderaldo
+src/client/apps/                    @gabriel-aderaldo
+tests/                              @gabriel-aderaldo
+
+# --- Designer: UI/UX, visual, copy, acessibilidade ---
+
+src/client/views/                   @DaviFranklin @gabriel-aderaldo
+src/client/styles/                  @DaviFranklin @gabriel-aderaldo
+src/views/                          @DaviFranklin @gabriel-aderaldo
+static/                             @DaviFranklin @gabriel-aderaldo
+
+# --- Config/Infra (dev e responsavel) ---
+
+.github/                            @gabriel-aderaldo
+.githooks/                          @gabriel-aderaldo
+.claude/                            @gabriel-aderaldo
+Dockerfile                          @gabriel-aderaldo
+docker-compose.yml                  @gabriel-aderaldo
+deno.json                           @gabriel-aderaldo
+CLAUDE.md                           @gabriel-aderaldo
+CONTRIBUTING.md                     @gabriel-aderaldo

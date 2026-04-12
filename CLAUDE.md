@@ -21,6 +21,9 @@ These rules are enforced by git hooks and Claude Code hooks. Violation is blocke
 - Run `deno task build` to verify client bundles compile
 - The pre-push hook runs tests automatically — if they fail, push is blocked
 
+### Claude Code Hooks (Maestro plugin)
+- **NEVER use heredoc** (`<<'EOF'`, `<<EOF`, `cat <<EOF`) inside Bash tool calls — a `PreToolUse:Bash` hook blocks it because heredocs corrupt structured content. For multi-line git commit messages, pass the message directly as a quoted string with literal newlines.
+
 ### UI/UX Contributors — Scope Restrictions
 - **ONLY modify files under:** `src/client/views/`, `src/client/styles/`, `src/views/`, `static/`
 - **DO NOT modify:** `src/domain/`, `src/application/`, `src/adapters/`, `src/middleware/`, `src/routes/`, `src/server.ts`, `src/types.ts`
@@ -255,6 +258,8 @@ src/client/apps/
   family-composition/entry.tsx
   social-care/entry.tsx
   search/entry.tsx
+  auth-hub/entry.tsx
+  admin-hub/entry.tsx
 ```
 
 ---
@@ -395,7 +400,9 @@ social-care-deno/
 │       │   ├── registration/entry.tsx
 │       │   ├── family-composition/entry.tsx
 │       │   ├── social-care/entry.tsx
-│       │   └── search/entry.tsx
+│       │   ├── search/entry.tsx
+│       │   ├── auth-hub/entry.tsx
+│       │   └── admin-hub/entry.tsx
 │       ├── services/
 │       │   ├── base-client.ts
 │       │   ├── patient-service.ts
