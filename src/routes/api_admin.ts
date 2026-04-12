@@ -80,6 +80,9 @@ const isValidUuid = (value: string): boolean => UUID_RE.test(value);
 /** Max entries per page on audit endpoint. */
 const MAX_AUDIT_LIMIT = 100;
 
+/** Status value used by social-care backend for pending lookup requests. */
+const PENDING_REQUEST_STATUS = "pendente";
+
 /** Extracts a numeric `total` from a remote response body, defaulting to 0. */
 const extractTotal = (
   result: Result<RemoteResponse, RemoteError>,
@@ -713,10 +716,36 @@ export const createAdminApiRoutes = (
 
     const rolesActive = extractTotal(rolesResult);
 
+    // Fetch pending lookup requests from social-care backend
+    let pendingCount = 0;
+    try {
+      const requestsResult = await remoteClient.fetch({
+        baseUrl: config.apiBaseUrl,
+        path: "/api/v1/dominios/requests",
+        method: "GET",
+        accessToken: session.accessToken,
+        actorId: session.userSub,
+      });
+      if (requestsResult.ok && requestsResult.value.body) {
+        const reqBody = requestsResult.value.body as { data?: unknown[] };
+        if (Array.isArray(reqBody?.data)) {
+          pendingCount = reqBody.data.filter(
+            (item: unknown) =>
+              typeof item === "object" && item !== null && (item as Record<string, unknown>).status === PENDING_REQUEST_STATUS,
+          ).length;
+        }
+      }
+    } catch {
+      // Stats should not break if one sub-fetch fails — default to 0
+    }
+
     return c.json({
-      people: { total: peopleTotal },
-      roles: { active: rolesActive },
-      audit: { total: auditStore.count() },
+      data: {
+        totalPeople: peopleTotal,
+        activeRoles: rolesActive,
+        pendingRequests: pendingCount,
+        recentAuditCount: auditStore.count(),
+      },
     });
   });
 
