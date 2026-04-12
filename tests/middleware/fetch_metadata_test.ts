@@ -23,34 +23,53 @@ Deno.test("fetchMetadata - non-API route passes through", async () => {
   assertEquals(body.status, "ok");
 });
 
-Deno.test("fetchMetadata - API GET with same-origin passes", async () => {
+Deno.test("fetchMetadata - API GET with same-origin + X-Requested-With passes", async () => {
   const app = createTestApp();
   const res = await app.request("/api/patients", {
-    headers: { "sec-fetch-site": "same-origin" },
+    headers: {
+      "sec-fetch-site": "same-origin",
+      "x-requested-with": "XMLHttpRequest",
+    },
   });
   assertEquals(res.status, 200);
 });
 
-Deno.test("fetchMetadata - API GET with cross-site returns 403", async () => {
+Deno.test("fetchMetadata - API GET with cross-site returns 403 (Sec-Fetch)", async () => {
   const app = createTestApp();
   const res = await app.request("/api/patients", {
-    headers: { "sec-fetch-site": "cross-site" },
+    headers: {
+      "sec-fetch-site": "cross-site",
+      "x-requested-with": "XMLHttpRequest",
+    },
   });
   assertEquals(res.status, 403);
   const body = await res.json();
   assertEquals(body.error, "Forbidden: cross-origin request");
 });
 
-Deno.test("fetchMetadata - API GET without Sec-Fetch-Site passes", async () => {
+Deno.test("fetchMetadata - API GET without Sec-Fetch-Site but with XRW returns 403 (missing XRW)", async () => {
   const app = createTestApp();
   const res = await app.request("/api/patients");
-  assertEquals(res.status, 200);
+  assertEquals(res.status, 403);
 });
 
-Deno.test("fetchMetadata - API GET with Sec-Fetch-Site none passes", async () => {
+Deno.test("fetchMetadata - API GET without X-Requested-With returns 403", async () => {
   const app = createTestApp();
   const res = await app.request("/api/patients", {
-    headers: { "sec-fetch-site": "none" },
+    headers: { "sec-fetch-site": "same-origin" },
+  });
+  assertEquals(res.status, 403);
+  const body = await res.json();
+  assertEquals(body.error, "Forbidden: missing X-Requested-With header");
+});
+
+Deno.test("fetchMetadata - API GET with Sec-Fetch-Site none + XRW passes", async () => {
+  const app = createTestApp();
+  const res = await app.request("/api/patients", {
+    headers: {
+      "sec-fetch-site": "none",
+      "x-requested-with": "XMLHttpRequest",
+    },
   });
   assertEquals(res.status, 200);
 });

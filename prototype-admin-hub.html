@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Hub — Prototipos de Layout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== DESIGN TOKENS ===== */
+    :root {
+      --bg: #F2E2C4;
+      --bg-dark: #172D48;
+      --surface: #FAF0E0;
+      --surface-light: #FFFBF4;
+      --card-alt: #C8BBA4;
+      --text-primary: #261D11;
+      --text-on-dark: #F2E2C4;
+      --text-muted: rgba(38, 29, 17, 0.6);
+      --primary: #4F8448;
+      --danger: #A6290D;
+      --warning: #C9960A;
+      --input-line: rgba(38, 29, 17, 0.2);
+      --border-on-dark: #F2E2C4;
+      --anti-flash: #EBEBEB;
+      --font-satoshi: 'Satoshi', sans-serif;
+      --font-playfair: 'Playfair Display', serif;
+      --radius-pill: 100px;
+      --radius-panel: 24px;
+      --radius-card: 12px;
+      --radius-dropdown: 8px;
+      --shadow-card: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-satoshi);
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ===== SCENARIO PANEL ===== */
+    .scenario-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 280px;
+      height: 100vh;
+      background: var(--bg-dark);
+      color: var(--text-on-dark);
+      padding: 24px 20px;
+      z-index: 9999;
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: -8px 0 40px rgba(38, 29, 17, 0.3);
+    }
+    .scenario-panel.open { transform: translateX(0); }
+    .scenario-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 10000;
+      background: var(--bg-dark);
+      color: var(--text-on-dark);
+      border: none;
+      padding: 10px 16px;
+      border-radius: var(--radius-pill);
+      font: 600 13px var(--font-satoshi);
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .scenario-panel h3 {
+      font: 700 14px var(--font-satoshi);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.7;
+    }
+    .scenario-panel label {
+      display: block;
+      font: 500 13px var(--font-satoshi);
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+    .scenario-panel label input { margin-right: 8px; }
+    .scenario-panel select {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: var(--radius-dropdown);
+      border: 1px solid rgba(242,226,196,0.3);
+      background: rgba(255,255,255,0.1);
+      color: var(--text-on-dark);
+      font: 500 13px var(--font-satoshi);
+      margin-bottom: 16px;
+    }
+    .scenario-panel hr {
+      border: none;
+      border-top: 1px solid rgba(242,226,196,0.15);
+      margin: 16px 0;
+    }
+    .scenario-panel .section-label {
+      font: 600 11px var(--font-satoshi);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      opacity: 0.5;
+      margin-bottom: 8px;
+    }
+
+    /* ===== LAYOUT SWITCHER ===== */
+    .layout-switcher {
+      display: flex;
+      gap: 8px;
+      padding: 16px 48px;
+      background: var(--bg-dark);
+      border-bottom: 1px solid rgba(242,226,196,0.1);
+    }
+    .layout-switcher button {
+      padding: 8px 20px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(242,226,196,0.3);
+      background: transparent;
+      color: var(--text-on-dark);
+      font: 600 13px var(--font-satoshi);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+    .layout-switcher button.active {
+      background: var(--text-on-dark);
+      color: var(--bg-dark);
+      border-color: transparent;
+    }
+    .layout-switcher span {
+      display: flex;
+      align-items: center;
+      font: 400 13px var(--font-satoshi);
+      color: rgba(242,226,196,0.5);
+      margin-left: auto;
+    }
+
+    /* ===== HIDE/SHOW LAYOUTS ===== */
+    .layout { display: none !important; min-height: 100vh; }
+    .layout.active { display: block !important; }
+    .layout-b.active, .layout-c.active { display: flex !important; }
+
+    /* ====================================================================
+       LAYOUT A — TOP TABS
+       ==================================================================== */
+    .layout-a .admin-header {
+      background: var(--bg-dark);
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .layout-a .admin-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .layout-a .admin-header .brand .logo {
+      width: 36px;
+      height: 36px;
+      background: var(--bg);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 700 16px var(--font-satoshi);
+      color: var(--bg-dark);
+    }
+    .layout-a .admin-header .brand h1 {
+      font: 700 18px var(--font-satoshi);
+      color: var(--text-on-dark);
+    }
+    .layout-a .admin-header .brand h1 span {
+      font-weight: 400;
+      opacity: 0.6;
+      margin-left: 8px;
+    }
+    .layout-a .admin-header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .layout-a .admin-header .user-info .name {
+      font: 500 14px var(--font-satoshi);
+      color: var(--text-on-dark);
+    }
+    .layout-a .admin-header .user-info .role {
+      font: 400 12px var(--font-satoshi);
+      color: rgba(242,226,196,0.5);
+    }
+    .layout-a .admin-header .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(242,226,196,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 600 14px var(--font-satoshi);
+      color: var(--text-on-dark);
+    }
+
+    .layout-a .tab-bar {
+      display: flex;
+      gap: 0;
+      background: var(--surface);
+      padding: 0 48px;
+      border-bottom: 1px solid var(--input-line);
+    }
+    .layout-a .tab-bar button {
+      padding: 14px 24px;
+      border: none;
+      background: none;
+      font: 600 13px var(--font-satoshi);
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 200ms ease;
+      letter-spacing: 0.3px;
+    }
+    .layout-a .tab-bar button.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--bg-dark);
+      background: rgba(23, 45, 72, 0.06);
+    }
+    .layout-a .tab-bar button:hover:not(.active) {
+      color: var(--text-primary);
+    }
+    .layout-a .tab-bar .badge {
+      background: var(--danger);
+      color: white;
+      font: 700 10px var(--font-satoshi);
+      padding: 2px 6px;
+      border-radius: var(--radius-pill);
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .layout-a .content {
+      padding: 32px 48px;
+      max-width: 1200px;
+    }
+
+    /* ====================================================================
+       LAYOUT B — SIDEBAR
+       ==================================================================== */
+    .layout-b { display: flex; }
+    .layout-b.active { display: flex; }
+
+    .layout-b .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: var(--bg-dark);
+      padding: 24px 0;
+      flex-shrink: 0;
+    }
+    .layout-b .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px;
+      margin-bottom: 32px;
+    }
+    .layout-b .sidebar .brand .logo {
+      width: 32px;
+      height: 32px;
+      background: var(--bg);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 700 14px var(--font-satoshi);
+      color: var(--bg-dark);
+    }
+    .layout-b .sidebar .brand h1 {
+      font: 700 16px var(--font-satoshi);
+      color: var(--text-on-dark);
+    }
+
+    .layout-b .sidebar nav {
+      display: flex;
+      flex-direction: column;
+    }
+    .layout-b .sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      font: 500 14px var(--font-satoshi);
+      color: rgba(242,226,196,0.6);
+      text-decoration: none;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+      cursor: pointer;
+    }
+    .layout-b .sidebar nav a:hover {
+      color: var(--text-on-dark);
+      background: rgba(242,226,196,0.05);
+    }
+    .layout-b .sidebar nav a.active {
+      color: var(--text-on-dark);
+      background: rgba(242,226,196,0.08);
+      border-left-color: var(--bg);
+    }
+    .layout-b .sidebar nav a .icon {
+      width: 20px;
+      height: 20px;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .layout-b .sidebar nav a .badge {
+      background: var(--danger);
+      color: white;
+      font: 700 10px var(--font-satoshi);
+      padding: 2px 6px;
+      border-radius: var(--radius-pill);
+      margin-left: auto;
+    }
+
+    .layout-b .sidebar .user-section {
+      padding: 20px;
+      margin-top: auto;
+      border-top: 1px solid rgba(242,226,196,0.1);
+      position: absolute;
+      bottom: 0;
+      width: 240px;
+    }
+    .layout-b .sidebar .user-section .user-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .layout-b .sidebar .user-section .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(242,226,196,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 600 12px var(--font-satoshi);
+      color: var(--text-on-dark);
+    }
+    .layout-b .sidebar .user-section .name {
+      font: 500 13px var(--font-satoshi);
+      color: var(--text-on-dark);
+    }
+    .layout-b .sidebar .user-section .role {
+      font: 400 11px var(--font-satoshi);
+      color: rgba(242,226,196,0.5);
+    }
+
+    .layout-b .main-content {
+      flex: 1;
+      padding: 32px 40px;
+      overflow-y: auto;
+      max-width: 960px;
+    }
+    .layout-b .main-content .page-title {
+      font: 700 28px var(--font-satoshi);
+      margin-bottom: 8px;
+    }
+    .layout-b .main-content .page-subtitle {
+      font: italic 300 15px var(--font-playfair);
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    /* ====================================================================
+       LAYOUT C — COMPACT HEADER + SIDEBAR (Notion-like)
+       ==================================================================== */
+    .layout-c { display: flex; flex-direction: column; }
+    .layout-c.active { display: flex; }
+
+    .layout-c .top-bar {
+      background: var(--bg-dark);
+      padding: 10px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .layout-c .top-bar .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .layout-c .top-bar .brand .logo {
+      width: 28px;
+      height: 28px;
+      background: var(--bg);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 700 13px var(--font-satoshi);
+      color: var(--bg-dark);
+    }
+    .layout-c .top-bar .brand h1 {
+      font: 600 15px var(--font-satoshi);
+      color: var(--text-on-dark);
+    }
+    .layout-c .top-bar .right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .layout-c .top-bar .right .breadcrumb {
+      font: 400 13px var(--font-satoshi);
+      color: rgba(242,226,196,0.5);
+    }
+    .layout-c .top-bar .right .breadcrumb strong {
+      color: var(--text-on-dark);
+      font-weight: 600;
+    }
+    .layout-c .top-bar .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(242,226,196,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 600 11px var(--font-satoshi);
+      color: var(--text-on-dark);
+    }
+
+    .layout-c .body-wrap {
+      display: flex;
+      flex: 1;
+      min-height: calc(100vh - 48px);
+    }
+    .layout-c .side-nav {
+      width: 200px;
+      background: var(--surface);
+      border-right: 1px solid var(--input-line);
+      padding: 20px 0;
+      flex-shrink: 0;
+    }
+    .layout-c .side-nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      font: 500 13px var(--font-satoshi);
+      color: var(--text-muted);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+    .layout-c .side-nav a:hover {
+      color: var(--text-primary);
+      background: rgba(38,29,17,0.04);
+    }
+    .layout-c .side-nav a.active {
+      color: var(--text-primary);
+      font-weight: 600;
+      background: rgba(38,29,17,0.06);
+      border-right: 2px solid var(--bg-dark);
+    }
+    .layout-c .side-nav a .badge {
+      background: var(--danger);
+      color: white;
+      font: 700 9px var(--font-satoshi);
+      padding: 2px 5px;
+      border-radius: var(--radius-pill);
+      margin-left: auto;
+    }
+    .layout-c .main-area {
+      flex: 1;
+      padding: 28px 40px;
+      max-width: 960px;
+    }
+
+    /* ===== SHARED COMPONENTS ===== */
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      border: 1px solid transparent;
+      transition: all 200ms ease;
+    }
+    .stat-card:hover {
+      border-color: var(--input-line);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .stat-card .stat-label {
+      font: 700 11px var(--font-satoshi);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .stat-card .stat-value {
+      font: italic 400 36px var(--font-playfair);
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .stat-card .stat-detail {
+      font: 400 12px var(--font-satoshi);
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .stat-card.highlight {
+      background: var(--surface);
+      border: 2px solid var(--warning);
+    }
+    .stat-card.highlight .stat-label { color: var(--warning); }
+    .stat-card.highlight .stat-value { color: var(--text-primary); }
+    .stat-card.highlight .stat-detail { color: var(--text-muted); }
+
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-header h2 {
+      font: 700 18px var(--font-satoshi);
+    }
+    .section-header .action-btn {
+      padding: 8px 20px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--input-line);
+      background: white;
+      font: 600 13px var(--font-satoshi);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+    .section-header .action-btn:hover {
+      border-color: var(--bg-dark);
+      box-shadow: var(--shadow-card);
+    }
+    .section-header .action-btn.primary {
+      background: var(--primary);
+      color: white;
+      border-color: transparent;
+    }
+    .section-header .action-btn.primary:hover {
+      background: #3d6938;
+    }
+
+    /* Data Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .data-table thead th {
+      font: 700 11px var(--font-satoshi);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      text-align: left;
+      background: rgba(38,29,17,0.03);
+      border-bottom: 1px solid var(--input-line);
+    }
+    .data-table tbody td {
+      font: 400 14px var(--font-satoshi);
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(38,29,17,0.06);
+      vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr {
+      transition: background 150ms ease;
+    }
+    .data-table tbody tr:hover {
+      background: rgba(38,29,17,0.02);
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      font: 600 11px var(--font-satoshi);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .status-badge.active {
+      background: rgba(79,132,72,0.12);
+      color: var(--primary);
+    }
+    .status-badge.inactive {
+      background: rgba(38,29,17,0.06);
+      color: var(--text-muted);
+    }
+    .status-badge.pending {
+      background: rgba(201,150,10,0.12);
+      color: var(--warning);
+    }
+    .status-badge.rejected {
+      background: rgba(166,41,13,0.08);
+      color: var(--danger);
+    }
+    .status-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Toggle Switch */
+    .toggle {
+      width: 40px;
+      height: 22px;
+      border-radius: 11px;
+      background: var(--input-line);
+      position: relative;
+      cursor: pointer;
+      transition: background 200ms ease;
+      border: none;
+    }
+    .toggle.on { background: var(--primary); }
+    .toggle .knob {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: transform 200ms ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle.on .knob { transform: translateX(18px); }
+
+    /* Pending Items List */
+    .pending-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pending-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-radius: var(--radius-dropdown);
+      border: 1px solid transparent;
+      transition: all 200ms ease;
+      cursor: pointer;
+    }
+    .pending-item:hover {
+      border-color: var(--input-line);
+      box-shadow: var(--shadow-card);
+    }
+    .pending-item .type-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .pending-item .type-icon.lookup { background: rgba(201,150,10,0.12); }
+    .pending-item .info { flex: 1; }
+    .pending-item .info .title {
+      font: 600 14px var(--font-satoshi);
+      margin-bottom: 2px;
+    }
+    .pending-item .info .meta {
+      font: 400 12px var(--font-satoshi);
+      color: var(--text-muted);
+    }
+    .pending-item .actions {
+      display: flex;
+      gap: 6px;
+    }
+    .pending-item .actions button {
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      border: none;
+      font: 600 13px var(--font-satoshi);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+    .pending-item .actions .approve {
+      background: rgba(79,132,72,0.12);
+      color: var(--primary);
+    }
+    .pending-item .actions .approve:hover { background: var(--primary); color: white; }
+    .pending-item .actions .reject {
+      background: rgba(166,41,13,0.08);
+      color: var(--danger);
+    }
+    .pending-item .actions .reject:hover { background: var(--danger); color: white; }
+
+    /* Audit Log */
+    .audit-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(38,29,17,0.06);
+    }
+    .audit-entry:last-child { border-bottom: none; }
+    .audit-entry .timestamp {
+      font: 400 12px var(--font-satoshi);
+      color: var(--text-muted);
+      white-space: nowrap;
+      min-width: 120px;
+    }
+    .audit-entry .action-tag {
+      font: 600 10px var(--font-satoshi);
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      min-width: 100px;
+      text-align: center;
+    }
+    .audit-entry .action-tag.create { background: rgba(79,132,72,0.1); color: var(--primary); }
+    .audit-entry .action-tag.assign { background: rgba(23,45,72,0.1); color: var(--bg-dark); }
+    .audit-entry .action-tag.toggle { background: rgba(201,150,10,0.1); color: var(--warning); }
+    .audit-entry .description {
+      font: 400 13px var(--font-satoshi);
+      flex: 1;
+    }
+    .audit-entry .actor {
+      font: 500 12px var(--font-satoshi);
+      color: var(--text-muted);
+      min-width: 100px;
+      text-align: right;
+    }
+
+    /* Lookup Table Grid */
+    .lookup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .lookup-card {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+    .lookup-card:hover {
+      border-color: var(--input-line);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .lookup-card .table-name {
+      font: 600 13px var(--font-satoshi);
+      margin-bottom: 4px;
+    }
+    .lookup-card .entry-count {
+      font: italic 300 13px var(--font-playfair);
+      color: var(--text-muted);
+    }
+
+    /* Search Input */
+    .search-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--input-line);
+      margin-bottom: 24px;
+      max-width: 400px;
+    }
+    .search-input input {
+      border: none;
+      background: none;
+      font: italic 300 14px var(--font-playfair);
+      color: var(--text-primary);
+      flex: 1;
+      outline: none;
+    }
+    .search-input input::placeholder {
+      color: var(--text-muted);
+    }
+    .search-input .icon {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .empty-state .icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: rgba(38,29,17,0.05);
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .empty-state h3 {
+      font: 600 16px var(--font-satoshi);
+      margin-bottom: 8px;
+    }
+    .empty-state p {
+      font: italic 300 14px var(--font-playfair);
+      color: var(--text-muted);
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    /* Loading Skeleton */
+    @keyframes shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: 200px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(38,29,17,0.06) 0%, rgba(38,29,17,0.12) 50%, rgba(38,29,17,0.06) 100%);
+      background-size: 200px 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+    .skeleton-row {
+      display: flex;
+      gap: 16px;
+      padding: 12px 16px;
+      align-items: center;
+    }
+    .skeleton-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+    .skeleton-line { height: 14px; }
+    .skeleton-line.w-40 { width: 40%; }
+    .skeleton-line.w-60 { width: 60%; }
+    .skeleton-line.w-20 { width: 20%; }
+
+    /* Error State */
+    .error-state {
+      padding: 24px;
+      background: rgba(166,41,13,0.05);
+      border: 1px solid rgba(166,41,13,0.15);
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .error-state .icon { font-size: 20px; flex-shrink: 0; }
+    .error-state .message h4 {
+      font: 600 14px var(--font-satoshi);
+      color: var(--danger);
+      margin-bottom: 4px;
+    }
+    .error-state .message p {
+      font: 400 13px var(--font-satoshi);
+      color: var(--text-muted);
+    }
+    .error-state .retry-btn {
+      margin-left: auto;
+      padding: 8px 16px;
+      border: 1px solid var(--danger);
+      border-radius: var(--radius-pill);
+      background: none;
+      color: var(--danger);
+      font: 600 12px var(--font-satoshi);
+      cursor: pointer;
+    }
+
+    /* Confirmation Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(38,29,17,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 5000;
+    }
+    .modal-overlay.visible { display: flex; }
+    .modal-box {
+      background: var(--surface-light);
+      border-radius: var(--radius-panel);
+      padding: 32px;
+      max-width: 440px;
+      width: 90%;
+      box-shadow: 0 24px 80px rgba(38,29,17,0.2);
+    }
+    .modal-box h3 {
+      font: 700 18px var(--font-satoshi);
+      margin-bottom: 8px;
+    }
+    .modal-box p {
+      font: italic 300 14px var(--font-playfair);
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .modal-box textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--input-line);
+      border-radius: var(--radius-dropdown);
+      font: 400 14px var(--font-satoshi);
+      resize: vertical;
+      min-height: 80px;
+      margin-bottom: 20px;
+      outline: none;
+    }
+    .modal-box textarea:focus { border-color: var(--bg-dark); }
+    .modal-box .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .modal-box .modal-actions button {
+      padding: 10px 24px;
+      border-radius: var(--radius-pill);
+      font: 600 13px var(--font-satoshi);
+      cursor: pointer;
+      border: none;
+      transition: all 200ms ease;
+    }
+    .modal-box .modal-actions .cancel {
+      background: none;
+      border: 1px solid var(--input-line);
+      color: var(--text-muted);
+    }
+    .modal-box .modal-actions .confirm-danger {
+      background: var(--danger);
+      color: white;
+    }
+    .modal-box .modal-actions .confirm-success {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(150%);
+      padding: 12px 24px;
+      border-radius: var(--radius-pill);
+      font: 600 13px var(--font-satoshi);
+      color: white;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+      z-index: 6000;
+      transition: transform 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .toast.visible { transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--primary); }
+    .toast.error { background: var(--danger); }
+
+    /* Focus visible */
+    *:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .lookup-grid { grid-template-columns: 1fr; }
+      .layout-a .content { padding: 20px; }
+      .layout-a .admin-header { padding: 16px 20px; }
+      .layout-a .tab-bar { padding: 0 20px; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== SCENARIO TOGGLE ===== -->
+<button class="scenario-toggle" onclick="toggleScenario()">Cenarios</button>
+
+<div class="scenario-panel" id="scenarioPanel">
+  <h3>Controles</h3>
+
+  <div class="section-label">Layout</div>
+  <select id="layoutSelect" onchange="switchLayout(this.value)">
+    <option value="a">A — Top Tabs</option>
+    <option value="b">B — Sidebar</option>
+    <option value="c">C — Header + Sidebar</option>
+  </select>
+
+  <div class="section-label">Tab Ativa</div>
+  <select id="tabSelect" onchange="switchTab(this.value)">
+    <option value="dashboard">Dashboard</option>
+    <option value="pessoas">Pessoas</option>
+    <option value="lookups">Lookup Tables</option>
+    <option value="solicitacoes">Solicitacoes</option>
+    <option value="auditoria">Auditoria</option>
+  </select>
+
+  <hr />
+
+  <div class="section-label">Estado da Tab</div>
+  <label><input type="radio" name="state" value="normal" checked onchange="switchState(this.value)"> Normal (com dados)</label>
+  <label><input type="radio" name="state" value="loading" onchange="switchState(this.value)"> Loading</label>
+  <label><input type="radio" name="state" value="empty" onchange="switchState(this.value)"> Vazio</label>
+  <label><input type="radio" name="state" value="error" onchange="switchState(this.value)"> Erro</label>
+
+  <hr />
+
+  <div class="section-label">Modais</div>
+  <label><input type="checkbox" onchange="toggleModal('approve', this.checked)"> Modal Aprovar</label>
+  <label><input type="checkbox" onchange="toggleModal('reject', this.checked)"> Modal Rejeitar</label>
+
+  <hr />
+
+  <div class="section-label">Toast</div>
+  <label><input type="checkbox" onchange="toggleToast('success', this.checked)"> Toast Sucesso</label>
+  <label><input type="checkbox" onchange="toggleToast('error', this.checked)"> Toast Erro</label>
+</div>
+
+<!-- ===== LAYOUT SWITCHER BAR ===== -->
+<div class="layout-switcher">
+  <button class="active" onclick="switchLayout('a')">A — Top Tabs</button>
+  <button onclick="switchLayout('b')">B — Sidebar</button>
+  <button onclick="switchLayout('c')">C — Header + Sidebar</button>
+  <span>Prototipo Admin Hub — 3 abordagens de layout</span>
+</div>
+
+<!-- ================================================================
+     LAYOUT A — TOP TABS
+     ================================================================ -->
+<div class="layout layout-a active" id="layout-a">
+  <header class="admin-header">
+    <div class="brand">
+      <div class="logo">A</div>
+      <h1>ACDG <span>Administracao</span></h1>
+    </div>
+    <div class="user-info">
+      <div>
+        <div class="name">Gabriel Aderaldo</div>
+        <div class="role">Administrador</div>
+      </div>
+      <div class="avatar">GA</div>
+    </div>
+  </header>
+
+  <nav class="tab-bar" role="tablist" aria-label="Secoes do admin">
+    <button role="tab" class="active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
+    <button role="tab" data-tab="pessoas" onclick="switchTab('pessoas')">Pessoas</button>
+    <button role="tab" data-tab="lookups" onclick="switchTab('lookups')">Lookup Tables</button>
+    <button role="tab" data-tab="solicitacoes" onclick="switchTab('solicitacoes')" aria-label="Solicitacoes, 3 pendentes">Solicitacoes <span class="badge" aria-hidden="true">3</span></button>
+    <button role="tab" data-tab="auditoria" onclick="switchTab('auditoria')">Auditoria</button>
+  </nav>
+
+  <main class="content" id="content-a">
+    <!-- Content injected by JS -->
+  </main>
+</div>
+
+<!-- ================================================================
+     LAYOUT B — SIDEBAR
+     ================================================================ -->
+<div class="layout layout-b" id="layout-b">
+  <aside class="sidebar" role="navigation" aria-label="Menu admin">
+    <div class="brand">
+      <div class="logo">A</div>
+      <h1>Admin</h1>
+    </div>
+    <nav>
+      <a class="active" data-tab="dashboard" onclick="switchTab('dashboard')">
+        <span class="icon">&#9776;</span> Dashboard
+      </a>
+      <a data-tab="pessoas" onclick="switchTab('pessoas')">
+        <span class="icon">&#128101;</span> Pessoas
+      </a>
+      <a data-tab="lookups" onclick="switchTab('lookups')">
+        <span class="icon">&#128203;</span> Lookup Tables
+      </a>
+      <a data-tab="solicitacoes" onclick="switchTab('solicitacoes')">
+        <span class="icon">&#128233;</span> Solicitacoes
+        <span class="badge">3</span>
+      </a>
+      <a data-tab="auditoria" onclick="switchTab('auditoria')">
+        <span class="icon">&#128196;</span> Auditoria
+      </a>
+    </nav>
+    <div class="user-section">
+      <div class="user-row">
+        <div class="avatar">GA</div>
+        <div>
+          <div class="name">Gabriel Aderaldo</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <main class="main-content" id="content-b">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Visao geral da administracao do sistema.</p>
+    <!-- Content injected by JS -->
+  </main>
+</div>
+
+<!-- ================================================================
+     LAYOUT C — COMPACT HEADER + SIDEBAR
+     ================================================================ -->
+<div class="layout layout-c" id="layout-c">
+  <header class="top-bar">
+    <div class="brand">
+      <div class="logo">A</div>
+      <h1>ACDG Admin</h1>
+    </div>
+    <div class="right">
+      <span class="breadcrumb">Administracao &rsaquo; <strong>Dashboard</strong></span>
+      <div class="avatar">GA</div>
+    </div>
+  </header>
+  <div class="body-wrap">
+    <nav class="side-nav" aria-label="Navegacao admin">
+      <a class="active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</a>
+      <a data-tab="pessoas" onclick="switchTab('pessoas')">Pessoas</a>
+      <a data-tab="lookups" onclick="switchTab('lookups')">Lookup Tables</a>
+      <a data-tab="solicitacoes" onclick="switchTab('solicitacoes')">Solicitacoes <span class="badge">3</span></a>
+      <a data-tab="auditoria" onclick="switchTab('auditoria')">Auditoria</a>
+    </nav>
+    <main class="main-area" id="content-c">
+      <!-- Content injected by JS -->
+    </main>
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+<div class="modal-overlay" id="modal-approve">
+  <div class="modal-box" role="dialog" aria-labelledby="approve-title">
+    <h3 id="approve-title">Aprovar solicitacao</h3>
+    <p>Deseja aprovar a inclusao do valor "<strong>Nao-binario</strong>" na tabela <strong>dominio_genero</strong>?<br/>Esta acao ira adicionar o valor imediatamente.</p>
+    <div class="modal-actions">
+      <button class="cancel" onclick="toggleModal('approve', false)">Cancelar</button>
+      <button class="confirm-success" onclick="toggleModal('approve', false); toggleToast('success', true)">Aprovar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-reject">
+  <div class="modal-box" role="dialog" aria-labelledby="reject-title">
+    <h3 id="reject-title">Rejeitar solicitacao</h3>
+    <p>Informe o motivo da rejeicao. Esta informacao sera enviada ao solicitante.</p>
+    <textarea placeholder="Motivo da rejeicao (obrigatorio)..." aria-label="Motivo da rejeicao" required></textarea>
+    <div class="modal-actions">
+      <button class="cancel" onclick="toggleModal('reject', false)">Cancelar</button>
+      <button class="confirm-danger" aria-label="Confirmar rejeicao da solicitacao" onclick="toggleModal('reject', false); toggleToast('success', true)">Rejeitar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOASTS ===== -->
+<div class="toast success" id="toast-success" role="status" aria-live="polite">Solicitacao aprovada com sucesso</div>
+<div class="toast error" id="toast-error" role="alert" aria-live="assertive">Erro ao processar solicitacao. Tente novamente.</div>
+
+<script>
+// ===== STATE =====
+let currentLayout = 'a';
+let currentTab = 'dashboard';
+let currentState = 'normal';
+
+// ===== CONTENT TEMPLATES =====
+const dashboardContent = {
+  normal: `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Pessoas</div>
+        <div class="stat-value">42</div>
+        <div class="stat-detail">12 cadastradas este mes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Roles Ativos</div>
+        <div class="stat-value">38</div>
+        <div class="stat-detail">6 assistentes sociais</div>
+      </div>
+      <div class="stat-card highlight">
+        <div class="stat-label">Solicitacoes Pendentes</div>
+        <div class="stat-value">3</div>
+        <div class="stat-detail">Aguardando aprovacao</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Acoes no Audit</div>
+        <div class="stat-value">156</div>
+        <div class="stat-detail">Ultimos 30 dias</div>
+      </div>
+    </div>
+    <div class="section-header">
+      <h2>Solicitacoes pendentes</h2>
+      <button class="action-btn" onclick="switchTab('solicitacoes')">Ver todas</button>
+    </div>
+    <div class="pending-list">
+      <div class="pending-item">
+        <div class="type-icon lookup">&#128203;</div>
+        <div class="info">
+          <div class="title">Novo valor em dominio_genero: "Nao-binario"</div>
+          <div class="meta">Solicitado por Maria Silva &middot; 2h atras</div>
+        </div>
+        <div class="actions">
+          <button class="approve" onclick="toggleModal('approve', true)">Aprovar</button>
+          <button class="reject" onclick="toggleModal('reject', true)">Rejeitar</button>
+        </div>
+      </div>
+      <div class="pending-item">
+        <div class="type-icon lookup">&#128203;</div>
+        <div class="info">
+          <div class="title">Novo valor em dominio_parentesco: "Madrasta"</div>
+          <div class="meta">Solicitado por Ana Santos &middot; 5h atras</div>
+        </div>
+        <div class="actions">
+          <button class="approve" onclick="toggleModal('approve', true)">Aprovar</button>
+          <button class="reject" onclick="toggleModal('reject', true)">Rejeitar</button>
+        </div>
+      </div>
+      <div class="pending-item">
+        <div class="type-icon lookup">&#128203;</div>
+        <div class="info">
+          <div class="title">Novo valor em dominio_escolaridade: "Mestrado Incompleto"</div>
+          <div class="meta">Solicitado por Carlos Souza &middot; 1d atras</div>
+        </div>
+        <div class="actions">
+          <button class="approve" onclick="toggleModal('approve', true)">Aprovar</button>
+          <button class="reject" onclick="toggleModal('reject', true)">Rejeitar</button>
+        </div>
+      </div>
+    </div>
+    <br/>
+    <div class="section-header">
+      <h2>Atividade recente</h2>
+      <button class="action-btn" onclick="switchTab('auditoria')">Ver audit completo</button>
+    </div>
+    <div style="background: var(--surface); border-radius: var(--radius-card); padding: 16px;">
+      <div class="audit-entry">
+        <span class="timestamp">11/04 14:32</span>
+        <span class="action-tag create">PERSON_CREATED</span>
+        <span class="description">Cadastrou novo paciente: Joao Pedro Santos</span>
+        <span class="actor">Gabriel A.</span>
+      </div>
+      <div class="audit-entry">
+        <span class="timestamp">11/04 14:28</span>
+        <span class="action-tag assign">ROLE_ASSIGNED</span>
+        <span class="description">Atribuiu role "social_worker" a Maria Silva</span>
+        <span class="actor">Gabriel A.</span>
+      </div>
+      <div class="audit-entry">
+        <span class="timestamp">11/04 13:15</span>
+        <span class="action-tag toggle">LOOKUP_TOGGLED</span>
+        <span class="description">Desativou "Viuvo(a)" em dominio_estado_civil</span>
+        <span class="actor">Gabriel A.</span>
+      </div>
+    </div>
+  `,
+  loading: `
+    <div class="stats-grid">
+      ${[1,2,3,4].map(() => `
+        <div class="stat-card">
+          <div class="skeleton skeleton-line w-40" style="height:10px;margin-bottom:12px"></div>
+          <div class="skeleton skeleton-line w-20" style="height:36px;margin-bottom:8px"></div>
+          <div class="skeleton skeleton-line w-60" style="height:12px"></div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="background:var(--surface);border-radius:var(--radius-card);padding:16px">
+      ${[1,2,3].map(() => `
+        <div class="skeleton-row">
+          <div class="skeleton skeleton-circle"></div>
+          <div class="skeleton skeleton-line w-60" style="flex:1"></div>
+          <div class="skeleton skeleton-line w-20"></div>
+        </div>
+      `).join('')}
+    </div>
+  `,
+  empty: `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Pessoas</div><div class="stat-value">0</div><div class="stat-detail">Nenhuma pessoa cadastrada</div></div>
+      <div class="stat-card"><div class="stat-label">Roles Ativos</div><div class="stat-value">0</div></div>
+      <div class="stat-card"><div class="stat-label">Solicitacoes</div><div class="stat-value">0</div></div>
+      <div class="stat-card"><div class="stat-label">Audit</div><div class="stat-value">0</div></div>
+    </div>
+    <div class="empty-state">
+      <div class="icon-wrap">&#128640;</div>
+      <h3>Nenhuma atividade ainda</h3>
+      <p>Comece cadastrando pessoas ou configurando lookup tables para ver atividade aqui.</p>
+    </div>
+  `,
+  error: `
+    <div class="error-state" role="alert">
+      <span class="icon">&#9888;</span>
+      <div class="message">
+        <h4>Erro ao carregar dados</h4>
+        <p>Nao foi possivel conectar aos servicos. Verifique se os backends estao acessiveis.</p>
+      </div>
+      <button class="retry-btn" onclick="switchState('normal')">Tentar novamente</button>
+    </div>
+  `
+};
+
+const pessoasContent = {
+  normal: `
+    <div class="section-header">
+      <h2>Pessoas</h2>
+      <button class="action-btn primary">+ Nova Pessoa</button>
+    </div>
+    <div class="search-input">
+      <span class="icon">&#128269;</span>
+      <input type="search" placeholder="Buscar por nome ou CPF..." aria-label="Buscar pessoas" />
+    </div>
+    <table class="data-table" aria-label="Lista de pessoas">
+      <thead>
+        <tr><th>Nome</th><th>CPF</th><th>Nascimento</th><th>Roles</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Maria Silva Santos</strong></td>
+          <td>529.982.247-25</td>
+          <td>15/03/1988</td>
+          <td><span class="status-badge active"><span class="dot"></span>social_worker</span></td>
+          <td><span class="status-badge active"><span class="dot"></span>Ativo</span></td>
+        </tr>
+        <tr>
+          <td><strong>Joao Pedro Oliveira</strong></td>
+          <td>123.456.789-00</td>
+          <td>22/07/1995</td>
+          <td><span class="status-badge active"><span class="dot"></span>admin</span></td>
+          <td><span class="status-badge active"><span class="dot"></span>Ativo</span></td>
+        </tr>
+        <tr>
+          <td><strong>Ana Carolina Lima</strong></td>
+          <td>987.654.321-00</td>
+          <td>03/11/1990</td>
+          <td><span class="status-badge inactive"><span class="dot"></span>coordinator</span></td>
+          <td><span class="status-badge inactive"><span class="dot"></span>Inativo</span></td>
+        </tr>
+        <tr>
+          <td><strong>Carlos Eduardo Souza</strong></td>
+          <td>456.789.123-00</td>
+          <td>18/01/1982</td>
+          <td><span class="status-badge active"><span class="dot"></span>social_worker</span></td>
+          <td><span class="status-badge active"><span class="dot"></span>Ativo</span></td>
+        </tr>
+      </tbody>
+    </table>
+  `,
+  loading: `
+    <div class="section-header"><h2>Pessoas</h2></div>
+    <div class="search-input"><span class="icon">&#128269;</span><input type="search" placeholder="Buscar..." disabled /></div>
+    <div style="background:var(--surface);border-radius:var(--radius-card);padding:4px">
+      ${[1,2,3,4].map(() => `
+        <div class="skeleton-row">
+          <div class="skeleton skeleton-line w-40" style="flex:2"></div>
+          <div class="skeleton skeleton-line w-20" style="flex:1"></div>
+          <div class="skeleton skeleton-line w-20" style="flex:1"></div>
+          <div class="skeleton skeleton-line w-20" style="flex:1"></div>
+        </div>
+      `).join('')}
+    </div>
+  `,
+  empty: `
+    <div class="section-header"><h2>Pessoas</h2><button class="action-btn primary">+ Nova Pessoa</button></div>
+    <div class="empty-state">
+      <div class="icon-wrap">&#128101;</div>
+      <h3>Nenhuma pessoa cadastrada</h3>
+      <p>Cadastre a primeira pessoa para comecar a gerenciar o sistema.</p>
+    </div>
+  `,
+  error: `
+    <div class="section-header"><h2>Pessoas</h2></div>
+    <div class="error-state" role="alert">
+      <span class="icon">&#9888;</span>
+      <div class="message">
+        <h4>Erro ao carregar pessoas</h4>
+        <p>O servico people-context nao respondeu. Tente novamente em alguns instantes.</p>
+      </div>
+      <button class="retry-btn" onclick="switchState('normal')">Tentar novamente</button>
+    </div>
+  `
+};
+
+const lookupsContent = {
+  normal: `
+    <div class="section-header"><h2>Lookup Tables</h2></div>
+    <div class="search-input">
+      <span class="icon">&#128269;</span>
+      <input type="search" placeholder="Buscar tabela..." aria-label="Buscar lookup tables" />
+    </div>
+    <div class="lookup-grid">
+      <div class="lookup-card" role="button" tabindex="0" aria-label="Ver dominio_genero, 4 valores ativos" onclick="alert('Drill into dominio_genero')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+        <div class="table-name">dominio_genero</div>
+        <div class="entry-count">4 valores ativos</div>
+      </div>
+      <div class="lookup-card" role="button" tabindex="0" aria-label="Ver dominio_parentesco, 12 valores ativos">
+        <div class="table-name">dominio_parentesco</div>
+        <div class="entry-count">12 valores ativos</div>
+      </div>
+      <div class="lookup-card" role="button" tabindex="0" aria-label="Ver dominio_escolaridade, 8 valores ativos">
+        <div class="table-name">dominio_escolaridade</div>
+        <div class="entry-count">8 valores ativos</div>
+      </div>
+      <div class="lookup-card" role="button" tabindex="0" aria-label="Ver dominio_estado_civil, 6 valores ativos">
+        <div class="table-name">dominio_estado_civil</div>
+        <div class="entry-count">6 valores ativos</div>
+      </div>
+      <div class="lookup-card" role="button" tabindex="0" aria-label="Ver dominio_raca_cor, 5 valores ativos">
+        <div class="table-name">dominio_raca_cor</div>
+        <div class="entry-count">5 valores ativos</div>
+      </div>
+      <div class="lookup-card" role="button" tabindex="0" aria-label="Ver dominio_moradia, 7 valores ativos">
+        <div class="table-name">dominio_moradia</div>
+        <div class="entry-count">7 valores ativos</div>
+      </div>
+      <div class="lookup-card" role="button" tabindex="0" aria-label="Ver dominio_tipo_logradouro, 15 valores ativos">
+        <div class="table-name">dominio_tipo_logradouro</div>
+        <div class="entry-count">15 valores ativos</div>
+      </div>
+      <div class="lookup-card" role="button" tabindex="0" aria-label="Ver dominio_renda, 6 valores ativos">
+        <div class="table-name">dominio_renda</div>
+        <div class="entry-count">6 valores ativos</div>
+      </div>
+    </div>
+    <div style="background:var(--surface-light);border-radius:var(--radius-panel);padding:24px;margin-top:24px">
+    <div class="section-header"><h2>Detalhes: dominio_genero</h2><button class="action-btn primary">+ Novo Valor</button></div>
+    <table class="data-table" aria-label="Valores de dominio_genero">
+      <thead>
+        <tr><th>Valor</th><th>Status</th><th>Ativo</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Masculino</td>
+          <td><span class="status-badge active"><span class="dot"></span>Ativo</span></td>
+          <td><button class="toggle on" role="switch" aria-checked="true" aria-label="Desativar valor Masculino"><span class="knob"></span></button></td>
+        </tr>
+        <tr>
+          <td>Feminino</td>
+          <td><span class="status-badge active"><span class="dot"></span>Ativo</span></td>
+          <td><button class="toggle on" role="switch" aria-checked="true" aria-label="Desativar valor Feminino"><span class="knob"></span></button></td>
+        </tr>
+        <tr>
+          <td>Nao-binario</td>
+          <td><span class="status-badge active"><span class="dot"></span>Ativo</span></td>
+          <td><button class="toggle on" role="switch" aria-checked="true" aria-label="Desativar valor Nao-binario"><span class="knob"></span></button></td>
+        </tr>
+        <tr>
+          <td>Prefere nao informar</td>
+          <td><span class="status-badge inactive"><span class="dot"></span>Inativo</span></td>
+          <td><button class="toggle" role="switch" aria-checked="false" aria-label="Desativar valor Prefere nao informar"><span class="knob"></span></button></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  `,
+  loading: `
+    <div class="section-header"><h2>Lookup Tables</h2></div>
+    <div class="lookup-grid">
+      ${[1,2,3,4,5,6].map(() => `<div class="lookup-card"><div class="skeleton skeleton-line w-60" style="height:14px;margin-bottom:8px"></div><div class="skeleton skeleton-line w-40" style="height:12px"></div></div>`).join('')}
+    </div>
+  `,
+  empty: `
+    <div class="section-header"><h2>Lookup Tables</h2></div>
+    <div class="empty-state">
+      <div class="icon-wrap">&#128203;</div>
+      <h3>Nenhuma tabela encontrada</h3>
+      <p>As lookup tables serao carregadas do backend social-care.</p>
+    </div>
+  `,
+  error: `
+    <div class="section-header"><h2>Lookup Tables</h2></div>
+    <div class="error-state" role="alert">
+      <span class="icon">&#9888;</span>
+      <div class="message">
+        <h4>Erro ao carregar tabelas</h4>
+        <p>O servico social-care nao respondeu.</p>
+      </div>
+      <button class="retry-btn" onclick="switchState('normal')">Tentar novamente</button>
+    </div>
+  `
+};
+
+const solicitacoesContent = {
+  normal: `
+    <div class="section-header"><h2>Solicitacoes</h2></div>
+    <table class="data-table" aria-label="Solicitacoes de novos valores">
+      <thead>
+        <tr><th>Tabela</th><th>Valor Proposto</th><th>Solicitante</th><th>Data</th><th>Status</th><th>Acoes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>dominio_genero</td>
+          <td><strong>Nao-binario</strong></td>
+          <td>Maria Silva</td>
+          <td>11/04/2026</td>
+          <td><span class="status-badge pending"><span class="dot"></span>Pendente</span></td>
+          <td>
+            <div style="display:flex;gap:6px">
+              <button class="approve" style="padding:6px 14px;border-radius:100px;border:none;font:600 11px var(--font-satoshi);cursor:pointer;background:rgba(79,132,72,0.12);color:var(--primary)" onclick="toggleModal('approve', true)">Aprovar</button>
+              <button class="reject" style="padding:6px 14px;border-radius:100px;border:none;font:600 11px var(--font-satoshi);cursor:pointer;background:rgba(166,41,13,0.08);color:var(--danger)" onclick="toggleModal('reject', true)">Rejeitar</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>dominio_parentesco</td>
+          <td><strong>Madrasta</strong></td>
+          <td>Ana Santos</td>
+          <td>11/04/2026</td>
+          <td><span class="status-badge pending"><span class="dot"></span>Pendente</span></td>
+          <td>
+            <div style="display:flex;gap:6px">
+              <button class="approve" style="padding:6px 14px;border-radius:100px;border:none;font:600 11px var(--font-satoshi);cursor:pointer;background:rgba(79,132,72,0.12);color:var(--primary)">Aprovar</button>
+              <button class="reject" style="padding:6px 14px;border-radius:100px;border:none;font:600 11px var(--font-satoshi);cursor:pointer;background:rgba(166,41,13,0.08);color:var(--danger)">Rejeitar</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>dominio_escolaridade</td>
+          <td><strong>Mestrado Incompleto</strong></td>
+          <td>Carlos Souza</td>
+          <td>10/04/2026</td>
+          <td><span class="status-badge pending"><span class="dot"></span>Pendente</span></td>
+          <td>
+            <div style="display:flex;gap:6px">
+              <button class="approve" style="padding:6px 14px;border-radius:100px;border:none;font:600 11px var(--font-satoshi);cursor:pointer;background:rgba(79,132,72,0.12);color:var(--primary)">Aprovar</button>
+              <button class="reject" style="padding:6px 14px;border-radius:100px;border:none;font:600 11px var(--font-satoshi);cursor:pointer;background:rgba(166,41,13,0.08);color:var(--danger)">Rejeitar</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>dominio_genero</td>
+          <td><strong>Agenero</strong></td>
+          <td>Maria Silva</td>
+          <td>09/04/2026</td>
+          <td><span class="status-badge active"><span class="dot"></span>Aprovado</span></td>
+          <td><span style="font:400 12px var(--font-satoshi);color:var(--text-muted)">Aprovado em 10/04</span></td>
+        </tr>
+        <tr>
+          <td>dominio_moradia</td>
+          <td><strong>Comunidade Terapeutica</strong></td>
+          <td>Carlos Souza</td>
+          <td>08/04/2026</td>
+          <td><span class="status-badge rejected"><span class="dot"></span>Rejeitado</span></td>
+          <td><span style="font:400 12px var(--font-satoshi);color:var(--text-muted)">Valor duplicado</span></td>
+        </tr>
+      </tbody>
+    </table>
+  `,
+  loading: `
+    <div class="section-header"><h2>Solicitacoes</h2></div>
+    <div style="background:var(--surface);border-radius:var(--radius-card);padding:4px">
+      ${[1,2,3].map(() => `<div class="skeleton-row"><div class="skeleton skeleton-line w-20" style="flex:1"></div><div class="skeleton skeleton-line w-40" style="flex:2"></div><div class="skeleton skeleton-line w-20" style="flex:1"></div><div class="skeleton skeleton-line w-20" style="flex:1"></div></div>`).join('')}
+    </div>
+  `,
+  empty: `
+    <div class="section-header"><h2>Solicitacoes</h2></div>
+    <div class="empty-state">
+      <div class="icon-wrap">&#9989;</div>
+      <h3>Nenhuma solicitacao pendente</h3>
+      <p>Todas as solicitacoes foram processadas. Novas solicitacoes aparecerao aqui.</p>
+    </div>
+  `,
+  error: `
+    <div class="section-header"><h2>Solicitacoes</h2></div>
+    <div class="error-state" role="alert">
+      <span class="icon">&#9888;</span>
+      <div class="message"><h4>Erro ao carregar solicitacoes</h4><p>Tente novamente.</p></div>
+      <button class="retry-btn" onclick="switchState('normal')">Tentar novamente</button>
+    </div>
+  `
+};
+
+const auditoriaContent = {
+  normal: `
+    <div class="section-header"><h2>Auditoria</h2></div>
+    <div class="search-input">
+      <span class="icon">&#128269;</span>
+      <input type="search" placeholder="Buscar por acao ou ator..." aria-label="Buscar no audit" />
+    </div>
+    <div style="background:var(--surface);border-radius:var(--radius-card);padding:16px">
+      <div class="audit-entry">
+        <span class="timestamp">11/04 14:32</span>
+        <span class="action-tag create">PERSON_CREATED</span>
+        <span class="description">Cadastrou novo paciente: Joao Pedro Santos</span>
+        <span class="actor">Gabriel A.</span>
+      </div>
+      <div class="audit-entry">
+        <span class="timestamp">11/04 14:28</span>
+        <span class="action-tag assign">ROLE_ASSIGNED</span>
+        <span class="description">Atribuiu role "social_worker" a Maria Silva</span>
+        <span class="actor">Gabriel A.</span>
+      </div>
+      <div class="audit-entry">
+        <span class="timestamp">11/04 13:15</span>
+        <span class="action-tag toggle">LOOKUP_TOGGLED</span>
+        <span class="description">Desativou "Viuvo(a)" em dominio_estado_civil</span>
+        <span class="actor">Gabriel A.</span>
+      </div>
+      <div class="audit-entry">
+        <span class="timestamp">11/04 12:45</span>
+        <span class="action-tag create">LOOKUP_CREATED</span>
+        <span class="description">Criou valor "Nao-binario" em dominio_genero</span>
+        <span class="actor">Gabriel A.</span>
+      </div>
+      <div class="audit-entry">
+        <span class="timestamp">11/04 11:20</span>
+        <span class="action-tag assign">LOOKUP_REQUEST_APPROVED</span>
+        <span class="description">Aprovou solicitacao de "Agenero" em dominio_genero</span>
+        <span class="actor">Gabriel A.</span>
+      </div>
+      <div class="audit-entry">
+        <span class="timestamp">11/04 10:05</span>
+        <span class="action-tag create">PERSON_CREATED</span>
+        <span class="description">Cadastrou novo paciente: Ana Carolina Lima</span>
+        <span class="actor">Gabriel A.</span>
+      </div>
+      <div class="audit-entry">
+        <span class="timestamp">10/04 16:30</span>
+        <span class="action-tag toggle">LOOKUP_REQUEST_REJECTED</span>
+        <span class="description">Rejeitou "Comunidade Terapeutica" — Valor duplicado</span>
+        <span class="actor">Gabriel A.</span>
+      </div>
+    </div>
+    <div style="text-align:center;padding:20px">
+      <button class="action-btn" style="font:italic 300 14px var(--font-playfair)">Carregar mais...</button>
+    </div>
+  `,
+  loading: `
+    <div class="section-header"><h2>Auditoria</h2></div>
+    <div style="background:var(--surface);border-radius:var(--radius-card);padding:4px">
+      ${[1,2,3,4,5].map(() => `<div class="skeleton-row"><div class="skeleton skeleton-line w-20"></div><div class="skeleton skeleton-line w-20"></div><div class="skeleton skeleton-line w-60" style="flex:1"></div><div class="skeleton skeleton-line w-20"></div></div>`).join('')}
+    </div>
+  `,
+  empty: `
+    <div class="section-header"><h2>Auditoria</h2></div>
+    <div class="empty-state">
+      <div class="icon-wrap">&#128196;</div>
+      <h3>Nenhum registro de auditoria</h3>
+      <p>Acoes administrativas serao registradas aqui automaticamente.</p>
+    </div>
+  `,
+  error: `
+    <div class="section-header"><h2>Auditoria</h2></div>
+    <div class="error-state" role="alert">
+      <span class="icon">&#9888;</span>
+      <div class="message"><h4>Erro ao carregar auditoria</h4><p>Tente novamente.</p></div>
+      <button class="retry-btn" onclick="switchState('normal')">Tentar novamente</button>
+    </div>
+  `
+};
+
+const tabContent = {
+  dashboard: dashboardContent,
+  pessoas: pessoasContent,
+  lookups: lookupsContent,
+  solicitacoes: solicitacoesContent,
+  auditoria: auditoriaContent,
+};
+
+// ===== FUNCTIONS =====
+function toggleScenario() {
+  document.getElementById('scenarioPanel').classList.toggle('open');
+}
+
+function switchLayout(id) {
+  currentLayout = id;
+  document.querySelectorAll('.layout').forEach(l => l.classList.remove('active'));
+  document.getElementById('layout-' + id).classList.add('active');
+  document.querySelectorAll('.layout-switcher button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.layout-switcher button')[{a:0,b:1,c:2}[id]].classList.add('active');
+  document.getElementById('layoutSelect').value = id;
+  render();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabSelect').value = tab;
+
+  // Update tab-bar buttons (Layout A)
+  document.querySelectorAll('.layout-a .tab-bar button').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+
+  // Update sidebar links (Layout B)
+  document.querySelectorAll('.layout-b .sidebar nav a').forEach(a => {
+    a.classList.toggle('active', a.dataset.tab === tab);
+  });
+
+  // Update side-nav (Layout C)
+  document.querySelectorAll('.layout-c .side-nav a').forEach(a => {
+    a.classList.toggle('active', a.dataset.tab === tab);
+  });
+
+  // Update breadcrumb (Layout C)
+  const breadcrumb = document.querySelector('.layout-c .breadcrumb');
+  if (breadcrumb) {
+    const names = {dashboard:'Dashboard',pessoas:'Pessoas',lookups:'Lookup Tables',solicitacoes:'Solicitacoes',auditoria:'Auditoria'};
+    breadcrumb.innerHTML = `Administracao &rsaquo; <strong>${names[tab]}</strong>`;
+  }
+
+  // Update page title (Layout B)
+  const pageTitle = document.querySelector('.layout-b .page-title');
+  const pageSub = document.querySelector('.layout-b .page-subtitle');
+  if (pageTitle) {
+    const titles = {dashboard:'Dashboard',pessoas:'Pessoas',lookups:'Lookup Tables',solicitacoes:'Solicitacoes',auditoria:'Auditoria'};
+    const subs = {dashboard:'Visao geral da administracao do sistema.',pessoas:'Gerencie pessoas e seus roles no sistema.',lookups:'Configure os valores das tabelas de dominio.',solicitacoes:'Aprove ou rejeite solicitacoes de novos valores.',auditoria:'Historico de todas as acoes administrativas.'};
+    pageTitle.textContent = titles[tab];
+    pageSub.textContent = subs[tab];
+  }
+
+  render();
+}
+
+function switchState(state) {
+  currentState = state;
+  document.querySelectorAll('input[name="state"]').forEach(r => {
+    r.checked = r.value === state;
+  });
+  render();
+}
+
+function render() {
+  const content = tabContent[currentTab]?.[currentState] || '<p>Conteudo nao disponivel</p>';
+  const containers = ['content-a', 'content-b', 'content-c'];
+  containers.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      // For layout-b, keep page title/subtitle
+      if (id === 'content-b') {
+        const pt = el.querySelector('.page-title');
+        const ps = el.querySelector('.page-subtitle');
+        el.innerHTML = '';
+        if (pt) el.appendChild(pt);
+        if (ps) el.appendChild(ps);
+        el.insertAdjacentHTML('beforeend', content);
+      } else {
+        el.innerHTML = content;
+      }
+    }
+  });
+}
+
+function toggleModal(type, show) {
+  const modal = document.getElementById('modal-' + type);
+  if (show) {
+    modal.classList.add('visible');
+    // uncheck the checkbox in scenario panel
+  } else {
+    modal.classList.remove('visible');
+  }
+}
+
+function toggleToast(type, show) {
+  const toast = document.getElementById('toast-' + type);
+  if (show) {
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), 4000);
+  } else {
+    toast.classList.remove('visible');
+  }
+}
+
+// Initial render
+render();
+</script>
+</body>
+</html>

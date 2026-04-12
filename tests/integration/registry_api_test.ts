@@ -211,7 +211,10 @@ describe("Registry API E2E - GET /api/v1/patients", () => {
 
   it("returns 401 without session", async () => {
     const req = new Request("http://localhost/api/v1/patients", {
-      headers: { "Sec-Fetch-Site": "same-origin" },
+      headers: {
+        "Sec-Fetch-Site": "same-origin",
+        "X-Requested-With": "XMLHttpRequest",
+      },
     });
     const res = await ctx.app.request(req);
     assertEquals(res.status, 401);
