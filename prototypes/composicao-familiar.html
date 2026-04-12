@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Conecta — Composicao Familiar</title>
+<style>
+@import url('https://api.fontshare.com/v2/css?f[]=erode@400,500,600,700&f[]=satoshi@400,500,600,700&display=swap');
+
+/* ===================================================================
+   DESIGN TOKENS — Sage Garden
+   =================================================================== */
+:root {
+  --bg-base: #F8F3EC;
+  --bg-warm: #F0E8DC;
+  --bg-sage: #E2E8DF;
+  --bg-sage-deep: #D4DDD0;
+  --bg-card: rgba(255,255,255,0.45);
+  --bg-card-hover: rgba(255,255,255,0.65);
+  --bg-card-border: rgba(255,255,255,0.6);
+  --bg-card-border-hover: rgba(79,132,72,0.2);
+
+  --text-primary: #1E2B1A;
+  --text-secondary: #3D5235;
+  --text-muted: #6B7F65;
+  --text-soft: #637A5D;
+  --text-label: #5A7154;
+
+  --green-primary: #4F8448;
+  --green-dark: #3D6A37;
+  --green-light: rgba(79,132,72,0.08);
+
+  --danger: #C4422B;
+  --danger-light: rgba(196,66,43,0.08);
+
+  --sidebar-width: 64px;
+
+  --font-display: 'Erode', Georgia, serif;
+  --font-body: 'Satoshi', system-ui, -apple-system, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+  --s6: 32px; --s7: 40px; --s8: 48px; --s9: 64px; --s10: 80px;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-pill: 100px;
+
+  --line: rgba(79,132,72,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::selection { background: var(--green-primary); color: #fff; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(79,132,72,0.2); border-radius: 3px; }
+
+/* ===================================================================
+   BACKGROUND
+   =================================================================== */
+.bg-gradient {
+  position: fixed; inset: 0; z-index: 0;
+  background: linear-gradient(155deg, var(--bg-base) 0%, var(--bg-warm) 25%, var(--bg-sage) 55%, var(--bg-sage-deep) 100%);
+}
+.bg-blob-1 {
+  position: fixed; top: -10%; right: 5%; width: 450px; height: 450px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,132,72,0.06) 0%, transparent 70%); z-index: 0;
+}
+.bg-blob-2 {
+  position: fixed; bottom: -15%; left: 10%; width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(180,160,100,0.04) 0%, transparent 70%); z-index: 0;
+}
+
+/* ===================================================================
+   LAYOUT
+   =================================================================== */
+.app { position: relative; z-index: 1; display: flex; min-height: 100vh; }
+
+/* ===================================================================
+   SIDEBAR
+   =================================================================== */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-width);
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(79,132,72,0.08);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 0; z-index: 40;
+  transition: width var(--duration-normal) var(--ease-out);
+  overflow: hidden;
+}
+.sidebar:hover { width: 220px; }
+
+.sidebar-logo {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-family: var(--font-display); font-size: 16px; font-weight: 700;
+  margin-bottom: 8px; flex-shrink: 0;
+}
+.sidebar-brand {
+  font-family: var(--font-display); font-size: 14px; color: var(--text-secondary); font-weight: 600;
+  white-space: nowrap; opacity: 0; transform: translateX(-8px);
+  transition: all var(--duration-normal) var(--ease-out); margin-bottom: 32px;
+}
+.sidebar:hover .sidebar-brand { opacity: 1; transform: translateX(0); }
+
+.sidebar-nav { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 0 12px; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-radius: var(--r-sm); cursor: pointer;
+  transition: all var(--duration-fast) ease; text-decoration: none;
+  color: var(--text-muted); white-space: nowrap;
+}
+.sidebar-item:hover { background: var(--green-light); color: var(--text-secondary); }
+.sidebar-item.active { background: var(--green-light); color: var(--green-primary); }
+.sidebar-icon {
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 16px;
+}
+.sidebar-label {
+  font-size: 13px; font-weight: 500; opacity: 0; transform: translateX(-8px);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+.sidebar:hover .sidebar-label { opacity: 1; transform: translateX(0); }
+.sidebar-badge {
+  margin-left: auto; font-size: 11px; font-weight: 600;
+  background: var(--green-light); color: var(--green-primary);
+  padding: 2px 8px; border-radius: var(--r-pill);
+  opacity: 0; transition: opacity var(--duration-normal) var(--ease-out);
+}
+.sidebar:hover .sidebar-badge { opacity: 1; }
+
+.sidebar-footer { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 0 12px; width: 100%; }
+.sidebar-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-sage), var(--bg-sage-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--green-dark); flex-shrink: 0;
+}
+.sidebar-username {
+  font-size: 12px; color: var(--text-muted); white-space: nowrap;
+  opacity: 0; transition: opacity var(--duration-normal) var(--ease-out);
+}
+.sidebar:hover .sidebar-username { opacity: 1; }
+
+/* ===================================================================
+   MAIN CONTENT
+   =================================================================== */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 32px;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+.main-inner {
+  width: 100%;
+}
+
+/* ===================================================================
+   PAGE HEADER
+   =================================================================== */
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-muted); text-decoration: none;
+  transition: color var(--duration-fast) ease; cursor: pointer;
+  margin-bottom: var(--s5);
+}
+.back-link:hover { color: var(--text-secondary); text-decoration: underline; }
+
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: var(--s6);
+}
+.page-header-info { flex: 1; }
+.page-title {
+  font-family: var(--font-display);
+  font-size: 36px; font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.03em; line-height: 1;
+}
+.page-subtitle {
+  font-size: 15px; color: var(--text-muted);
+  margin-top: var(--s2); font-style: italic;
+}
+.header-actions { display: flex; align-items: center; gap: 12px; }
+
+/* ===================================================================
+   PATIENT NAV BAR
+   =================================================================== */
+.patient-bar {
+  display: flex; align-items: center; gap: var(--s5);
+  padding: var(--s5) var(--s6);
+  background: var(--bg-card);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--r-lg);
+  margin-bottom: var(--s5);
+}
+.patient-bar-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-sage), var(--bg-sage-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 600; color: var(--green-dark); flex-shrink: 0;
+}
+.patient-bar-info { flex: 1; }
+.patient-bar-name {
+  font-family: var(--font-display); font-size: 19px; font-weight: 600;
+  color: var(--text-primary);
+}
+.patient-bar-meta {
+  font-size: 13px; color: var(--text-muted); margin-top: 4px;
+}
+.patient-bar-badge {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; padding: 5px 14px; border-radius: var(--r-pill);
+  background: var(--green-light); color: var(--green-primary);
+}
+
+/* ===================================================================
+   SECTION CARDS — glass morphism
+   =================================================================== */
+/* ===================================================================
+   CONTENT GRID — 2 columns
+   =================================================================== */
+.content-grid {
+  display: grid;
+  grid-template-columns: 5fr 3fr;
+  gap: var(--s5);
+  align-items: start;
+}
+.content-left { min-width: 0; }
+.content-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+  position: sticky;
+  top: 0;
+}
+
+.section-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--r-xl);
+  padding: var(--s6) var(--s6);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  animation: containerFadeIn 0.6s var(--ease-out);
+}
+@keyframes containerFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--s5);
+}
+.section-title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 700;
+  color: var(--text-primary); letter-spacing: -0.02em;
+}
+.section-count {
+  font-size: 13px; color: var(--text-muted); margin-top: 2px;
+}
+
+/* ===================================================================
+   AGE PROFILE — Histogram
+   =================================================================== */
+.age-histogram {
+  display: flex; align-items: flex-end; gap: 6px;
+  padding: var(--s3) 0 0;
+}
+.age-hist-col {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.age-hist-bar-wrap {
+  width: 100%; height: 80px;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.age-hist-bar {
+  width: 100%; border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(180deg, var(--green-primary) 0%, var(--green-dark) 100%);
+  transition: height 0.8s var(--ease-spring);
+  position: relative;
+  min-height: 0;
+  box-shadow: 0 2px 8px rgba(79,132,72,0.2);
+}
+.age-hist-bar.empty {
+  background: var(--bg-sage);
+  min-height: 6px;
+  border-radius: 3px;
+  box-shadow: none;
+}
+.age-hist-count {
+  position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+  font-size: 12px; font-weight: 700; color: var(--green-primary);
+}
+.age-hist-bar.empty .age-hist-count {
+  color: var(--text-soft); font-weight: 500;
+}
+.age-hist-label {
+  font-size: 10px; font-weight: 600; color: var(--text-muted);
+  white-space: nowrap; letter-spacing: 1.5px; text-transform: uppercase;
+}
+.age-hist-total {
+  font-size: 12px; color: var(--text-muted); margin-top: var(--s3);
+  text-align: right;
+}
+.age-hist-total strong {
+  color: var(--green-primary); font-weight: 700;
+}
+
+#ageSection .section-title {
+  font-size: 16px; font-weight: 600; color: var(--text-secondary);
+}
+#ageSection .section-count {
+  font-size: 12px;
+}
+#ageSection {
+  padding: var(--s5) var(--s5);
+}
+
+/* ===================================================================
+   MEMBER LIST
+   =================================================================== */
+.member-list-header {
+  display: grid;
+  grid-template-columns: 32px 1fr 110px 90px 80px 36px;
+  align-items: center; gap: var(--s3);
+  padding: 0 var(--s3) var(--s3);
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--text-soft);
+}
+
+.member-card {
+  display: grid;
+  grid-template-columns: 32px 1fr 110px 90px 80px 36px;
+  align-items: center; gap: var(--s3);
+  padding: var(--s4) var(--s3);
+  border-bottom: 1px solid var(--line);
+  transition: all var(--duration-fast) ease;
+  animation: rowFadeIn var(--duration-slow) var(--ease-out) both;
+}
+.member-card:last-child { border-bottom: none; }
+.member-card:hover { background: rgba(255,255,255,0.3); border-radius: var(--r-md); }
+.member-card.dropdown-active { z-index: 10; position: relative; }
+
+@keyframes rowFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.member-card:nth-child(1) { animation-delay: 0ms; }
+.member-card:nth-child(2) { animation-delay: 60ms; }
+.member-card:nth-child(3) { animation-delay: 120ms; }
+.member-card:nth-child(4) { animation-delay: 180ms; }
+.member-card:nth-child(5) { animation-delay: 240ms; }
+.member-card:nth-child(6) { animation-delay: 300ms; }
+.member-card:nth-child(7) { animation-delay: 360ms; }
+
+.member-index {
+  font-size: 12px; color: var(--text-soft);
+  font-variant-numeric: tabular-nums; text-align: center;
+}
+.member-info { min-width: 0; }
+.member-name {
+  font-family: var(--font-display); font-size: 15px; font-weight: 600;
+  color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.member-relationship {
+  font-size: 12px; color: var(--text-muted); margin-top: 1px;
+}
+.member-age {
+  font-size: 13px; color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.member-sex {
+  font-size: 12px; color: var(--text-muted);
+}
+
+/* Tags */
+.member-tags { display: flex; gap: var(--s1); flex-wrap: wrap; }
+.tag {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; padding: 2px 8px; border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+.tag-pr { background: rgba(79,132,72,0.12); color: var(--green-primary); }
+.tag-caregiver { background: rgba(79,132,72,0.12); color: var(--green-dark); }
+.tag-disability { background: rgba(196,66,43,0.08); color: var(--danger); }
+.tag-lives-with { background: rgba(79,132,72,0.08); color: var(--text-secondary); }
+
+/* Actions */
+.member-actions {
+  display: flex; align-items: center; justify-content: flex-end;
+}
+.action-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid rgba(79,132,72,0.12); background: transparent;
+  color: var(--text-soft); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--duration-fast) ease;
+}
+.action-btn:hover { border-color: var(--green-primary); color: var(--green-primary); background: var(--green-light); }
+.action-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
+
+/* Action menu */
+.action-menu {
+  position: relative;
+}
+.action-dropdown {
+  display: none;
+  position: absolute; right: 0; top: 100%; margin-top: 4px;
+  background: rgba(255,255,255,0.9); backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-card-border); border-radius: var(--r-md);
+  padding: var(--s1); min-width: 150px; z-index: 20;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  animation: dropdownIn var(--duration-fast) var(--ease-out);
+}
+.action-dropdown.open { display: block; }
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.dropdown-item {
+  display: flex; align-items: center; gap: var(--s2);
+  padding: var(--s2) var(--s3); border-radius: var(--r-sm);
+  font-size: 13px; color: var(--text-secondary); cursor: pointer;
+  transition: all var(--duration-fast) ease; border: none; background: none;
+  width: 100%; text-align: left; font-family: var(--font-body);
+}
+.dropdown-item:hover { background: var(--green-light); color: var(--green-primary); }
+.dropdown-item.danger { color: var(--danger); }
+.dropdown-item.danger:hover { background: var(--danger-light); }
+.dropdown-icon { width: 16px; text-align: center; font-size: 12px; }
+
+/* ===================================================================
+   SPECIFICITY SECTION
+   =================================================================== */
+.specificity-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--s3);
+}
+.specificity-card {
+  padding: var(--s4) var(--s4);
+  background: rgba(255,255,255,0.3);
+  border: 1.5px solid rgba(79,132,72,0.1);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  text-align: center;
+  font-size: 14px; font-weight: 500; color: var(--text-muted);
+}
+.specificity-card.clear-option {
+  border-style: dashed; border-color: rgba(79,132,72,0.15);
+  color: var(--text-soft); font-style: italic;
+}
+.specificity-card:hover {
+  background: rgba(255,255,255,0.5); border-color: rgba(79,132,72,0.2);
+}
+.specificity-card.selected {
+  background: var(--green-light); border-color: var(--green-primary);
+  color: var(--green-primary); font-weight: 600;
+  box-shadow: 0 0 0 3px rgba(79,132,72,0.08);
+}
+.specificity-card:focus-visible {
+  outline: 2px solid var(--green-primary); outline-offset: 2px;
+}
+
+/* ===================================================================
+   BUTTONS
+   =================================================================== */
+.btn {
+  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  padding: 12px 28px; border-radius: var(--r-pill);
+  cursor: pointer; transition: all var(--duration-normal) var(--ease-out);
+  border: none; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+  color: #fff; box-shadow: 0 2px 12px rgba(79,132,72,0.2);
+}
+.btn-primary:hover {
+  transform: translateY(-1px); box-shadow: 0 4px 20px rgba(79,132,72,0.3);
+}
+.btn-secondary {
+  background: transparent; border: 1.5px solid rgba(79,132,72,0.2);
+  color: var(--text-muted); padding: 10px 20px;
+}
+.btn-secondary:hover { border-color: rgba(79,132,72,0.4); color: var(--text-secondary); }
+
+.btn-danger-outline {
+  background: transparent; border: 1.5px solid rgba(196,66,43,0.2);
+  color: var(--danger); padding: 10px 20px;
+}
+.btn-danger-outline:hover { border-color: var(--danger); background: var(--danger-light); }
+
+.btn-small { padding: 8px 16px; font-size: 13px; }
+
+/* ===================================================================
+   FOOTER BAR
+   =================================================================== */
+.footer-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: var(--s5); border-top: 1px solid var(--line);
+  margin-top: var(--s5);
+}
+.footer-bar-info {
+  font-size: 12px; color: var(--text-soft); font-style: italic;
+}
+
+/* ===================================================================
+   MODAL OVERLAY
+   =================================================================== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(248,243,236,0.7);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; opacity: 0; pointer-events: none;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+.modal-overlay.visible { opacity: 1; pointer-events: auto; }
+
+.modal {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--r-xl);
+  padding: var(--s6);
+  width: 90%; max-width: 620px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 16px 64px rgba(0,0,0,0.08);
+  transform: scale(0.96); opacity: 0;
+  transition: all var(--duration-normal) var(--ease-spring);
+}
+.modal-overlay.visible .modal { transform: scale(1); opacity: 1; }
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--s5);
+}
+.modal-title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 700;
+  color: var(--text-primary);
+}
+.modal-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--bg-card-border); background: rgba(255,255,255,0.4);
+  color: var(--text-secondary); font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--duration-fast) ease;
+}
+.modal-close:hover { background: rgba(255,255,255,0.7); color: var(--text-primary); }
+
+/* ===================================================================
+   FORM FIELDS — underline style
+   =================================================================== */
+.form-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+}
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field.full { grid-column: 1 / -1; }
+
+.field-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-soft);
+}
+.field-required::after { content: ' *'; color: var(--danger); }
+
+.field-input {
+  background: transparent; border: none;
+  border-bottom: 1.5px solid rgba(79,132,72,0.15);
+  padding: 10px 0; font-family: var(--font-body); font-size: 15px;
+  color: var(--text-primary); outline: none;
+  transition: border-color var(--duration-normal) var(--ease-out); width: 100%;
+}
+.field-input::placeholder { color: var(--text-soft); font-style: italic; }
+.field-input:focus { border-color: var(--green-primary); }
+.field-input.filled { border-color: rgba(79,132,72,0.3); }
+.field-input.error { border-color: var(--danger); }
+
+.field-select {
+  background: transparent; border: none;
+  border-bottom: 1.5px solid rgba(79,132,72,0.15);
+  padding: 10px 0; font-family: var(--font-body); font-size: 15px;
+  color: var(--text-primary); outline: none; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  transition: border-color var(--duration-normal) var(--ease-out); width: 100%;
+}
+.field-select:focus { border-color: var(--green-primary); }
+.field-select option { background: #fff; color: var(--text-primary); }
+
+.field-error {
+  font-size: 12px; color: var(--danger); min-height: 0; margin-top: 2px;
+}
+.field-error:not(:empty) { min-height: 16px; }
+
+/* Card selectors (sex) */
+.card-selector-group { display: flex; gap: 10px; margin-top: var(--s1); }
+.card-selector {
+  flex: 1; padding: 12px 14px;
+  background: rgba(255,255,255,0.4);
+  border: 1.5px solid rgba(79,132,72,0.1);
+  border-radius: var(--r-md); cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  text-align: center; font-family: var(--font-body); font-size: 14px;
+  font-weight: 500; color: var(--text-muted);
+}
+.card-selector:hover { background: rgba(255,255,255,0.6); border-color: rgba(79,132,72,0.2); }
+.card-selector.selected {
+  background: var(--green-light); border-color: var(--green-primary);
+  color: var(--green-primary); font-weight: 600;
+  box-shadow: 0 0 0 3px rgba(79,132,72,0.08);
+}
+.card-selector:focus-visible { outline: 2px solid var(--green-primary); outline-offset: 2px; }
+
+/* Checkbox */
+.checkbox-field {
+  display: flex; align-items: center; gap: var(--s3);
+  cursor: pointer; padding: 8px 0;
+  font-family: var(--font-body); font-size: 14px; color: var(--text-secondary);
+}
+.checkbox-field input[type="checkbox"] {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); border: 0;
+}
+.checkbox-box {
+  width: 18px; height: 18px; border-radius: var(--r-sm);
+  border: 1.5px solid rgba(79,132,72,0.2); background: rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--duration-fast) var(--ease-out); flex-shrink: 0;
+}
+.checkbox-field input:checked + .checkbox-box {
+  background: var(--green-primary); border-color: var(--green-primary);
+}
+.checkbox-field input:checked + .checkbox-box::after {
+  content: '\2713'; color: white; font-size: 12px; font-weight: 700;
+}
+
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: var(--s3);
+  margin-top: var(--s6); padding-top: var(--s4);
+  border-top: 1px solid var(--line);
+}
+
+/* ===================================================================
+   DOCUMENT SECTIONS — expandable cards per doc type
+   =================================================================== */
+.doc-section-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-soft); margin-bottom: var(--s2);
+}
+.doc-section-subtitle {
+  font-size: 13px; color: var(--text-muted); margin-bottom: var(--s4);
+}
+.doc-chips-row { display: flex; gap: var(--s2); flex-wrap: wrap; margin-bottom: var(--s4); }
+.doc-chip {
+  font-size: 12px; font-weight: 600; padding: 6px 14px;
+  border-radius: var(--r-pill); border: 1.5px solid rgba(79,132,72,0.15);
+  background: rgba(255,255,255,0.3); color: var(--text-muted);
+  cursor: pointer; transition: all var(--duration-fast) ease;
+  user-select: none;
+}
+.doc-chip:hover { border-color: rgba(79,132,72,0.3); color: var(--text-secondary); }
+.doc-chip.selected {
+  background: var(--green-primary); border-color: var(--green-primary);
+  color: #fff; font-weight: 700;
+}
+.doc-chip:focus-visible { outline: 2px solid var(--green-primary); outline-offset: 2px; }
+
+.doc-card {
+  background: rgba(255,255,255,0.25);
+  border: 1px solid rgba(79,132,72,0.1);
+  border-radius: var(--r-md);
+  padding: var(--s4);
+  margin-bottom: var(--s3);
+  animation: fadeInUp 400ms var(--ease-out) both;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.doc-card-header {
+  display: flex; align-items: center; gap: var(--s2);
+  margin-bottom: var(--s4);
+}
+.doc-card-badge {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; padding: 3px 10px; border-radius: var(--r-pill);
+  background: var(--green-light); color: var(--green-primary);
+}
+.doc-card-title {
+  font-family: var(--font-display); font-size: 14px; font-weight: 600;
+  color: var(--text-secondary);
+}
+.doc-card .form-grid { gap: var(--s3) var(--s4); }
+
+/* ===================================================================
+   CONFIRM DIALOG
+   =================================================================== */
+.confirm-modal { max-width: 400px; text-align: center; }
+.confirm-icon {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--danger-light); color: var(--danger);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin: 0 auto var(--s4);
+}
+.confirm-title {
+  font-family: var(--font-display); font-size: 20px; font-weight: 700;
+  color: var(--text-primary); margin-bottom: var(--s2);
+}
+.confirm-desc {
+  font-size: 14px; color: var(--text-muted); line-height: 1.5;
+  margin-bottom: var(--s5);
+}
+.confirm-actions { display: flex; gap: var(--s3); justify-content: center; }
+
+/* ===================================================================
+   EMPTY STATE
+   =================================================================== */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: var(--s8) var(--s5); text-align: center;
+}
+.empty-state-icon { font-size: 48px; color: var(--text-soft); margin-bottom: var(--s4); opacity: 0.4; }
+.empty-state-title {
+  font-family: var(--font-display); font-size: 18px; font-weight: 700;
+  color: var(--text-secondary); margin-bottom: var(--s2);
+}
+.empty-state-desc {
+  font-size: 14px; color: var(--text-muted); font-style: italic;
+  max-width: 300px; line-height: 1.5; margin-bottom: var(--s5);
+}
+
+/* ===================================================================
+   SKELETON LOADING
+   =================================================================== */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, rgba(79,132,72,0.04) 25%, rgba(79,132,72,0.08) 50%, rgba(79,132,72,0.04) 75%);
+  background-size: 800px 100%; animation: shimmer 1.8s infinite ease-in-out;
+  border-radius: var(--r-sm);
+}
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 32px 1fr 110px 90px 80px 36px;
+  align-items: center; gap: var(--s3);
+  padding: var(--s4) var(--s3);
+  border-bottom: 1px solid var(--line);
+}
+.skeleton-line { height: 12px; }
+.skeleton-line.short { width: 60%; }
+.skeleton-line.tiny { width: 40%; }
+
+/* ===================================================================
+   ERROR BANNER
+   =================================================================== */
+@keyframes bannerSlide {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.error-banner {
+  display: none; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  background: var(--danger-light); border: 1px solid rgba(196,66,43,0.15);
+  border-radius: var(--r-md); margin-bottom: var(--s5);
+  animation: bannerSlide var(--duration-slow) var(--ease-out);
+}
+.error-banner.visible { display: flex; }
+.error-banner-icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--danger); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.error-banner-text { font-size: 14px; color: var(--danger); }
+
+/* ===================================================================
+   TOAST
+   =================================================================== */
+.toast {
+  position: fixed; bottom: var(--s5); right: var(--s5);
+  background: rgba(255,255,255,0.9); backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-card-border); border-radius: var(--r-md);
+  padding: var(--s3) var(--s5);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  font-size: 14px; color: var(--text-secondary);
+  display: flex; align-items: center; gap: var(--s3);
+  z-index: 200; transform: translateY(100px); opacity: 0;
+  transition: all var(--duration-normal) var(--ease-spring);
+}
+.toast.visible { transform: translateY(0); opacity: 1; }
+.toast-icon { font-size: 18px; }
+.toast.success { border-left: 3px solid var(--green-primary); }
+.toast.error { border-left: 3px solid var(--danger); }
+
+/* ===================================================================
+   SCENARIO PANEL
+   =================================================================== */
+.scenario-panel {
+  position: fixed; top: var(--s3); right: var(--s3);
+  background: rgba(255,255,255,0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(79,132,72,0.12); border-radius: var(--r-lg);
+  padding: var(--s3); z-index: 1000; min-width: 180px;
+  cursor: default; user-select: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+.scenario-panel .drag-handle {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: grab; margin-bottom: var(--s2);
+}
+.scenario-panel .drag-handle:active { cursor: grabbing; }
+.scenario-panel .drag-handle h3 { margin-bottom: 0; }
+.scenario-panel .drag-dots { color: var(--text-soft); font-size: 14px; letter-spacing: 2px; }
+.scenario-panel h3 {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--text-soft); margin-bottom: var(--s2);
+}
+.scenario-btn {
+  display: block; width: 100%; padding: var(--s2) var(--s3);
+  font-family: var(--font-body); font-size: 12px; color: var(--text-muted);
+  background: none; border: none; border-radius: var(--r-sm);
+  cursor: pointer; text-align: left;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.scenario-btn:hover { background: var(--green-light); color: var(--text-secondary); }
+.scenario-btn.active { background: var(--green-light); color: var(--green-primary); font-weight: 600; }
+
+/* ===================================================================
+   RESPONSIVE
+   =================================================================== */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 16px; }
+  .member-list-header { display: none; }
+  .member-card {
+    grid-template-columns: 1fr;
+    gap: var(--s2);
+    padding: var(--s4);
+    background: rgba(255,255,255,0.2);
+    border-radius: var(--r-md);
+    margin-bottom: var(--s2);
+    border-bottom: none;
+  }
+  .member-index { display: none; }
+  .member-age, .member-sex { font-size: 12px; }
+  .member-actions { justify-content: flex-start; }
+  .form-grid { grid-template-columns: 1fr; }
+  .card-selector-group { flex-direction: column; }
+  .action-btn { width: 44px; height: 44px; font-size: 18px; }
+  .doc-chip { padding: 10px 16px; font-size: 13px; }
+  .content-grid { grid-template-columns: 1fr; }
+  .content-right { position: static; }
+  .specificity-grid { grid-template-columns: 1fr 1fr; }
+  .page-header { flex-direction: column; gap: var(--s4); }
+  .page-title { font-size: 28px; }
+  .skeleton-row { grid-template-columns: 1fr; gap: var(--s2); padding: var(--s4); }
+}
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-gradient"></div>
+<div class="bg-blob-1"></div>
+<div class="bg-blob-2"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" role="navigation" aria-label="Menu principal">
+    <div class="sidebar-logo">C</div>
+    <div class="sidebar-brand">Conecta</div>
+    <div class="sidebar-nav">
+      <a class="sidebar-item active" href="/prototype-home-redesign.html">
+        <span class="sidebar-icon">&#9776;</span>
+        <span class="sidebar-label">Familias</span>
+        <span class="sidebar-badge">42</span>
+      </a>
+      <a class="sidebar-item" href="/prototype-registration-redesign.html">
+        <span class="sidebar-icon">&#43;</span>
+        <span class="sidebar-label">Cadastro</span>
+      </a>
+      <a class="sidebar-item">
+        <span class="sidebar-icon">&#9638;</span>
+        <span class="sidebar-label">Relatorios</span>
+      </a>
+      <a class="sidebar-item">
+        <span class="sidebar-icon">&#9881;</span>
+        <span class="sidebar-label">Config</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-avatar">DF</div>
+      <div class="sidebar-username">Davi Franklin</div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="mainContent">
+   <div class="main-inner">
+    <a href="/prototype-home-redesign.html" class="back-link" aria-label="Voltar para lista de familias">&#8592; Voltar para Familias</a>
+
+    <!-- Error banner (hidden by default) -->
+    <div class="error-banner" id="errorBanner" role="alert">
+      <div class="error-banner-icon">!</div>
+      <span class="error-banner-text" id="errorBannerText">Erro ao carregar dados. Tente novamente.</span>
+    </div>
+
+    <!-- Patient navigation bar -->
+    <div class="patient-bar">
+      <div class="patient-bar-avatar">MS</div>
+      <div class="patient-bar-info">
+        <div class="patient-bar-name">Silva, Maria Aparecida</div>
+        <div class="patient-bar-meta">Nascimento: 15/03/1985 &middot; CPF: 123.456.789-00 &middot; G80 — Paralisia cerebral</div>
+      </div>
+      <div class="patient-bar-badge">Ativo</div>
+    </div>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-header-info">
+        <h1 class="page-title">Composicao Familiar</h1>
+        <p class="section-count" id="memberCount">5 membros cadastrados</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary btn-small" onclick="openAddModal()" aria-label="Adicionar membro">
+          <span>&#43;</span> Adicionar membro
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div id="contentArea" class="content-grid">
+      <!-- LEFT COLUMN: Member List -->
+      <div class="content-left">
+        <div class="section-card" id="memberSection">
+          <div class="section-header">
+            <div class="section-title">Membros</div>
+          </div>
+
+          <div class="member-list-header" aria-hidden="true">
+            <span>#</span>
+            <span>Nome / Parentesco</span>
+            <span>Idade</span>
+            <span>Sexo</span>
+            <span>Tags</span>
+            <span></span>
+          </div>
+
+          <div id="memberList">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Specificity + Age Profile -->
+      <div class="content-right">
+        <div class="section-card" id="specificitySection">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Especificidade Social</div>
+              <div class="section-count">Identidade social, etnica ou cultural da familia</div>
+            </div>
+          </div>
+          <div class="specificity-grid" id="specificityGrid" role="radiogroup" aria-label="Especificidade social da familia">
+            <!-- Populated by JS -->
+          </div>
+          <div class="footer-bar">
+            <span class="footer-bar-info" id="specificityStatus">Nenhuma alteracao pendente</span>
+            <button class="btn btn-primary btn-small" id="btnSaveSpecificity" disabled onclick="saveSpecificity()">Salvar especificidade</button>
+          </div>
+        </div>
+
+        <div class="section-card" id="ageSection">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Perfil Etario</div>
+              <div class="section-count">Distribuicao por faixa etaria dos membros</div>
+            </div>
+          </div>
+          <div class="age-histogram" id="ageProfile" role="img" aria-label="Histograma de distribuicao por faixa etaria"></div>
+          <div class="age-hist-total" id="ageTotal"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div id="loadingState" style="display:none">
+      <div class="section-card">
+        <div style="margin-bottom:var(--s5)">
+          <div class="skeleton skeleton-line" style="width:200px;height:20px;margin-bottom:var(--s2)"></div>
+          <div class="skeleton skeleton-line" style="width:140px;height:12px"></div>
+        </div>
+        <div class="skeleton-row"><div class="skeleton skeleton-line" style="width:20px"></div><div class="skeleton skeleton-line short"></div><div class="skeleton skeleton-line tiny"></div><div class="skeleton skeleton-line tiny"></div><div class="skeleton skeleton-line tiny"></div><div></div></div>
+        <div class="skeleton-row"><div class="skeleton skeleton-line" style="width:20px"></div><div class="skeleton skeleton-line short"></div><div class="skeleton skeleton-line tiny"></div><div class="skeleton skeleton-line tiny"></div><div class="skeleton skeleton-line tiny"></div><div></div></div>
+        <div class="skeleton-row"><div class="skeleton skeleton-line" style="width:20px"></div><div class="skeleton skeleton-line short"></div><div class="skeleton skeleton-line tiny"></div><div class="skeleton skeleton-line tiny"></div><div class="skeleton skeleton-line tiny"></div><div></div></div>
+        <div class="skeleton-row"><div class="skeleton skeleton-line" style="width:20px"></div><div class="skeleton skeleton-line short"></div><div class="skeleton skeleton-line tiny"></div><div class="skeleton skeleton-line tiny"></div><div class="skeleton skeleton-line tiny"></div><div></div></div>
+      </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState" style="display:none">
+      <div class="section-card">
+        <div class="empty-state">
+          <div class="empty-state-icon">&#128106;</div>
+          <div class="empty-state-title">Nenhum membro cadastrado</div>
+          <div class="empty-state-desc">Adicione os membros da familia para compor o perfil familiar do paciente.</div>
+          <button class="btn btn-primary" onclick="openAddModal()">
+            <span>&#43;</span> Adicionar primeiro membro
+          </button>
+        </div>
+      </div>
+    </div>
+   </div>
+  </main>
+</div>
+
+<!-- ADD/EDIT MEMBER MODAL -->
+<div class="modal-overlay" id="addMemberModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Adicionar Membro</h2>
+      <button class="modal-close" onclick="closeAddModal()" aria-label="Fechar">&times;</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field full">
+        <label class="field-label field-required" for="fmName">Nome Completo</label>
+        <input class="field-input" type="text" id="fmName" placeholder="Nome do membro" aria-required="true" />
+        <div class="field-error" id="fmNameError" role="alert"></div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label field-required" for="fmBirthDate">Data de Nascimento</label>
+        <input class="field-input" type="text" id="fmBirthDate" placeholder="DD/MM/AAAA" maxlength="10" oninput="maskDate(this)" aria-required="true" />
+        <div class="field-error" id="fmBirthDateError" role="alert"></div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label field-required" for="fmRelationship">Parentesco</label>
+        <select class="field-select" id="fmRelationship" aria-required="true">
+          <option value="">Selecione...</option>
+          <option value="conjuge">Conjuge / Companheiro(a)</option>
+          <option value="filho">Filho(a)</option>
+          <option value="pai">Pai</option>
+          <option value="mae">Mae</option>
+          <option value="irmao">Irmao / Irma</option>
+          <option value="avo">Avo / Avo</option>
+          <option value="neto">Neto(a)</option>
+          <option value="tio">Tio(a)</option>
+          <option value="sobrinho">Sobrinho(a)</option>
+          <option value="outro">Outro</option>
+        </select>
+        <div class="field-error" id="fmRelationshipError" role="alert"></div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label field-required">Sexo</label>
+        <div class="card-selector-group" role="radiogroup" aria-label="Sexo do membro">
+          <div class="card-selector" role="radio" aria-checked="false" tabindex="0" onclick="selectSex(this)" onkeydown="handleSexKeydown(event, this)">M</div>
+          <div class="card-selector" role="radio" aria-checked="false" tabindex="0" onclick="selectSex(this)" onkeydown="handleSexKeydown(event, this)">F</div>
+          <div class="card-selector" role="radio" aria-checked="false" tabindex="0" onclick="selectSex(this)" onkeydown="handleSexKeydown(event, this)">Outro</div>
+        </div>
+        <div class="field-error" id="fmSexError" role="alert"></div>
+      </div>
+
+      <div class="form-field full">
+        <label class="doc-section-label">Documentos Necessarios</label>
+        <div class="doc-section-subtitle">Selecione os documentos que deseja informar para este membro.</div>
+        <div class="doc-chips-row" role="group" aria-label="Selecione documentos necessarios">
+          <span class="doc-chip" role="checkbox" aria-checked="false" tabindex="0" data-doc="cpf" onclick="toggleDocSection('cpf')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDocSection('cpf')}">CPF</span>
+          <span class="doc-chip" role="checkbox" aria-checked="false" tabindex="0" data-doc="cn" onclick="toggleDocSection('cn')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDocSection('cn')}">Certidao de Nascimento</span>
+          <span class="doc-chip" role="checkbox" aria-checked="false" tabindex="0" data-doc="cns" onclick="toggleDocSection('cns')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDocSection('cns')}">Carteira Nacional do SUS</span>
+          <span class="doc-chip" role="checkbox" aria-checked="false" tabindex="0" data-doc="te" onclick="toggleDocSection('te')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDocSection('te')}">Titulo de Eleitor</span>
+          <span class="doc-chip" role="checkbox" aria-checked="false" tabindex="0" data-doc="ctps" onclick="toggleDocSection('ctps')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDocSection('ctps')}">CTPS</span>
+        </div>
+        <div id="docSections"></div>
+      </div>
+
+      <div class="form-field">
+        <label class="checkbox-field">
+          <input type="checkbox" id="fmResides" />
+          <span class="checkbox-box"></span>
+          Reside com o paciente
+        </label>
+      </div>
+
+      <div class="form-field">
+        <label class="checkbox-field">
+          <input type="checkbox" id="fmDisability" />
+          <span class="checkbox-box"></span>
+          Possui deficiencia
+        </label>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeAddModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMember()">Salvar membro</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="modal confirm-modal">
+    <div class="confirm-icon">&#9888;</div>
+    <div class="confirm-title" id="confirmTitle">Remover membro?</div>
+    <div class="confirm-desc" id="confirmDesc">
+      Tem certeza que deseja remover <strong id="confirmName">este membro</strong> da composicao familiar?
+      Esta acao nao pode ser desfeita.
+    </div>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn btn-danger-outline" onclick="confirmRemove()">Remover</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon"></span>
+  <span id="toastText"></span>
+</div>
+
+<!-- SCENARIO PANEL -->
+<div class="scenario-panel" id="scenarioPanel">
+  <div class="drag-handle" id="dragHandle">
+    <h3>Cenarios</h3>
+    <span class="drag-dots">&#10303;</span>
+  </div>
+  <button class="scenario-btn active" onclick="showScenario('populated')">Populado (5 membros)</button>
+  <button class="scenario-btn" onclick="showScenario('empty')">Vazio</button>
+  <button class="scenario-btn" onclick="showScenario('loading')">Loading</button>
+  <button class="scenario-btn" onclick="showScenario('error')">Erro</button>
+  <button class="scenario-btn" onclick="openAddModal()">Modal: Adicionar</button>
+  <button class="scenario-btn" onclick="openAddModalWithErrors()">Modal: Com erros</button>
+  <button class="scenario-btn" onclick="openConfirmDialog()">Modal: Confirmar</button>
+  <button class="scenario-btn" onclick="showToastSuccess()">Toast: Sucesso</button>
+  <button class="scenario-btn" onclick="showToastError()">Toast: Erro</button>
+</div>
+
+<script>
+// ===================================================================
+// DATA
+// ===================================================================
+const MEMBERS = [
+  { name: "Silva, Maria Aparecida", birthDate: "15/03/1985", sex: "Feminino", relationship: "Pessoa de Referencia", residesWithPatient: true, hasDisability: false, isPrimaryCaregiver: true, isPR: true, docs: ["CPF"], docData: {} },
+  { name: "Silva, Jose Carlos", birthDate: "22/08/1982", sex: "Masculino", relationship: "Conjuge", residesWithPatient: true, hasDisability: false, isPrimaryCaregiver: false, isPR: false, docs: ["CPF", "CTPS"], docData: {} },
+  { name: "Silva, Ana Beatriz", birthDate: "10/06/2010", sex: "Feminino", relationship: "Filha", residesWithPatient: true, hasDisability: true, isPrimaryCaregiver: false, isPR: false, docs: ["CN", "CPF"], docData: {} },
+  { name: "Silva, Pedro Henrique", birthDate: "03/11/2015", sex: "Masculino", relationship: "Filho", residesWithPatient: true, hasDisability: false, isPrimaryCaregiver: false, isPR: false, docs: ["CN"], docData: {} },
+  { name: "Oliveira, Francisca", birthDate: "28/01/1958", sex: "Feminino", relationship: "Avo materna", residesWithPatient: false, hasDisability: false, isPrimaryCaregiver: false, isPR: false, docs: ["CPF"], docData: {} },
+];
+
+const SPECIFICITIES = [
+  "Quilombola", "Indigena", "Ribeirinho", "Cigano",
+  "Extrativista", "Pescador artesanal", "Comunidade de terreiro",
+  "Nenhuma das anteriores"
+];
+
+const AGE_BUCKETS = ["0-5", "6-11", "12-17", "18-24", "25-34", "35-44", "45-59", "60+"];
+
+let selectedSpecificity = null;
+let pendingRemoveIndex = -1;
+let openDropdownIndex = -1;
+let editingIndex = -1; // -1 = adding, >= 0 = editing
+
+// ===================================================================
+// CALCULATIONS
+// ===================================================================
+function calcAge(dateStr) {
+  const [d, m, y] = dateStr.split('/').map(Number);
+  const birth = new Date(y, m - 1, d);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+  return age;
+}
+
+function ageBucket(age) {
+  if (age <= 5) return 0;
+  if (age <= 11) return 1;
+  if (age <= 17) return 2;
+  if (age <= 24) return 3;
+  if (age <= 34) return 4;
+  if (age <= 44) return 5;
+  if (age <= 59) return 6;
+  return 7;
+}
+
+function calcAgeProfile(members) {
+  const profile = new Array(8).fill(0);
+  members.forEach(m => { profile[ageBucket(calcAge(m.birthDate))]++; });
+  return profile;
+}
+
+// ===================================================================
+// RENDER
+// ===================================================================
+function renderAgeProfile(members) {
+  const profile = calcAgeProfile(members);
+  const max = Math.max(...profile, 1);
+  const total = profile.reduce((a, b) => a + b, 0);
+  const el = document.getElementById('ageProfile');
+
+  el.innerHTML = profile.map((count, i) => {
+    const h = count > 0 ? Math.max(12, (count / max) * 68) : 0;
+    return '<div class="age-hist-col">' +
+      '<div class="age-hist-bar-wrap">' +
+        '<div class="age-hist-bar ' + (count === 0 ? 'empty' : '') + '" style="height:' + h + 'px">' +
+          '<span class="age-hist-count">' + count + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<span class="age-hist-label">' + AGE_BUCKETS[i] + '</span>' +
+    '</div>';
+  }).join('');
+
+  document.getElementById('ageTotal').innerHTML = 'Total: <strong>' + total + ' membros</strong>';
+}
+
+function renderMembers(members) {
+  const el = document.getElementById('memberList');
+  el.innerHTML = members.map((m, i) => {
+    const age = calcAge(m.birthDate);
+    const tags = [];
+    if (m.isPR) tags.push('<span class="tag tag-pr">PR</span>');
+    if (m.isPrimaryCaregiver) tags.push('<span class="tag tag-caregiver">Cuidador</span>');
+    if (m.hasDisability) tags.push('<span class="tag tag-disability">PcD</span>');
+    if (m.residesWithPatient && !m.isPR) tags.push('<span class="tag tag-lives-with">Reside</span>');
+
+    const canRemove = !m.isPR;
+
+    return '<div class="member-card" style="animation-delay:' + (i * 60) + 'ms">' +
+      '<span class="member-index">' + String(i + 1).padStart(2, '0') + '</span>' +
+      '<div class="member-info">' +
+        '<div class="member-name">' + m.name + '</div>' +
+        '<div class="member-relationship">' + m.relationship +
+          (m.docs.length > 0 ? ' &middot; ' + m.docs.join(', ') : '') +
+        '</div>' +
+      '</div>' +
+      '<span class="member-age">' + age + ' anos</span>' +
+      '<span class="member-sex">' + m.sex + '</span>' +
+      '<div class="member-tags">' + tags.join('') + '</div>' +
+      '<div class="action-menu">' +
+        '<button class="action-btn" onclick="toggleDropdown(' + i + ')" aria-label="Acoes para ' + m.name + '" aria-expanded="false">&#8942;</button>' +
+        '<div class="action-dropdown" id="dropdown-' + i + '">' +
+          (!m.isPrimaryCaregiver ? '<button class="dropdown-item" onclick="setCaregiverDemo(' + i + ')"><span class="dropdown-icon">&#9733;</span> Tornar cuidador</button>' : '') +
+          '<button class="dropdown-item" onclick="editMemberDemo(' + i + ')"><span class="dropdown-icon">&#9998;</span> Editar</button>' +
+          (canRemove ? '<button class="dropdown-item danger" onclick="openConfirmRemove(' + i + ')"><span class="dropdown-icon">&#10005;</span> Remover</button>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderSpecificities() {
+  const el = document.getElementById('specificityGrid');
+  el.innerHTML = SPECIFICITIES.map((s, i) => {
+    const isSelected = selectedSpecificity === i;
+    const isClear = s === 'Nenhuma das anteriores';
+    return '<div class="specificity-card ' + (isSelected ? 'selected' : '') + (isClear ? ' clear-option' : '') + '" ' +
+      'role="radio" aria-checked="' + isSelected + '" aria-label="' + s + '" ' +
+      'tabindex="0" onclick="selectSpecificity(' + i + ')" ' +
+      'onkeydown="handleRadioKeydown(event, \'specificityGrid\', ' + i + ', ' + SPECIFICITIES.length + ')">' +
+      s + '</div>';
+  }).join('');
+}
+
+function renderPopulated() {
+  document.getElementById('contentArea').style.display = '';
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('errorBanner').classList.remove('visible');
+  document.getElementById('memberCount').textContent = MEMBERS.length + ' membros cadastrados';
+  renderAgeProfile(MEMBERS);
+  renderMembers(MEMBERS);
+  renderSpecificities();
+}
+
+// ===================================================================
+// INTERACTIONS
+// ===================================================================
+function closeOpenDropdown() {
+  if (openDropdownIndex >= 0) {
+    const prev = document.getElementById('dropdown-' + openDropdownIndex);
+    if (prev) prev.classList.remove('open');
+    const prevCard = prev && prev.closest('.member-card');
+    if (prevCard) prevCard.classList.remove('dropdown-active');
+    openDropdownIndex = -1;
+  }
+}
+
+function toggleDropdown(index) {
+  if (openDropdownIndex === index) {
+    closeOpenDropdown();
+    return;
+  }
+  closeOpenDropdown();
+  const dd = document.getElementById('dropdown-' + index);
+  dd.classList.add('open');
+  const card = dd.closest('.member-card');
+  if (card) card.classList.add('dropdown-active');
+  openDropdownIndex = index;
+  // Focus first item and add Escape handler
+  const firstItem = dd.querySelector('.dropdown-item');
+  if (firstItem) firstItem.focus();
+  dd.onkeydown = function(e) {
+    if (e.key === 'Escape') { e.preventDefault(); closeOpenDropdown(); document.querySelector('#dropdown-' + index).closest('.action-menu').querySelector('.action-btn').focus(); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); const items = dd.querySelectorAll('.dropdown-item'); const cur = Array.from(items).indexOf(document.activeElement); if (cur < items.length - 1) items[cur + 1].focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); const items = dd.querySelectorAll('.dropdown-item'); const cur = Array.from(items).indexOf(document.activeElement); if (cur > 0) items[cur - 1].focus(); }
+    if (e.key === 'Tab') { e.preventDefault(); closeOpenDropdown(); }
+  };
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.action-menu') && openDropdownIndex >= 0) {
+    closeOpenDropdown();
+  }
+});
+
+function handleSexKeydown(e, el) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectSex(el); return; }
+  const siblings = Array.from(el.parentElement.querySelectorAll('.card-selector'));
+  const idx = siblings.indexOf(el);
+  let next = -1;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); next = (idx + 1) % siblings.length; }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); next = (idx - 1 + siblings.length) % siblings.length; }
+  if (next >= 0) siblings[next].focus();
+}
+
+function selectSex(el) {
+  el.parentElement.querySelectorAll('.card-selector').forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-checked', 'false');
+  });
+  el.classList.add('selected');
+  el.setAttribute('aria-checked', 'true');
+}
+
+// Document section templates per type (business rules from domain)
+const DOC_TEMPLATES = {
+  cpf: {
+    badge: 'CPF', title: 'Cadastro de Pessoa Fisica',
+    html: '<div class="form-grid">' +
+      '<div class="form-field full"><label class="field-label field-required">Numero do CPF</label>' +
+      '<input class="field-input" type="text" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)" />' +
+      '<div class="field-error" role="alert"></div></div></div>'
+  },
+  cn: {
+    badge: 'CN', title: 'Certidao de Nascimento',
+    html: '<div class="form-grid">' +
+      '<div class="form-field full"><label class="field-label field-required">Numero da Certidao</label>' +
+      '<input class="field-input" type="text" placeholder="Numero de matricula (32 digitos)" maxlength="39" oninput="maskDigits(this,32)" />' +
+      '<div class="field-error" role="alert"></div></div>' +
+      '<div class="form-field"><label class="field-label">Livro</label>' +
+      '<input class="field-input" type="text" placeholder="Livro" /></div>' +
+      '<div class="form-field"><label class="field-label">Folha</label>' +
+      '<input class="field-input" type="text" placeholder="Folha" /></div></div>'
+  },
+  cns: {
+    badge: 'CNS', title: 'Carteira Nacional do SUS',
+    html: '<div class="form-grid">' +
+      '<div class="form-field full"><label class="field-label field-required">Numero do CNS</label>' +
+      '<input class="field-input" type="text" placeholder="000 0000 0000 0000" maxlength="18" oninput="maskCNS(this)" />' +
+      '<div class="field-error" role="alert"></div></div></div>'
+  },
+  te: {
+    badge: 'TE', title: 'Titulo de Eleitor',
+    html: '<div class="form-grid">' +
+      '<div class="form-field full"><label class="field-label field-required">Numero do Titulo</label>' +
+      '<input class="field-input" type="text" placeholder="Numero" maxlength="14" oninput="maskDigits(this,12)" />' +
+      '<div class="field-error" role="alert"></div></div>' +
+      '<div class="form-field"><label class="field-label">Zona</label>' +
+      '<input class="field-input" type="text" placeholder="Zona" maxlength="4" /></div>' +
+      '<div class="form-field"><label class="field-label">Secao</label>' +
+      '<input class="field-input" type="text" placeholder="Secao" maxlength="4" /></div></div>'
+  },
+  ctps: {
+    badge: 'CTPS', title: 'Carteira de Trabalho e Previdencia Social',
+    html: '<div class="form-grid">' +
+      '<div class="form-field"><label class="field-label field-required">Numero</label>' +
+      '<input class="field-input" type="text" placeholder="Numero" maxlength="10" oninput="maskDigits(this,7)" />' +
+      '<div class="field-error" role="alert"></div></div>' +
+      '<div class="form-field"><label class="field-label field-required">Serie</label>' +
+      '<input class="field-input" type="text" placeholder="Serie" maxlength="5" oninput="maskDigits(this,4)" />' +
+      '<div class="field-error" role="alert"></div></div>' +
+      '<div class="form-field"><label class="field-label field-required">UF</label>' +
+      '<input class="field-input" type="text" placeholder="UF" maxlength="2" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,\'\')" />' +
+      '<div class="field-error" role="alert"></div></div></div>'
+  }
+};
+
+// Keyboard arrow navigation for radio/checkbox groups
+function handleRadioKeydown(e, groupId, currentIdx, total) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectSpecificity(currentIdx); return; }
+  let next = -1;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); next = (currentIdx + 1) % total; }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); next = (currentIdx - 1 + total) % total; }
+  if (next >= 0) {
+    const items = document.getElementById(groupId).querySelectorAll('[role="radio"],[role="checkbox"]');
+    if (items[next]) items[next].focus();
+  }
+}
+
+let activeDocs = new Set();
+
+function toggleDocSection(docType) {
+  const chip = document.querySelector('.doc-chip[data-doc="' + docType + '"]');
+  if (activeDocs.has(docType)) {
+    activeDocs.delete(docType);
+    chip.classList.remove('selected');
+    chip.setAttribute('aria-checked', 'false');
+  } else {
+    activeDocs.add(docType);
+    chip.classList.add('selected');
+    chip.setAttribute('aria-checked', 'true');
+  }
+  renderDocSections();
+}
+
+function renderDocSections() {
+  const container = document.getElementById('docSections');
+  const order = ['cpf', 'cn', 'cns', 'te', 'ctps'];
+  container.innerHTML = order.filter(d => activeDocs.has(d)).map(d => {
+    const t = DOC_TEMPLATES[d];
+    return '<div class="doc-card" data-doc-card="' + d + '">' +
+      '<div class="doc-card-header">' +
+        '<span class="doc-card-badge">' + t.badge + '</span>' +
+        '<span class="doc-card-title">' + t.title + '</span>' +
+      '</div>' +
+      t.html +
+    '</div>';
+  }).join('');
+}
+
+function selectSpecificity(index) {
+  selectedSpecificity = selectedSpecificity === index ? null : index;
+  renderSpecificities();
+  const btn = document.getElementById('btnSaveSpecificity');
+  const status = document.getElementById('specificityStatus');
+  if (selectedSpecificity !== null) {
+    btn.disabled = false;
+    status.textContent = 'Alteracao pendente: ' + SPECIFICITIES[selectedSpecificity];
+    status.style.color = 'var(--green-primary)';
+    status.style.fontStyle = 'normal';
+    status.style.fontWeight = '500';
+  } else {
+    btn.disabled = true;
+    status.textContent = 'Nenhuma alteracao pendente';
+    status.style.color = '';
+    status.style.fontStyle = '';
+    status.style.fontWeight = '';
+  }
+}
+
+function saveSpecificity() {
+  showToast('success', 'Especificidade salva com sucesso');
+  document.getElementById('btnSaveSpecificity').disabled = true;
+  document.getElementById('specificityStatus').textContent = 'Salvo: ' + SPECIFICITIES[selectedSpecificity];
+}
+
+// ===================================================================
+// MODALS
+// ===================================================================
+function openAddModal() {
+  editingIndex = -1;
+  document.getElementById('addMemberModal').classList.add('visible');
+  document.getElementById('modalTitle').textContent = 'Adicionar Membro';
+  clearFormErrors();
+  clearFormFields();
+  document.getElementById('fmName').focus();
+}
+
+function openAddModalWithErrors() {
+  openAddModal();
+  setTimeout(() => {
+    document.getElementById('fmNameError').textContent = 'Nome e obrigatorio';
+    document.getElementById('fmName').classList.add('error');
+    document.getElementById('fmBirthDateError').textContent = 'Data de nascimento e obrigatoria';
+    document.getElementById('fmBirthDate').classList.add('error');
+    document.getElementById('fmRelationshipError').textContent = 'Parentesco e obrigatorio';
+    document.getElementById('fmRelationship').classList.add('error');
+    document.getElementById('fmSexError').textContent = 'Sexo e obrigatorio';
+  }, 100);
+}
+
+function closeAddModal() {
+  document.getElementById('addMemberModal').classList.remove('visible');
+}
+
+function editMemberDemo(index) {
+  const m = MEMBERS[index];
+  editingIndex = index;
+  document.getElementById('addMemberModal').classList.add('visible');
+  clearFormErrors();
+  clearFormFields();
+  document.getElementById('modalTitle').textContent = 'Editar Membro';
+  document.getElementById('fmName').value = m.name.split(', ').reverse().join(' ');
+  document.getElementById('fmName').classList.add('filled');
+  document.getElementById('fmBirthDate').value = m.birthDate;
+  document.getElementById('fmBirthDate').classList.add('filled');
+  // Select relationship
+  const relMap = { "Pessoa de Referencia": "", "Conjuge": "conjuge", "Filha": "filho", "Filho": "filho", "Avo materna": "avo" };
+  document.getElementById('fmRelationship').value = relMap[m.relationship] || 'outro';
+  // Select sex
+  const sexMap = { "Masculino": "M", "Feminino": "F", "Outro": "Outro" };
+  const sexCards = document.querySelectorAll('#addMemberModal .card-selector');
+  sexCards.forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-checked', 'false');
+    if (c.textContent === sexMap[m.sex]) {
+      c.classList.add('selected');
+      c.setAttribute('aria-checked', 'true');
+    }
+  });
+  // Select docs via new expandable sections
+  activeDocs.clear();
+  const docMap = { "CPF": "cpf", "CN": "cn", "CNS": "cns", "TE": "te", "CTPS": "ctps" };
+  m.docs.forEach(d => {
+    const key = docMap[d];
+    if (key) {
+      activeDocs.add(key);
+      const chip = document.querySelector('.doc-chip[data-doc="' + key + '"]');
+      if (chip) { chip.classList.add('selected'); chip.setAttribute('aria-checked', 'true'); }
+    }
+  });
+  renderDocSections();
+  // Restore document field values
+  if (m.docData) {
+    Object.keys(m.docData).forEach(dt => {
+      const card = document.querySelector('.doc-card[data-doc-card="' + dt + '"]');
+      if (card) {
+        const inputs = card.querySelectorAll('.field-input');
+        const vals = m.docData[dt];
+        vals.forEach((v, i) => { if (inputs[i]) { inputs[i].value = v; if (v) inputs[i].classList.add('filled'); } });
+      }
+    });
+  }
+  // Checkboxes
+  document.getElementById('fmResides').checked = m.residesWithPatient;
+  document.getElementById('fmDisability').checked = m.hasDisability;
+  if (openDropdownIndex >= 0) {
+    const dd = document.getElementById('dropdown-' + openDropdownIndex);
+    if (dd) dd.classList.remove('open');
+    openDropdownIndex = -1;
+  }
+}
+
+function clearFormErrors() {
+  document.querySelectorAll('#addMemberModal .field-error').forEach(el => el.textContent = '');
+  document.querySelectorAll('#addMemberModal .field-input, #addMemberModal .field-select').forEach(el => el.classList.remove('error'));
+}
+
+function clearFormFields() {
+  document.querySelectorAll('#addMemberModal .field-input').forEach(el => { el.value = ''; el.classList.remove('filled'); });
+  document.querySelectorAll('#addMemberModal .field-select').forEach(el => el.value = '');
+  document.querySelectorAll('#addMemberModal .card-selector').forEach(el => { el.classList.remove('selected'); el.setAttribute('aria-checked', 'false'); });
+  document.querySelectorAll('#addMemberModal .doc-chip').forEach(el => { el.classList.remove('selected'); el.setAttribute('aria-checked', 'false'); });
+  activeDocs.clear();
+  document.getElementById('docSections').innerHTML = '';
+  document.getElementById('fmResides').checked = false;
+  document.getElementById('fmDisability').checked = false;
+}
+
+// Validation rules per document type
+// CPF: 11 digits, no all-same, checksum (CPF-001..005)
+function isValidCPF(raw) {
+  const d = raw.replace(/\D/g, '');
+  if (d.length !== 11) return 'CPF deve ter 11 digitos';
+  if (/^(\d)\1{10}$/.test(d)) return 'CPF invalido (digitos repetidos)';
+  for (let t = 9; t < 11; t++) {
+    let sum = 0;
+    for (let i = 0; i < t; i++) sum += parseInt(d[i]) * (t + 1 - i);
+    let check = ((sum * 10) % 11) % 10;
+    if (parseInt(d[t]) !== check) return 'CPF invalido (digito verificador)';
+  }
+  return null;
+}
+
+// CN: number required (32 digits)
+function validateCNFields(card) {
+  const inputs = card.querySelectorAll('.field-input');
+  const errors = card.querySelectorAll('.field-error');
+  let ok = true;
+  const num = inputs[0].value.replace(/\D/g, '');
+  if (!num) { errors[0].textContent = 'Numero da certidao e obrigatorio'; inputs[0].classList.add('error'); ok = false; }
+  else if (num.length !== 32) { errors[0].textContent = 'Certidao deve ter 32 digitos'; inputs[0].classList.add('error'); ok = false; }
+  return ok;
+}
+
+// CNS: 15 digits, first digit 1/2/7/8/9 (CNS-001..003)
+function validateCNSFields(card) {
+  const inputs = card.querySelectorAll('.field-input');
+  const errors = card.querySelectorAll('.field-error');
+  let ok = true;
+  const num = inputs[0].value.replace(/\D/g, '');
+  if (!num) { errors[0].textContent = 'Numero do CNS e obrigatorio'; inputs[0].classList.add('error'); ok = false; }
+  else if (num.length !== 15) { errors[0].textContent = 'CNS deve ter 15 digitos'; inputs[0].classList.add('error'); ok = false; }
+  else if (!['1','2','7','8','9'].includes(num[0])) { errors[0].textContent = 'Primeiro digito deve ser 1, 2, 7, 8 ou 9'; inputs[0].classList.add('error'); ok = false; }
+  return ok;
+}
+
+// TE: number required
+function validateTEFields(card) {
+  const inputs = card.querySelectorAll('.field-input');
+  const errors = card.querySelectorAll('.field-error');
+  let ok = true;
+  const num = inputs[0].value.replace(/\D/g, '');
+  if (!num) { errors[0].textContent = 'Numero do titulo e obrigatorio'; inputs[0].classList.add('error'); ok = false; }
+  else if (num.length !== 12) { errors[0].textContent = 'Titulo deve ter 12 digitos'; inputs[0].classList.add('error'); ok = false; }
+  return ok;
+}
+
+// CTPS: number, serie, UF all required
+function validateCTPSFields(card) {
+  const inputs = card.querySelectorAll('.field-input');
+  const errors = card.querySelectorAll('.field-error');
+  let ok = true;
+  if (!inputs[0].value.trim()) { errors[0].textContent = 'Numero e obrigatorio'; inputs[0].classList.add('error'); ok = false; }
+  if (!inputs[1].value.trim()) { errors[1].textContent = 'Serie e obrigatoria'; inputs[1].classList.add('error'); ok = false; }
+  const STATES = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+  if (!inputs[2].value.trim()) { errors[2].textContent = 'UF e obrigatorio'; inputs[2].classList.add('error'); ok = false; }
+  else if (!STATES.includes(inputs[2].value.trim().toUpperCase())) { errors[2].textContent = 'UF invalido'; inputs[2].classList.add('error'); ok = false; }
+  return ok;
+}
+
+// Date helpers
+function isValidDate(str) {
+  const [d, m, y] = str.split('/').map(Number);
+  if (!d || !m || !y || y < 1900) return false;
+  const date = new Date(y, m - 1, d);
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+}
+function isFutureDate(str) {
+  const [d, m, y] = str.split('/').map(Number);
+  return new Date(y, m - 1, d) > new Date();
+}
+
+// Validate birth date field
+function validateBirthDate(val) {
+  if (!val) return 'Data de nascimento e obrigatoria';
+  if (!isValidDate(val)) return 'Data invalida';
+  if (isFutureDate(val)) return 'Data nao pode ser futura';
+  return null;
+}
+
+function saveMember() {
+  clearFormErrors();
+  let valid = true;
+  const name = document.getElementById('fmName').value.trim();
+  const birthDate = document.getElementById('fmBirthDate').value.trim();
+  const rel = document.getElementById('fmRelationship').value;
+  const sex = document.querySelector('#addMemberModal .card-selector.selected');
+
+  // Basic field validation
+  if (!name) { document.getElementById('fmNameError').textContent = 'Nome e obrigatorio'; document.getElementById('fmName').classList.add('error'); valid = false; }
+  const bdError = validateBirthDate(birthDate);
+  if (bdError) { document.getElementById('fmBirthDateError').textContent = bdError; document.getElementById('fmBirthDate').classList.add('error'); valid = false; }
+  if (!rel) { document.getElementById('fmRelationshipError').textContent = 'Parentesco e obrigatorio'; document.getElementById('fmRelationship').classList.add('error'); valid = false; }
+  if (!sex) { document.getElementById('fmSexError').textContent = 'Sexo e obrigatorio'; valid = false; }
+
+  // Document validation — each selected doc must have valid fields
+  const docValidators = {
+    cpf: function(card) {
+      const inp = card.querySelector('.field-input');
+      const err = card.querySelector('.field-error');
+      const raw = inp.value.trim();
+      if (!raw) { err.textContent = 'Numero do CPF e obrigatorio'; inp.classList.add('error'); return false; }
+      const msg = isValidCPF(raw);
+      if (msg) { err.textContent = msg; inp.classList.add('error'); return false; }
+      return true;
+    },
+    cn: validateCNFields,
+    cns: validateCNSFields,
+    te: validateTEFields,
+    ctps: validateCTPSFields
+  };
+
+  activeDocs.forEach(docType => {
+    const card = document.querySelector('.doc-card[data-doc-card="' + docType + '"]');
+    if (card) {
+      const validator = docValidators[docType];
+      if (validator && !validator(card)) valid = false;
+    }
+  });
+
+  if (valid) {
+    const relLabel = document.getElementById('fmRelationship');
+    const relText = relLabel.options[relLabel.selectedIndex].text;
+    const sexText = sex.textContent === 'M' ? 'Masculino' : sex.textContent === 'F' ? 'Feminino' : 'Outro';
+    const docMap = { cpf: 'CPF', cn: 'CN', cns: 'CNS', te: 'TE', ctps: 'CTPS' };
+    const docs = Array.from(activeDocs).map(d => docMap[d] || d).sort();
+
+    // Collect document field values for persistence
+    const docData = {};
+    activeDocs.forEach(dt => {
+      const card = document.querySelector('.doc-card[data-doc-card="' + dt + '"]');
+      if (card) {
+        docData[dt] = Array.from(card.querySelectorAll('.field-input')).map(i => i.value);
+      }
+    });
+
+    const member = {
+      name: name,
+      birthDate: birthDate,
+      sex: sexText,
+      relationship: relText,
+      residesWithPatient: document.getElementById('fmResides').checked,
+      hasDisability: document.getElementById('fmDisability').checked,
+      isPrimaryCaregiver: false,
+      isPR: false,
+      docs: docs,
+      docData: docData
+    };
+
+    if (editingIndex >= 0) {
+      member.isPR = MEMBERS[editingIndex].isPR;
+      member.isPrimaryCaregiver = MEMBERS[editingIndex].isPrimaryCaregiver;
+      MEMBERS[editingIndex] = member;
+      showToast('success', 'Membro atualizado com sucesso');
+    } else {
+      MEMBERS.push(member);
+      showToast('success', 'Membro adicionado com sucesso');
+    }
+
+    closeAddModal();
+    renderPopulated();
+  }
+}
+
+function openConfirmRemove(index) {
+  pendingRemoveIndex = index;
+  document.getElementById('confirmName').textContent = MEMBERS[index].name;
+  document.getElementById('confirmModal').classList.add('visible');
+  if (openDropdownIndex >= 0) {
+    const dd = document.getElementById('dropdown-' + openDropdownIndex);
+    if (dd) dd.classList.remove('open');
+    openDropdownIndex = -1;
+  }
+}
+
+function openConfirmDialog() {
+  pendingRemoveIndex = 2;
+  document.getElementById('confirmName').textContent = MEMBERS[2].name;
+  document.getElementById('confirmModal').classList.add('visible');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('visible');
+  pendingRemoveIndex = -1;
+}
+
+function confirmRemove() {
+  if (pendingRemoveIndex >= 0 && pendingRemoveIndex < MEMBERS.length) {
+    const removedName = MEMBERS[pendingRemoveIndex].name;
+    MEMBERS.splice(pendingRemoveIndex, 1);
+    closeConfirm();
+    renderPopulated();
+    showToast('success', removedName + ' removido(a) da composicao familiar');
+  } else {
+    closeConfirm();
+  }
+}
+
+function setCaregiverDemo(index) {
+  closeOpenDropdown();
+  // Only one caregiver at a time
+  MEMBERS.forEach(m => m.isPrimaryCaregiver = false);
+  MEMBERS[index].isPrimaryCaregiver = true;
+  renderPopulated();
+  showToast('success', MEMBERS[index].name + ' definido(a) como cuidador(a) principal');
+}
+
+// ===================================================================
+// TOAST
+// ===================================================================
+function showToast(type, text) {
+  const toast = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  const txt = document.getElementById('toastText');
+  toast.className = 'toast ' + type;
+  icon.textContent = type === 'success' ? '&#10003;' : '&#9888;';
+  icon.innerHTML = type === 'success' ? '&#10003;' : '&#9888;';
+  txt.textContent = text;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+
+function showToastSuccess() { showToast('success', 'Membro adicionado com sucesso'); }
+function showToastError() { showToast('error', 'Erro ao salvar. Tente novamente.'); }
+
+// ===================================================================
+// MASK
+// ===================================================================
+function maskDate(el) {
+  let v = el.value.replace(/\D/g, '');
+  if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+  if (v.length >= 6) v = v.slice(0,5) + '/' + v.slice(5,9);
+  el.value = v;
+}
+
+function maskCPF(el) {
+  let v = el.value.replace(/\D/g, '').slice(0, 11);
+  if (v.length > 3) v = v.slice(0,3) + '.' + v.slice(3);
+  if (v.length > 7) v = v.slice(0,7) + '.' + v.slice(7);
+  if (v.length > 11) v = v.slice(0,11) + '-' + v.slice(11);
+  el.value = v;
+}
+
+
+function maskCNS(el) {
+  let v = el.value.replace(/\D/g, '').slice(0, 15);
+  if (v.length > 3) v = v.slice(0,3) + ' ' + v.slice(3);
+  if (v.length > 8) v = v.slice(0,8) + ' ' + v.slice(8);
+  if (v.length > 13) v = v.slice(0,13) + ' ' + v.slice(13);
+  el.value = v;
+}
+
+function maskDigits(el, max) {
+  el.value = el.value.replace(/\D/g, '').slice(0, max);
+}
+
+// ===================================================================
+// SCENARIOS
+// ===================================================================
+function showScenario(scenario) {
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const content = document.getElementById('contentArea');
+  const loading = document.getElementById('loadingState');
+  const empty = document.getElementById('emptyState');
+  const error = document.getElementById('errorBanner');
+
+  switch (scenario) {
+    case 'populated':
+      renderPopulated();
+      break;
+    case 'empty':
+      content.style.display = 'none';
+      loading.style.display = 'none';
+      empty.style.display = '';
+      error.classList.remove('visible');
+      document.getElementById('memberCount').textContent = '0 membros cadastrados';
+      break;
+    case 'loading':
+      content.style.display = 'none';
+      loading.style.display = '';
+      empty.style.display = 'none';
+      error.classList.remove('visible');
+      break;
+    case 'error':
+      content.style.display = 'none';
+      loading.style.display = 'none';
+      empty.style.display = 'none';
+      error.classList.add('visible');
+      document.getElementById('errorBannerText').textContent = 'Erro ao carregar composicao familiar. Verifique sua conexao e tente novamente.';
+      break;
+  }
+}
+
+// Close modals on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeAddModal();
+    closeConfirm();
+  }
+});
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.classList.remove('visible');
+    }
+  });
+});
+
+// ===================================================================
+// DRAG SCENARIO PANEL
+// ===================================================================
+(function() {
+  const panel = document.getElementById('scenarioPanel');
+  const handle = document.getElementById('dragHandle');
+  let dragging = false, ox = 0, oy = 0;
+  handle.addEventListener('mousedown', (e) => {
+    dragging = true;
+    ox = e.clientX - panel.offsetLeft;
+    oy = e.clientY - panel.offsetTop;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    panel.style.left = (e.clientX - ox) + 'px';
+    panel.style.top = (e.clientY - oy) + 'px';
+    panel.style.right = 'auto';
+  });
+  document.addEventListener('mouseup', () => { dragging = false; });
+})();
+
+// ===================================================================
+// INIT
+// ===================================================================
+renderPopulated();
+</script>
+
+</body>
+</html>
