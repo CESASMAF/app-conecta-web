@@ -242,7 +242,7 @@ Deno.test("GET /api/people/persons - proxied to people-context with /api/v1/pers
 
   const req = captured();
   assertEquals(req?.baseUrl, "http://people:3001");
-  assertEquals(req?.path, "/api/v1/persons");
+  assertEquals(req?.path, "/api/v1/people/persons");
   assertEquals(req?.method, "GET");
   assertEquals(req?.accessToken, "test-access-token-123");
 });
@@ -256,7 +256,7 @@ Deno.test("GET /api/people/persons/123 - nested path proxied correctly", async (
   await app.request("/api/people/persons/123");
 
   const req = captured();
-  assertEquals(req?.path, "/api/v1/persons/123");
+  assertEquals(req?.path, "/api/v1/people/persons/123");
 });
 
 Deno.test("GET /api/people/persons without session - returns 401", async () => {

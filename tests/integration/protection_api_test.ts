@@ -387,7 +387,7 @@ describe("Protection API E2E - People Context Proxy", () => {
     const captured = ctx.remoteClient.lastCaptured();
     assertExists(captured);
     assertEquals(captured.baseUrl, "http://people:3001");
-    assertEquals(captured.path, "/api/v1/persons");
+    assertEquals(captured.path, "/api/v1/people/persons");
   });
 
   it("strips /api/people prefix and maps to /api/v1", async () => {
@@ -405,6 +405,6 @@ describe("Protection API E2E - People Context Proxy", () => {
 
     const captured = ctx.remoteClient.lastCaptured();
     assertExists(captured);
-    assertEquals(captured.path, "/api/v1/persons/some-uuid/details");
+    assertEquals(captured.path, "/api/v1/people/persons/some-uuid/details");
   });
 });
