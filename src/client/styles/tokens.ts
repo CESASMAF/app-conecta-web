@@ -13,7 +13,7 @@ export const color = {
   // Text
   textPrimary: "#261D11",
   textOnDark: "#F2E2C4",
-  textMuted: "rgba(38, 29, 17, 0.5)",
+  textMuted: "rgba(38, 29, 17, 0.65)",
   antiFlash: "#EBEBEB",
 
   // Semantic
@@ -37,9 +37,9 @@ export const alpha = (hex: string, a: number): string => {
 // --- Typography ---
 
 export const font = {
-  satoshi: "'Satoshi', sans-serif",
-  playfair: "'Playfair Display', serif",
-  erode: "'Erode', serif",
+  satoshi: "Satoshi, sans-serif",
+  playfair: "Playfair Display, serif",
+  erode: "Erode, serif",
 } as const
 
 export const weight = {

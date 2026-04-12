@@ -144,6 +144,23 @@ export const put = async <T>(
   }
 };
 
+export const patch = async <T>(
+  path: string,
+  body?: unknown,
+): Promise<Result<T, ServiceError>> => {
+  try {
+    const res = await fetch(path, {
+      method: "PATCH",
+      credentials: "same-origin",
+      headers: BASE_HEADERS,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+    return handleResponse<T>(res);
+  } catch {
+    return { ok: false, error: "NETWORK_ERROR" };
+  }
+};
+
 export const del = async <T = void>(
   path: string,
 ): Promise<Result<T, ServiceError>> => {
