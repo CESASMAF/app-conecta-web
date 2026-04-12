@@ -11,7 +11,7 @@
     {
       "name": "bff-dev",
       "runtimeExecutable": "deno",
-      "runtimeArgs": ["task", "dev"],
+      "runtimeArgs": ["run", "--allow-net", "--allow-env", "--allow-read", "--env", "src/server.ts"],
       "port": 8081,
       "autoPort": false
     },

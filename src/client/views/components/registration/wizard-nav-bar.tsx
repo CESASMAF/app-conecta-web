@@ -1,6 +1,6 @@
-import type { FC } from "hono/jsx/dom"
-import { css } from "hono/css"
-import { color, font, weight, space } from "../../../styles/tokens.ts"
+import type { FC } from "hono/jsx/dom";
+import { css } from "hono/css";
+import { color, font, space, weight } from "../../../styles/tokens.ts";
 
 const navStyle = css`
   display: flex;
@@ -9,19 +9,21 @@ const navStyle = css`
   font-family: ${font.satoshi};
   font-size: 14px;
   color: ${color.textMuted};
-`
+`;
 
 const linkStyle = css`
   text-decoration: none;
   color: ${color.textMuted};
   font-weight: ${weight.medium};
-  &:hover { color: ${color.textPrimary}; }
-`
+  &:hover {
+    color: ${color.textPrimary};
+  }
+`;
 
 const currentStyle = css`
   color: ${color.textPrimary};
   font-weight: ${weight.semibold};
-`
+`;
 
 export const WizardNavBar: FC = () => (
   <nav class={navStyle}>
@@ -29,4 +31,4 @@ export const WizardNavBar: FC = () => (
     <span>/</span>
     <span class={currentStyle}>Cadastro</span>
   </nav>
-)
+);

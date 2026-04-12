@@ -5,9 +5,17 @@
 
 ## Table of Contents
 1. Home (family listing + detail panel)
-2. Patient Registration (7-step wizard)
+2. Patient Registration (7-step wizard) — **Spec completa em `features/patient-registration/`**
 3. Family Composition (table + modals)
 4. Shared: Data Models, Strings (PT-BR), API Endpoints
+5. Auth Hub (landing + app selector) — **Spec completa em `features/auth-hub/`**
+
+## Features com Spec Completa
+
+| Feature | Pasta | Protótipo | Design System |
+|---------|-------|-----------|---------------|
+| Auth Hub | `features/auth-hub/` | `prototype-auth-hub.html` | Liquid Glass (original) |
+| Patient Registration | `features/patient-registration/` | `prototype-registration-redesign.html` | Sage Garden (redesign) |
 
 ---
 
