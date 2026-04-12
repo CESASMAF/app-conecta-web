@@ -41,7 +41,7 @@ export type HubState = Readonly<{
 export type HubAction =
   | Readonly<{ type: "INIT_SESSION_CHECK" }>
   | Readonly<{ type: "NO_SESSION" }>
-  | Readonly<{ type: "SESSION_EXPIRED" }>
+  | Readonly<{ type: "SESSION_EXPIRED"; title: string; message: string }>
   | Readonly<{ type: "AUTH_START" }>
   | Readonly<{
     type: "AUTH_CALLBACK_SUCCESS";
@@ -60,7 +60,7 @@ export type HubAction =
     apps: readonly AppInfo[];
     lastUsedAppId: string | null;
   }>
-  | Readonly<{ type: "LOAD_PERMISSIONS_FAILURE" }>
+  | Readonly<{ type: "LOAD_PERMISSIONS_FAILURE"; title: string; message: string }>
   | Readonly<{ type: "SELECT_APP"; appId: string }>
   | Readonly<{ type: "LOGOUT_START" }>
   | Readonly<{ type: "LOGOUT_COMPLETE" }>;

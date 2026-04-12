@@ -4,7 +4,7 @@ import type { AppEnv, Session } from "../../src/types.ts";
 import { authGuard } from "../../src/middleware/auth_guard.ts";
 import { meRoutes } from "../../src/routes/me.ts";
 import { getInitials, formatRole } from "../../src/routes/me.ts";
-import { getAppsForRoles } from "../../src/adapters/app-registry.ts";
+import { getAppsForRoles } from "../../src/adapters/config/app-registry.ts";
 
 // ---------------------------------------------------------------------------
 // Fixtures

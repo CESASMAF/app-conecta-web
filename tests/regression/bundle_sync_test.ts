@@ -21,18 +21,13 @@ const getAppNames = async (dir: string): Promise<readonly string[]> => {
   return names.sort();
 };
 
-Deno.test("Every client app has a bundle step in Dockerfile", async () => {
-  const apps = await getAppNames(APPS_DIR);
+Deno.test("Dockerfile uses deno task build (single source of truth)", async () => {
   const dockerfile = await Deno.readTextFile(DOCKERFILE);
-
-  for (const app of apps) {
-    const bundleLine = `static/js/${app}.js`;
-    assertEquals(
-      dockerfile.includes(bundleLine),
-      true,
-      `Dockerfile missing bundle for app '${app}'. Add: deno bundle ... -o static/js/${app}.js src/client/apps/${app}/entry.tsx`,
-    );
-  }
+  assertEquals(
+    dockerfile.includes("deno task build"),
+    true,
+    "Dockerfile should use 'deno task build' instead of individual bundle commands. Keep deno.json as the single source of truth.",
+  );
 });
 
 Deno.test("Every client app has a bundle step in deno.json build task", async () => {

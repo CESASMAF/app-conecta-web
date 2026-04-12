@@ -1,12 +1,17 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { color, font, weight, breakpoint } from "../../../styles/tokens.ts"
+import { color, font, weight, space, breakpoint } from "../../../styles/tokens.ts"
 import { fadeInUp } from "../../../styles/auth-hub.ts"
-import type { AppInfo } from "../../../viewmodels/auth-hub/types.ts"
 import { AppCard } from "./app-card.tsx"
 
 interface AppGridProps {
-  readonly apps: readonly AppInfo[]
+  readonly apps: readonly Readonly<{
+    id: string
+    name: string
+    description: string
+    icon: string
+    color: string
+  }>[]
   readonly label: string
   readonly onSelectApp: (appId: string) => void
 }
@@ -23,7 +28,7 @@ const labelStyle = css`
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: ${color.textMuted};
-  margin: 0 0 16px;
+  margin: 0 0 ${space[3]};
   animation: ${fadeInUp} 600ms ease 300ms both;
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -33,7 +38,7 @@ const labelStyle = css`
 const gridStyle = css`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: ${space[3]};
   width: 100%;
   @media (min-width: ${breakpoint.mobile}px) {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -42,7 +47,7 @@ const gridStyle = css`
 
 export const AppGrid: FC<AppGridProps> = ({ apps, label, onSelectApp }) => (
   <nav class={containerStyle} aria-label="Módulos disponíveis">
-    <p class={labelStyle}>{label}</p>
+    <h2 class={labelStyle}>{label}</h2>
     <div class={gridStyle}>
       {apps.map((app, index) => (
         <AppCard

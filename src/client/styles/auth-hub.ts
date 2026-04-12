@@ -1,20 +1,21 @@
 import { css, keyframes } from "hono/css"
+import { space } from "./tokens.ts"
 
 // --- Shared Animations ---
 
 export const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(${space[4]}); }
   to { opacity: 1; transform: translateY(0); }
 `
 
 export const float1 = keyframes`
   0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(40px, 30px) scale(1.05); }
+  50% { transform: translate(${space[6]}, ${space[5]}) scale(1.05); }
 `
 
 export const float2 = keyframes`
   0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-30px, -20px) scale(1.08); }
+  50% { transform: translate(-${space[5]}, -${space[3]}) scale(1.08); }
 `
 
 export const progressFill = keyframes`

@@ -2,11 +2,14 @@ import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
 import { color, font, weight, alpha, radius } from "../../../styles/tokens.ts"
 import { fadeInUp } from "../../../styles/auth-hub.ts"
-import type { AppInfo } from "../../../viewmodels/auth-hub/types.ts"
-import { AUTH_HUB_STRINGS } from "../../../viewmodels/auth-hub/strings.ts"
 
 interface RecentAppCardProps {
-  readonly app: AppInfo
+  readonly app: Readonly<{
+    name: string
+    description: string
+    color: string
+  }>
+  readonly label: string
   readonly onClick: () => void
 }
 
@@ -107,9 +110,9 @@ const handleKeyDown = (onClick: () => void) => (e: KeyboardEvent): void => {
   }
 }
 
-export const RecentAppCard: FC<RecentAppCardProps> = ({ app, onClick }) => (
+export const RecentAppCard: FC<RecentAppCardProps> = ({ app, label, onClick }) => (
   <div class={containerStyle}>
-    <p class={labelStyle}>{AUTH_HUB_STRINGS.lastUsedLabel}</p>
+    <p class={labelStyle}>{label}</p>
     <div
       class={cardStyle}
       role="button"

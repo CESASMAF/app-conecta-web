@@ -18,15 +18,18 @@ export const AUTH_HUB_STRINGS = {
     "Sua sess\u00e3o expirou por inatividade. Fa\u00e7a login novamente para continuar.",
 
   // -- Hub --
-  greeting: (firstName: string): string => {
-    const h = new Date().getHours();
-    const period = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+  greeting: (firstName: string, hour: number): string => {
+    const period = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
     return `${period}, ${firstName}`;
   },
   hubSubtitle: "Selecione um m\u00f3dulo para continuar",
   lastUsedLabel: "\u00daLTIMO ACESSADO",
   allModulesLabel: (count: number): string =>
-    count > 1 ? `TODOS OS M\u00d3DULOS (${count})` : "SEU M\u00d3DULO",
+    count === 0
+      ? "NENHUM MÓDULO"
+      : count === 1
+        ? "SEU MÓDULO"
+        : `TODOS OS MÓDULOS (${count})`,
   logoutButton: "Sair",
 
   // -- Empty State --

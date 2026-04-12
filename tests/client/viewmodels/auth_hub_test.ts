@@ -39,7 +39,7 @@ describe("hubReducer", () => {
 
   it("SESSION_EXPIRED sets landing with session error", () => {
     const state: HubState = { ...initialState, screen: "hub", user: makeUser() };
-    const result = hubReducer(state, { type: "SESSION_EXPIRED" });
+    const result = hubReducer(state, { type: "SESSION_EXPIRED", title: AUTH_HUB_STRINGS.sessionExpiredTitle, message: AUTH_HUB_STRINGS.sessionExpiredDesc });
     assertEquals(result.screen, "landing");
     assertEquals(result.error?.type, "session");
     assertEquals(result.error?.title, AUTH_HUB_STRINGS.sessionExpiredTitle);
@@ -178,7 +178,7 @@ describe("hubReducer", () => {
 
   it("LOAD_PERMISSIONS_FAILURE sets hub with network error", () => {
     const state: HubState = { ...initialState, screen: "loading", user: makeUser() };
-    const result = hubReducer(state, { type: "LOAD_PERMISSIONS_FAILURE" });
+    const result = hubReducer(state, { type: "LOAD_PERMISSIONS_FAILURE", title: AUTH_HUB_STRINGS.networkErrorTitle, message: AUTH_HUB_STRINGS.networkErrorDesc });
     assertEquals(result.screen, "hub");
     assertEquals(result.error?.type, "network");
     assertEquals(result.error?.title, AUTH_HUB_STRINGS.networkErrorTitle);
@@ -255,20 +255,24 @@ describe("getRedirectApp", () => {
 });
 
 describe("getGreeting", () => {
-  it("returns a greeting string containing the first name", () => {
-    const result = getGreeting("Maria");
-    assertNotEquals(result.indexOf("Maria"), -1);
+  it("returns Bom dia for morning hours", () => {
+    assertEquals(getGreeting("Maria", 8), "Bom dia, Maria");
+    assertEquals(getGreeting("Maria", 0), "Bom dia, Maria");
+    assertEquals(getGreeting("Maria", 11), "Bom dia, Maria");
   });
 
-  it("returns a greeting with a period-of-day prefix", () => {
-    const result = getGreeting("Jo\u00e3o");
-    const validPrefixes = ["Bom dia", "Boa tarde", "Boa noite"];
-    const hasPrefix = validPrefixes.some((p) => result.startsWith(p));
-    assertEquals(hasPrefix, true);
+  it("returns Boa tarde for afternoon hours", () => {
+    assertEquals(getGreeting("João", 12), "Boa tarde, João");
+    assertEquals(getGreeting("João", 15), "Boa tarde, João");
+    assertEquals(getGreeting("João", 17), "Boa tarde, João");
   });
 
-  it("matches the AUTH_HUB_STRINGS.greeting function output", () => {
-    const name = "Carlos";
-    assertEquals(getGreeting(name), AUTH_HUB_STRINGS.greeting(name));
+  it("returns Boa noite for evening hours", () => {
+    assertEquals(getGreeting("Carlos", 18), "Boa noite, Carlos");
+    assertEquals(getGreeting("Carlos", 23), "Boa noite, Carlos");
+  });
+
+  it("matches AUTH_HUB_STRINGS.greeting output", () => {
+    assertEquals(getGreeting("Ana", 10), AUTH_HUB_STRINGS.greeting("Ana", 10));
   });
 });

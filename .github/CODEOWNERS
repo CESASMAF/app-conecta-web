@@ -24,12 +24,11 @@ src/client/apps/                    @gabriel-aderaldo
 tests/                              @gabriel-aderaldo
 
 # --- Designer: UI/UX, visual, copy, acessibilidade ---
-# ACAO NECESSARIA: troque @DESIGNER-HANDLE-AQUI pelo seu GitHub username
 
-src/client/views/                   @DESIGNER-HANDLE-AQUI @gabriel-aderaldo
-src/client/styles/                  @DESIGNER-HANDLE-AQUI @gabriel-aderaldo
-src/views/                          @DESIGNER-HANDLE-AQUI @gabriel-aderaldo
-static/                             @DESIGNER-HANDLE-AQUI @gabriel-aderaldo
+src/client/views/                   @DaviFranklin @gabriel-aderaldo
+src/client/styles/                  @DaviFranklin @gabriel-aderaldo
+src/views/                          @DaviFranklin @gabriel-aderaldo
+static/                             @DaviFranklin @gabriel-aderaldo
 
 # --- Config/Infra (dev e responsavel) ---
 

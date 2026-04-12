@@ -1,9 +1,6 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
 import { color, breakpoint } from "../../../styles/tokens.ts"
-import type { HubState } from "../../../viewmodels/auth-hub/types.ts"
-import { AUTH_HUB_STRINGS } from "../../../viewmodels/auth-hub/strings.ts"
-import { getGreeting } from "../../../viewmodels/auth-hub/reducer.ts"
 import { LoadingScreen } from "../ui/loading-screen.tsx"
 import { HubHeader } from "./hub-header.tsx"
 import { HubWelcome } from "./hub-welcome.tsx"
@@ -13,7 +10,21 @@ import { HubEmptyState } from "./hub-empty-state.tsx"
 import { HubNetworkError } from "./hub-network-error.tsx"
 
 interface HubScreenProps {
-  readonly state: HubState
+  readonly user: Readonly<{ name: string; firstName: string; initials: string; role: string }> | null
+  readonly apps: readonly Readonly<{ id: string; name: string; description: string; icon: string; color: string }>[]
+  readonly lastUsedAppId: string | null
+  readonly errorType: string | null
+  readonly greeting: string
+  readonly subtitle: string
+  readonly allModulesLabel: string
+  readonly lastUsedLabel: string
+  readonly emptyStrings: Readonly<{
+    emptyTitle: string; emptyDesc: string; emptyContactAdmin: string; emptyBackToStart: string
+  }>
+  readonly emptyMailtoHref: string
+  readonly networkStrings: Readonly<{
+    networkErrorTitle: string; networkErrorDesc: string; networkErrorRetry: string
+  }>
   readonly onSelectApp: (appId: string) => void
   readonly onLogout: () => void
   readonly onRetry: () => void
@@ -36,40 +47,34 @@ const mainStyle = css`
   }
 `
 
-export const HubScreen: FC<HubScreenProps> = ({ state, onSelectApp, onLogout, onRetry }) => {
-  const { user, apps, lastUsedAppId, error } = state
+export const HubScreen: FC<HubScreenProps> = (props) => {
+  const { user, apps, lastUsedAppId, errorType, greeting, subtitle, allModulesLabel, lastUsedLabel } = props
+  const { emptyStrings, emptyMailtoHref, networkStrings, onSelectApp, onLogout, onRetry } = props
+
   if (!user) return <LoadingScreen context="loading-permissions" />
 
   const recentApp = lastUsedAppId !== null && apps.length > 1
     ? apps.find((a) => a.id === lastUsedAppId) ?? null
     : null
 
-  const hasNetworkError = error?.type === "network"
+  const hasNetworkError = errorType === "network"
   const hasApps = apps.length > 0
-  const greeting = getGreeting(user.firstName)
 
   return (
     <div class={screenStyle}>
       <HubHeader user={user} onLogout={onLogout} />
       <main class={mainStyle}>
-        <HubWelcome
-          greeting={greeting}
-          subtitle={AUTH_HUB_STRINGS.hubSubtitle}
-        />
+        <HubWelcome greeting={greeting} subtitle={subtitle} />
         {hasNetworkError ? (
-          <HubNetworkError onRetry={onRetry} />
+          <HubNetworkError strings={networkStrings} onRetry={onRetry} />
         ) : !hasApps ? (
-          <HubEmptyState onLogout={onLogout} />
+          <HubEmptyState strings={emptyStrings} mailtoHref={emptyMailtoHref} onLogout={onLogout} />
         ) : (
           <>
             {recentApp ? (
-              <RecentAppCard app={recentApp} onClick={() => onSelectApp(recentApp.id)} />
+              <RecentAppCard app={recentApp} label={lastUsedLabel} onClick={() => onSelectApp(recentApp.id)} />
             ) : null}
-            <AppGrid
-              apps={apps}
-              label={AUTH_HUB_STRINGS.allModulesLabel(apps.length)}
-              onSelectApp={onSelectApp}
-            />
+            <AppGrid apps={apps} label={allModulesLabel} onSelectApp={onSelectApp} />
           </>
         )}
       </main>

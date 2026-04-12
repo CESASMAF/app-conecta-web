@@ -2,9 +2,13 @@ import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
 import { color, font, weight, alpha, radius } from "../../../styles/tokens.ts"
 import { fadeInUp } from "../../../styles/auth-hub.ts"
-import { AUTH_HUB_STRINGS } from "../../../viewmodels/auth-hub/strings.ts"
 
 interface HubNetworkErrorProps {
+  readonly strings: Readonly<{
+    networkErrorTitle: string
+    networkErrorDesc: string
+    networkErrorRetry: string
+  }>
   readonly onRetry: () => void
 }
 
@@ -56,7 +60,7 @@ const retryBtnStyle = css`
   border-radius: ${radius.pill};
   border: none;
   background: ${color.primary};
-  color: white;
+  color: ${color.textOnDark};
   font-family: ${font.satoshi};
   font-size: 14px;
   font-weight: ${weight.semibold};
@@ -71,7 +75,7 @@ const retryBtnStyle = css`
   }
 `
 
-export const HubNetworkError: FC<HubNetworkErrorProps> = ({ onRetry }) => (
+export const HubNetworkError: FC<HubNetworkErrorProps> = ({ strings, onRetry }) => (
   <div class={containerStyle}>
     <div class={iconBoxStyle} aria-hidden="true">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color.danger} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -84,14 +88,14 @@ export const HubNetworkError: FC<HubNetworkErrorProps> = ({ onRetry }) => (
         <line x1="12" y1="20" x2="12.01" y2="20" />
       </svg>
     </div>
-    <h2 class={titleStyle}>{AUTH_HUB_STRINGS.networkErrorTitle}</h2>
-    <p class={descStyle}>{AUTH_HUB_STRINGS.networkErrorDesc}</p>
+    <h2 class={titleStyle}>{strings.networkErrorTitle}</h2>
+    <p class={descStyle}>{strings.networkErrorDesc}</p>
     <button class={retryBtnStyle} onClick={onRetry}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polyline points="23 4 23 10 17 10" />
         <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
       </svg>
-      {AUTH_HUB_STRINGS.networkErrorRetry}
+      {strings.networkErrorRetry}
     </button>
   </div>
 )

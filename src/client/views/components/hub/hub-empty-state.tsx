@@ -2,9 +2,15 @@ import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
 import { color, font, weight, alpha, radius } from "../../../styles/tokens.ts"
 import { fadeInUp } from "../../../styles/auth-hub.ts"
-import { AUTH_HUB_STRINGS } from "../../../viewmodels/auth-hub/strings.ts"
 
 interface HubEmptyStateProps {
+  readonly strings: Readonly<{
+    emptyTitle: string
+    emptyDesc: string
+    emptyContactAdmin: string
+    emptyBackToStart: string
+  }>
+  readonly mailtoHref: string
   readonly onLogout: () => void
 }
 
@@ -56,7 +62,7 @@ const primaryBtnStyle = css`
   border-radius: ${radius.pill};
   border: none;
   background: ${color.primary};
-  color: white;
+  color: ${color.textOnDark};
   font-family: ${font.satoshi};
   font-size: 14px;
   font-weight: ${weight.semibold};
@@ -95,9 +101,7 @@ const secondaryBtnStyle = css`
   }
 `
 
-const mailtoHref = `mailto:${AUTH_HUB_STRINGS.emptyContactEmail}?subject=${encodeURIComponent(AUTH_HUB_STRINGS.emptyContactSubject)}`
-
-export const HubEmptyState: FC<HubEmptyStateProps> = ({ onLogout }) => (
+export const HubEmptyState: FC<HubEmptyStateProps> = ({ strings, mailtoHref, onLogout }) => (
   <div class={containerStyle}>
     <div class={iconBoxStyle} aria-hidden="true">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color.danger} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -105,17 +109,17 @@ export const HubEmptyState: FC<HubEmptyStateProps> = ({ onLogout }) => (
         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
       </svg>
     </div>
-    <h2 class={titleStyle}>{AUTH_HUB_STRINGS.emptyTitle}</h2>
-    <p class={descStyle}>{AUTH_HUB_STRINGS.emptyDesc}</p>
+    <h2 class={titleStyle}>{strings.emptyTitle}</h2>
+    <p class={descStyle}>{strings.emptyDesc}</p>
     <a class={primaryBtnStyle} href={mailtoHref}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect x="2" y="4" width="20" height="16" rx="2" />
         <path d="M22 4L12 13 2 4" />
       </svg>
-      {AUTH_HUB_STRINGS.emptyContactAdmin}
+      {strings.emptyContactAdmin}
     </a>
     <button class={secondaryBtnStyle} onClick={onLogout}>
-      {AUTH_HUB_STRINGS.emptyBackToStart}
+      {strings.emptyBackToStart}
     </button>
   </div>
 )

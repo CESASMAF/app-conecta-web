@@ -2,7 +2,6 @@
 
 import type { AppInfo, HubAction, HubState } from "./types.ts";
 import { initialState } from "./types.ts";
-import { AUTH_HUB_STRINGS } from "./strings.ts";
 
 export const hubReducer = (
   state: HubState,
@@ -23,8 +22,8 @@ export const hubReducer = (
         user: null,
         error: {
           type: "session",
-          title: AUTH_HUB_STRINGS.sessionExpiredTitle,
-          message: AUTH_HUB_STRINGS.sessionExpiredDesc,
+          title: action.title,
+          message: action.message,
         },
       };
 
@@ -113,8 +112,8 @@ export const hubReducer = (
         loadingContext: null,
         error: {
           type: "network",
-          title: AUTH_HUB_STRINGS.networkErrorTitle,
-          message: AUTH_HUB_STRINGS.networkErrorDesc,
+          title: action.title,
+          message: action.message,
         },
       };
 
@@ -142,9 +141,8 @@ export const getRedirectApp = (state: HubState): AppInfo | null => {
   return null;
 };
 
-/** Contextual greeting based on current hour. */
-export const getGreeting = (firstName: string): string => {
-  const h = new Date().getHours();
-  const period = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+/** Contextual greeting — pure function. Hour is injected by the Page. */
+export const getGreeting = (firstName: string, hour: number): string => {
+  const period = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
   return `${period}, ${firstName}`;
 };

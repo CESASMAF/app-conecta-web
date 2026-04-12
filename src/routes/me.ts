@@ -3,7 +3,7 @@
 
 import { Hono } from "@hono/hono";
 import type { AppEnv } from "../types.ts";
-import { getAppsForRoles } from "../adapters/app-registry.ts";
+import { getAppsForRoles } from "../adapters/config/app-registry.ts";
 
 export const meRoutes = new Hono<AppEnv>();
 

@@ -2,10 +2,13 @@ import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
 import { color, font, weight, alpha, radius, breakpoint } from "../../../styles/tokens.ts"
 import { fadeInUp } from "../../../styles/auth-hub.ts"
-import type { HubUser } from "../../../viewmodels/auth-hub/types.ts"
 
 interface HubHeaderProps {
-  readonly user: HubUser
+  readonly user: Readonly<{
+    name: string
+    initials: string
+    role: string
+  }>
   readonly onLogout: () => void
 }
 

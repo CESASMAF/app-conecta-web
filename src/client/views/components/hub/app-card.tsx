@@ -1,11 +1,15 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { color, font, weight, alpha, radius } from "../../../styles/tokens.ts"
+import { color, font, weight, alpha, radius, space } from "../../../styles/tokens.ts"
 import { fadeInUp } from "../../../styles/auth-hub.ts"
-import type { AppInfo } from "../../../viewmodels/auth-hub/types.ts"
 
 interface AppCardProps {
-  readonly app: AppInfo
+  readonly app: Readonly<{
+    name: string
+    description: string
+    icon: string
+    color: string
+  }>
   readonly index: number
   readonly onClick: () => void
 }
@@ -14,7 +18,7 @@ const cardStyle = css`
   position: relative;
   background: ${color.surface};
   border-radius: ${radius.card};
-  padding: 24px;
+  padding: ${space[4]};
   border: 1px solid transparent;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
@@ -51,7 +55,7 @@ const iconStyle = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: ${space[3]};
 `
 
 const nameStyle = css`
