@@ -258,6 +258,8 @@ src/client/apps/
   family-composition/entry.tsx
   social-care/entry.tsx
   search/entry.tsx
+  auth-hub/entry.tsx
+  admin-hub/entry.tsx
 ```
 
 ---
@@ -398,7 +400,9 @@ social-care-deno/
 │       │   ├── registration/entry.tsx
 │       │   ├── family-composition/entry.tsx
 │       │   ├── social-care/entry.tsx
-│       │   └── search/entry.tsx
+│       │   ├── search/entry.tsx
+│       │   ├── auth-hub/entry.tsx
+│       │   └── admin-hub/entry.tsx
 │       ├── services/
 │       │   ├── base-client.ts
 │       │   ├── patient-service.ts

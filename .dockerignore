@@ -5,6 +5,7 @@
 .pipeline
 .env
 .env.*
+.envrc
 tests
 contracts
 handbook

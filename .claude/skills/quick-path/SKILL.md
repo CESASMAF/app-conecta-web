@@ -99,14 +99,19 @@ Quick fix applied:
 
 ---
 
+## Traceability (lightweight)
+
+Quick Path still creates a minimal audit trail for compliance with pipeline rules:
+- Creates `.pipeline/<ticket>/000-request.md` with scope and rationale for quick-path
+- Appends a one-line entry to `.pipeline/<ticket>/REPORT.md` on completion
+- Does NOT create full agent REPORT.md files or multi-phase STATE.md
+
 ## What Quick Path Does NOT Do
 
-- Does not create .pipeline/ folders
-- Does not write REPORT.md files
 - Does not run the full review loop (unless --review)
 - Does not run security audit (unless --security)
 - Does not spawn domain-architect or test-writer
-- Does not update STATE.md
+- Does not update STATE.md with phase transitions
 
 ## Safety Net
 

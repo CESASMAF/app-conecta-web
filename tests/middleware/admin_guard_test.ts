@@ -1,11 +1,6 @@
 /**
- * Admin Guard Middleware — TDD Red Phase
- *
- * Tests the adminGuard() middleware which runs AFTER authGuard.
+ * Admin Guard Middleware — Tests for adminGuard() middleware.
  * Validates role-based access control for admin/owner roles.
- *
- * Imports from src/middleware/admin_guard.ts which does NOT exist yet.
- * All tests MUST FAIL until implementation is provided.
  */
 
 import { assertEquals } from "@std/assert";

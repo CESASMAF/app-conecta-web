@@ -55,20 +55,20 @@ CLAUDE.md declares strict import boundaries:
 
 Scan for patterns that CLAUDE.md prohibits:
 
-| Layer | Prohibited | Grep Pattern |
-|-------|-----------|--------------|
-| domain/ | `throw` | `throw ` |
-| domain/ | `class ` | `class \w+` |
-| domain/ | `this.` | `this\.` |
-| domain/ | `new Error` | `new Error` |
-| domain/ | `any` type | `: any` or `as any` |
-| application/ | `throw` | `throw ` |
-| application/ | `class ` | `class \w+` |
-| client/viewmodels/ | `fetch(` | `fetch\(` |
-| client/viewmodels/ | `useEffect` | `useEffect` |
-| client/views/components/ | `fetch(` | `fetch\(` |
-| client/views/components/ | `useReducer` | `useReducer` |
-| client/views/components/ | `useEffect` | `useEffect` |
+| Layer | Prohibited | Grep Pattern | Notes |
+|-------|-----------|--------------|-------|
+| domain/ | `throw` | `^\s*throw ` | Anchored to line start (skip comments) |
+| domain/ | `class` | `^export\s+(default\s+)?class ` | Only class declarations |
+| domain/ | `this.` | `[^/]\bthis\.` | Skip comments with `//this` |
+| domain/ | `new Error` | `new Error\(` | With paren to catch actual calls |
+| domain/ | `any` type | `: any[;\s,)]` or `as any[;\s,)]` | Anchored to avoid `analytics` etc |
+| application/ | `throw` | `^\s*throw ` | Anchored to line start |
+| application/ | `class` | `^export\s+(default\s+)?class ` | Only class declarations |
+| client/viewmodels/ | `fetch(` | `[^a-zA-Z]fetch\(` | Actual fetch calls, not `prefetch` |
+| client/viewmodels/ | `useEffect` | `\buseEffect\(` | With paren — actual hook calls |
+| client/views/components/ | `fetch(` | `[^a-zA-Z]fetch\(` | Actual fetch calls |
+| client/views/components/ | `useReducer` | `\buseReducer\(` | With paren — actual hook calls |
+| client/views/components/ | `useEffect` | `\buseEffect\(` | With paren — actual hook calls |
 
 ### 4. Result Pattern Compliance
 

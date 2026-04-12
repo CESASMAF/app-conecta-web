@@ -24,7 +24,7 @@ export type AuditAction =
 export type AuditOutcome = "SUCCESS" | "FAILURE";
 
 // ---------------------------------------------------------------------------
-// Audit — Entry
+// Audit — Entry (discriminated on outcome for type safety)
 // ---------------------------------------------------------------------------
 
 export type AuditEntry = Readonly<{
@@ -39,15 +39,25 @@ export type AuditEntry = Readonly<{
   errorMessage: string | undefined;
 }>;
 
-export type AuditAppendInput = Readonly<{
-  actorId: string;
-  actorName: string;
-  action: AuditAction;
-  targetId: string;
-  details?: string;
-  outcome: AuditOutcome;
-  errorMessage?: string;
-}>;
+/** Input for appending: FAILURE requires errorMessage, SUCCESS forbids it. */
+export type AuditAppendInput =
+  | Readonly<{
+    actorId: string;
+    actorName: string;
+    action: AuditAction;
+    targetId: string;
+    details?: string;
+    outcome: "SUCCESS";
+  }>
+  | Readonly<{
+    actorId: string;
+    actorName: string;
+    action: AuditAction;
+    targetId: string;
+    details?: string;
+    outcome: "FAILURE";
+    errorMessage: string;
+  }>;
 
 // ---------------------------------------------------------------------------
 // Audit — Pagination

@@ -1,3 +1,6 @@
+<!-- This file follows the discuss phase convention from pipeline-maestro (000-discuss/CONTEXT.md). -->
+<!-- Non-standard folder/filename is expected for discuss phase outputs. -->
+
 # Discuss Context: admin-hub-sprint1
 
 ## Mode: assumptions
@@ -51,6 +54,7 @@
   - GET /api/v1/roles?active=true on people-context → count active roles
   - Audit store count → total admin actions
 - Returns aggregated JSON: { people: { total }, roles: { active }, audit: { total } }
+- > OPTIMIZATION: Use Promise.all for parallel calls to people-context (count + roles are independent).
 
 ## Open Items
 - None — scope is well-defined

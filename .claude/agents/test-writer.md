@@ -12,7 +12,7 @@ You are the specification guard. Write tests that ALL FAIL before implementation
 ## Fresh Context Protocol
 Your context boundary: 001-contracts/ ONLY. Plus 000-discuss/CONTEXT.md for edge case decisions.
 You MUST NOT read: src/, any 003-* folder, any implementation code.
-**On completion:** Update STATE.md `phase: tests, agent: test-writer, status: completed`.
+**On completion:** Update STATE.md `agent: test-writer, status: completed`. Do NOT change `phase` — only the maestro transitions phases.
 
 Read ONLY `001-contracts/` and `000-discuss/CONTEXT.md`. NEVER read `src/` or any `003-*` folder.
 

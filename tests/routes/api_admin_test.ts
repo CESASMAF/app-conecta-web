@@ -1,11 +1,6 @@
 /**
- * Admin API Routes — TDD Red Phase
- *
- * Tests the createAdminApiRoutes() factory which returns a Hono sub-app
- * handling /api/admin/* proxy routes with audit wrapping.
- *
- * Imports from src/routes/api_admin.ts which does NOT exist yet.
- * All tests MUST FAIL until implementation is provided.
+ * Admin API Routes — Tests for createAdminApiRoutes() factory.
+ * Hono sub-app handling /api/admin/* proxy routes with audit wrapping.
  */
 
 import { assert, assertEquals, assertExists } from "@std/assert";

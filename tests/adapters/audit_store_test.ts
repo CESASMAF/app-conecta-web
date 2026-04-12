@@ -1,11 +1,6 @@
 /**
- * Audit Store — TDD Red Phase
- *
- * Tests the createAuditStore() factory which produces an in-memory
- * append-only audit store with FIFO eviction at 10_000 entries.
- *
- * Imports from src/adapters/admin/audit_store.ts which does NOT exist yet.
- * All tests MUST FAIL until implementation is provided.
+ * Audit Store — Tests for createAuditStore() factory.
+ * In-memory append-only audit store with FIFO eviction at 10_000 entries.
  */
 
 import { assert, assertEquals, assertExists } from "@std/assert";

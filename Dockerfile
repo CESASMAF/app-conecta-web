@@ -25,14 +25,14 @@ COPY --from=builder /app/deno.json .
 COPY --from=builder /app/src/ src/
 COPY --from=builder /app/static/ static/
 
-# Pre-cache server modules
-RUN deno cache src/server.ts
+# Pre-cache server modules and fix ownership for non-root runtime
+RUN deno cache src/server.ts && chown -R deno:deno /app /deno-dir
 
 USER deno
 
 EXPOSE 8081
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD ["deno", "run", "--allow-net", "-e", "const r = await fetch('http://localhost:8081/health'); Deno.exit(r.ok ? 0 : 1)"]
+  CMD ["deno", "eval", "--allow-net", "const r = await fetch('http://localhost:8081/health'); Deno.exit(r.ok ? 0 : 1)"]
 
 CMD ["deno", "run", "--allow-net", "--allow-env", "--allow-read", "src/server.ts"]

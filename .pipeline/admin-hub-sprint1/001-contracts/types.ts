@@ -20,6 +20,7 @@ export const ADMIN_ROLES: readonly AdminRole[] = ["admin", "owner"] as const;
 /** Discriminated set of auditable admin actions. */
 export type AuditAction =
   | "PERSON_CREATED"
+  | "PERSON_UPDATED"
   | "PERSON_DEACTIVATED"
   | "PERSON_REACTIVATED"
   | "ROLE_ASSIGNED"
@@ -27,8 +28,12 @@ export type AuditAction =
   | "ROLE_REACTIVATED"
   | "LOOKUP_CREATED"
   | "LOOKUP_UPDATED"
+  | "LOOKUP_TOGGLED"
   | "LOOKUP_APPROVED"
-  | "LOOKUP_REJECTED";
+  | "LOOKUP_REJECTED"
+  | "LOOKUP_REQUEST_CREATED"
+  | "LOOKUP_REQUEST_APPROVED"
+  | "LOOKUP_REQUEST_REJECTED";
 
 /** Outcome of an audited operation. */
 export type AuditOutcome = "SUCCESS" | "FAILURE";

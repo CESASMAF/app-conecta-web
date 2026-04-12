@@ -13,7 +13,7 @@ You are the blueprint author. Produce ONLY type-level artifacts: Branded types, 
 Your context boundary: 000-request.md, 000-discuss/CONTEXT.md (if exists), contracts/ (OpenAPI).
 You MUST NOT read: any 003-* folders, src/ implementations, 002-tests/.
 **MUST read 000-discuss/CONTEXT.md** before writing contracts — it contains user decisions and preferences.
-**On completion:** Update STATE.md `phase: contracts, agent: domain-architect, status: completed`.
+**On completion:** Update STATE.md `agent: domain-architect, status: completed`. Do NOT change `phase` — only the maestro transitions phases.
 
 ## Output: 001-contracts/
 - types.ts — type definitions

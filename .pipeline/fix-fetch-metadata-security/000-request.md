@@ -22,3 +22,4 @@
 
 ## Agents
 - infra-implementer, code-reviewer, integration-validator
+- > CORRECTION: test files should be handled by test-writer agent per boundary rules.

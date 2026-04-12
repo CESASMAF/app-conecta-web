@@ -9,7 +9,7 @@ import type {
   RemoteError,
   RemoteResponse,
 } from "../adapters/remote/remote_client.ts";
-import type { AuditStore } from "../adapters/admin/types.ts";
+import type { AuditAppendInput, AuditAction, AuditStore } from "../adapters/admin/types.ts";
 import type { Result } from "../domain/shared/result.ts";
 
 // ---------------------------------------------------------------------------
@@ -98,6 +98,15 @@ const extractTotal = (
   }
   return 0;
 };
+
+/** Build audit input with discriminated outcome (SUCCESS has no errorMessage). */
+const auditInput = (
+  base: Readonly<{ actorId: string; actorName: string; action: AuditAction; targetId: string; details?: string }>,
+  result: Result<RemoteResponse, RemoteError>,
+): AuditAppendInput =>
+  result.ok
+    ? { ...base, outcome: "SUCCESS" as const }
+    : { ...base, outcome: "FAILURE" as const, errorMessage: result.error };
 
 // ---------------------------------------------------------------------------
 // Factory
@@ -200,15 +209,10 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "PERSON_CREATED",
-      targetId: "new",
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "PERSON_CREATED", targetId: "new" },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
@@ -241,15 +245,10 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "PERSON_UPDATED",
-      targetId: personId,
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "PERSON_UPDATED", targetId: personId },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
@@ -311,15 +310,10 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "ROLE_ASSIGNED",
-      targetId: personId,
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "ROLE_ASSIGNED", targetId: personId },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
@@ -350,16 +344,10 @@ export const createAdminApiRoutes = (
       actorId: session.userSub,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "ROLE_DEACTIVATED",
-      targetId: personId,
-      details: `roleId: ${roleId}`,
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "ROLE_DEACTIVATED", targetId: personId, details: `roleId: ${roleId}` },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
@@ -390,16 +378,10 @@ export const createAdminApiRoutes = (
       actorId: session.userSub,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "ROLE_REACTIVATED",
-      targetId: personId,
-      details: `roleId: ${roleId}`,
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "ROLE_REACTIVATED", targetId: personId, details: `roleId: ${roleId}` },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
@@ -455,15 +437,10 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "LOOKUP_REQUEST_CREATED",
-      targetId: "new-request",
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_REQUEST_CREATED", targetId: "new-request" },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
@@ -493,15 +470,10 @@ export const createAdminApiRoutes = (
       actorId: session.userSub,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "LOOKUP_REQUEST_APPROVED",
-      targetId: requestId,
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_REQUEST_APPROVED", targetId: requestId },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
@@ -534,15 +506,10 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "LOOKUP_REQUEST_REJECTED",
-      targetId: requestId,
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_REQUEST_REJECTED", targetId: requestId },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
@@ -604,15 +571,10 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "LOOKUP_CREATED",
-      targetId: tableName,
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_CREATED", targetId: tableName },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
@@ -649,15 +611,10 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "LOOKUP_UPDATED",
-      targetId: `${tableName}/${entryId}`,
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_UPDATED", targetId: `${tableName}/${entryId}` },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
@@ -691,15 +648,10 @@ export const createAdminApiRoutes = (
       actorId: session.userSub,
     });
 
-    const outcome = result.ok ? "SUCCESS" as const : "FAILURE" as const;
-    auditStore.append({
-      actorId: session.userSub,
-      actorName: session.userName,
-      action: "LOOKUP_TOGGLED",
-      targetId: `${tableName}/${entryId}`,
-      outcome,
-      errorMessage: result.ok ? undefined : result.error,
-    });
+    auditStore.append(auditInput(
+      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_TOGGLED", targetId: `${tableName}/${entryId}` },
+      result,
+    ));
 
     if (!result.ok) {
       return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);

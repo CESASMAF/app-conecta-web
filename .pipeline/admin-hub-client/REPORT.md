@@ -1,3 +1,5 @@
+> NOTE: This ticket scope exceeds the 1-atomic-unit rule. In future sprints, break into separate tickets per tab.
+
 # Pipeline Complete: admin-hub-client
 
 ## Status: DONE
@@ -49,6 +51,17 @@ feat(admin): implement Admin Hub client-side SPA
 - Entry: SSR shell + client hydration at /admin
 - Responsive: mobile-first, breakpoints at 600px/1200px
 - A11Y: ARIA roles, keyboard nav, focus trap, live regions
+
+feat(admin/hub-client): implement Admin Hub client-side SPA
+
+- ViewModel: 24-action reducer with 5-tab state management
+- Views: 22 components following design spec (WCAG 2.1 AA)
+- Service: admin-service.ts for people/audit/stats
+- Entry: SSR shell + client hydration at /admin
+- Responsive: mobile-first, breakpoints at 600px/1200px
+- A11Y: ARIA roles, keyboard nav, focus trap, live regions
+- Error unions: AdminAction (24 variants), Result<T, ServiceError>
+- Coverage: deno check PASS, lint PASS, fmt PASS, 797 tests passed
 
 Pipeline: viewmodel-engineer, view-implementer, infra-implementer (manual)
 ```

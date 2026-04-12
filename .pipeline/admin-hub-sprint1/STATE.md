@@ -9,6 +9,7 @@ status: completed
 - [2026-04-11] Scope: infra-only (middleware + adapter + routes + server integration)
 - [2026-04-11] Profile: infra-only — skip domain, app, viewmodel, view agents
 - [2026-04-11] All 4 sub-tickets treated as single pipeline ticket (same layer, interdependent)
+- > RETRO: Grouped 4 sub-tickets for MVP velocity. Future work should follow 1-ticket-1-unit strictly.
 
 ## Completed Phases
 - [x] 000-request (scope classified)

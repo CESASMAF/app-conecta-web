@@ -460,8 +460,8 @@ Usa `base-client.ts` para fetch com headers de seguranca (`X-Requested-With`, `c
 | `toggleEntry(tableName, entryId)` | PATCH | `/api/admin/lookups/:tableName/:id/toggle` | `Result<LookupEntry, ServiceError>` |
 | `listRequests()` | GET | `/api/admin/lookups/requests` | `Result<readonly LookupRequest[], ServiceError>` |
 | `createRequest({ tableName, label })` | POST | `/api/admin/lookups/requests` | `Result<LookupRequest, ServiceError>` |
-| `approveRequest(requestId)` | PUT | `/api/admin/lookups/requests/:id/approve` | `Result<LookupRequest, ServiceError>` |
-| `rejectRequest(requestId, reviewNote)` | PUT | `/api/admin/lookups/requests/:id/reject` | `Result<LookupRequest, ServiceError>` |
+| `approveRequest(requestId)` | PUT | `/api/admin/lookups/requests/:requestId/approve` | `Result<LookupRequest, ServiceError>` |
+| `rejectRequest(requestId, reviewNote)` | PUT | `/api/admin/lookups/requests/:requestId/reject` | `Result<LookupRequest, ServiceError>` |
 
 ### Tipos exportados
 

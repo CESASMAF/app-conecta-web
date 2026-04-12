@@ -1,5 +1,5 @@
 // AuditStore — In-memory append-only audit log with FIFO eviction.
-// Follows the same factory pattern as createSessionStore.
+// Immutable: entries stored in insertion order, pagination reads backwards.
 
 import type {
   AuditAppendInput,
@@ -17,8 +17,8 @@ const MAX_ENTRIES = 10_000;
  * Auto-generates `id` (crypto.randomUUID) and `timestamp` (ISO string) on append.
  */
 export const createAuditStore = (): AuditStore => {
-  // Internal mutable array — adapter-layer only, FIFO eviction needs in-place mutation
-  const entries: AuditEntry[] = [];
+  // Immutable reference — replaced on each append via spread copy
+  let entries: readonly AuditEntry[] = [];
 
   const append = (input: AuditAppendInput): AuditEntry => {
     const entry: AuditEntry = {
@@ -30,30 +30,40 @@ export const createAuditStore = (): AuditStore => {
       targetId: input.targetId,
       details: input.details,
       outcome: input.outcome,
-      errorMessage: input.errorMessage,
+      errorMessage: input.outcome === "FAILURE" ? input.errorMessage : undefined,
     };
 
-    entries.push(entry);
+    const next = [...entries, entry];
 
-    // FIFO eviction: remove oldest when exceeding max
-    if (entries.length > MAX_ENTRIES) {
-      entries.splice(0, entries.length - MAX_ENTRIES);
-    }
+    // FIFO eviction: keep only the most recent MAX_ENTRIES
+    entries = next.length > MAX_ENTRIES
+      ? next.slice(next.length - MAX_ENTRIES)
+      : next;
 
     return entry;
   };
 
+  /**
+   * Paginate source in DESC order (newest first) without copying/reversing.
+   * Reads backwards from end using index math: O(limit) not O(N).
+   */
   const paginate = (
     source: readonly AuditEntry[],
     options: AuditListOptions,
   ): AuditListResult => {
-    // Reverse for DESC order (newest first — insertion order is chronological)
-    const reversed = [...source].reverse();
-    const sliced = reversed.slice(
-      options.offset,
-      options.offset + options.limit,
-    );
-    return { entries: sliced, total: source.length };
+    const total = source.length;
+    const start = total - 1 - options.offset;
+    const result: AuditEntry[] = [];
+
+    for (
+      let i = start;
+      i >= 0 && result.length < options.limit;
+      i--
+    ) {
+      result.push(source[i]!);
+    }
+
+    return { entries: result, total };
   };
 
   const list = (options: AuditListOptions): AuditListResult =>
