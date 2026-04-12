@@ -13,10 +13,14 @@ import { csrf } from "./middleware/csrf.ts";
 import { sessionMiddleware } from "./middleware/session.ts";
 import { fetchMetadata } from "./middleware/fetch_metadata.ts";
 import { authGuard } from "./middleware/auth_guard.ts";
+import { adminGuard } from "./middleware/admin_guard.ts";
 import { healthRoutes } from "./routes/health.ts";
 import { createAuthRoutes } from "./routes/auth.ts";
 import { createApiRoutes } from "./routes/api.ts";
+import { createAdminApiRoutes } from "./routes/api_admin.ts";
 import { pageRoutes } from "./routes/pages.tsx";
+import { meRoutes } from "./routes/me.ts";
+import { createAuditStore } from "./adapters/admin/audit_store.ts";
 
 // ---------------------------------------------------------------------------
 // Bootstrap
@@ -24,6 +28,7 @@ import { pageRoutes } from "./routes/pages.tsx";
 
 const config = loadConfig();
 const sessionStore = createSessionStore();
+const auditStore = createAuditStore();
 const authService = createBFFAuthService(config, sessionStore);
 const remoteClient = createRemoteClient(config);
 
@@ -51,6 +56,8 @@ app.use("*", csrf());
 app.use("*", sessionMiddleware());
 app.use("*", fetchMetadata());
 app.use("*", authGuard());
+app.use("/admin/*", adminGuard());
+app.use("/api/admin/*", adminGuard());
 
 // ---------------------------------------------------------------------------
 // Routes
@@ -58,7 +65,9 @@ app.use("*", authGuard());
 
 app.route("/", healthRoutes);
 app.route("/", createAuthRoutes(authService));
+app.route("/", meRoutes);
 app.route("/", createApiRoutes(remoteClient));
+app.route("/api/admin", createAdminApiRoutes({ remoteClient, auditStore }));
 app.route("/", pageRoutes);
 
 // ---------------------------------------------------------------------------

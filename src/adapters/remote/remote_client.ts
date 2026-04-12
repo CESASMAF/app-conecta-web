@@ -19,7 +19,7 @@ export type RemoteResponse = Readonly<{
 export type RemoteRequestOptions = Readonly<{
   baseUrl: string;
   path: string;
-  method: "GET" | "POST" | "PUT" | "DELETE";
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   accessToken: string;
   actorId?: string;
   body?: unknown;

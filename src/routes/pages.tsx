@@ -5,11 +5,32 @@ import { SocialCareView } from "../views/pages/social-care-view.tsx";
 import { RegistrationView } from "../views/pages/registration-view.tsx";
 import { FamilyView } from "../views/pages/family-view.tsx";
 import { LoginView } from "../views/pages/login-view.tsx";
+import { LandingView } from "../views/pages/landing-view.tsx";
+import { HubView } from "../views/pages/hub-view.tsx";
 
 export const pageRoutes = new Hono<AppEnv>();
 
-// Redirect root to social-care
-pageRoutes.get("/", (c) => c.redirect("/social-care"));
+// Landing — public. If already logged in, redirect to hub.
+pageRoutes.get("/", (c) => {
+  const session = c.get("session");
+  if (session) return c.redirect("/hub");
+  const nonce = c.get("secureHeadersNonce");
+  return c.html(
+    <AppLayout title="ACDG" nonce={nonce} scripts={["/static/js/auth-hub.js"]}>
+      <LandingView />
+    </AppLayout>
+  );
+});
+
+// Hub — requires auth, app selector
+pageRoutes.get("/hub", (c) => {
+  const nonce = c.get("secureHeadersNonce");
+  return c.html(
+    <AppLayout title="Hub" nonce={nonce} scripts={["/static/js/auth-hub.js"]}>
+      <HubView />
+    </AppLayout>
+  );
+});
 
 // Login page (SSR-only, no client JS, public route)
 pageRoutes.get("/login", (c) => {
