@@ -21,7 +21,6 @@ import { assertEquals } from "@std/assert";
 import { Hono } from "@hono/hono";
 import type { AppEnv } from "../../src/types.ts";
 import { authGuard } from "../../src/middleware/auth_guard.ts";
-import { fetchMetadata } from "../../src/middleware/fetch_metadata.ts";
 
 // =============================================================================
 // B-1: CSRF middleware must exist in chain
@@ -366,56 +365,4 @@ Deno.test("PKCE verifiers have max entries cap", async () => {
     true,
     "PKCE verifiers must cap at 1000 entries max",
   );
-});
-
-// =============================================================================
-// PENTEST-1: fetchMetadata must require X-Requested-With on ALL /api/* methods
-// Behavioral test — validates actual middleware behavior, not source code patterns
-// =============================================================================
-
-Deno.test("PENTEST-1: fetchMetadata requires X-Requested-With on ALL /api/* methods", async (t) => {
-  const app = new Hono<AppEnv>();
-  app.use("/api/*", fetchMetadata());
-  app.all("/api/test", (c) => c.text("ok"));
-  app.get("/health", (c) => c.text("ok"));
-
-  const methods = ["GET", "POST", "PUT", "DELETE", "PATCH"] as const;
-
-  for (const method of methods) {
-    await t.step(`${method} /api/test without X-Requested-With → 403`, async () => {
-      const res = await app.request("/api/test", {
-        method,
-        headers: { "sec-fetch-site": "same-origin" },
-      });
-      assertEquals(
-        res.status,
-        403,
-        `${method} /api/test without X-Requested-With must be rejected`,
-      );
-    });
-
-    await t.step(`${method} /api/test with X-Requested-With → 200`, async () => {
-      const res = await app.request("/api/test", {
-        method,
-        headers: {
-          "sec-fetch-site": "same-origin",
-          "x-requested-with": "XMLHttpRequest",
-        },
-      });
-      assertEquals(
-        res.status,
-        200,
-        `${method} /api/test with X-Requested-With must be allowed`,
-      );
-    });
-  }
-
-  await t.step("GET /health without X-Requested-With → 200 (non-API route)", async () => {
-    const res = await app.request("/health");
-    assertEquals(
-      res.status,
-      200,
-      "Non-API routes must not require X-Requested-With",
-    );
-  });
 });

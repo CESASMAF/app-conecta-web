@@ -12,9 +12,8 @@ export type { SecureHeadersVariables };
  * Security headers middleware using Hono's built-in implementation.
  *
  * Configured with:
- * - CSP with per-request nonce for scripts AND styles (via NONCE constant)
- * - Nonce + unsafe-inline fallback for styles (CSP3 browsers ignore unsafe-inline
- *   when nonce is present; older browsers use unsafe-inline as fallback)
+ * - CSP with per-request nonce for scripts (via NONCE constant)
+ * - Inline styles allowed (for SSR views + external font stylesheets)
  * - External fonts from Google Fonts and Fontshare
  * - Strict transport security, frame denial, referrer policy
  * - Permissions policy restricting camera, microphone, geolocation
@@ -31,14 +30,14 @@ export const securityHeaders = () =>
       defaultSrc: ["'self'"],
       scriptSrc: [NONCE, "'strict-dynamic'"],
       scriptSrcElem: [NONCE, "'strict-dynamic'"],
-      styleSrc: [NONCE, "'unsafe-inline'"],
-      styleSrcElem: [NONCE, "'unsafe-inline'", "'self'", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", "data:"],
+      styleSrcElem: ["'self'", "'unsafe-inline'", "https:", "data:"],
       fontSrc: ["'self'", "https:", "data:"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://auth.acdgbrasil.com.br"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
-      formAction: ["'self'", "https://auth.acdgbrasil.com.br"],
+      formAction: ["'self'"],
       objectSrc: ["'none'"],
     },
 

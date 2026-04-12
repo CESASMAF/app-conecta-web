@@ -2,7 +2,7 @@
 // Injects Bearer token from session. The browser NEVER sees the backend URL or tokens.
 // All request bodies are validated before proxying to the backend.
 
-import { Hono, type Context } from "@hono/hono";
+import { Hono } from "@hono/hono";
 import type { ContentfulStatusCode } from "@hono/hono/utils/http-status";
 import type { AppEnv } from "../types.ts";
 import type {
@@ -161,8 +161,8 @@ export const createApiRoutes = (remoteClient: RemoteClient): Hono<AppEnv> => {
   });
 
   // Proxy /api/people/* to people-context backend
-  // Maps /api/people/X → /api/v1/people/X on the people-context service
-  const handlePeopleProxy = async (c: Context<AppEnv>): Promise<Response> => {
+  // Strips the /api/people prefix and maps to /api/v1
+  api.all("/api/people/*", async (c) => {
     const session = c.get("session");
     if (!session) {
       return c.json({ error: "Unauthorized" }, 401);
@@ -170,7 +170,7 @@ export const createApiRoutes = (remoteClient: RemoteClient): Hono<AppEnv> => {
 
     const config = c.get("config");
     const originalPath = c.req.path;
-    const path = originalPath.replace("/api/people", "/api/v1/people");
+    const path = originalPath.replace("/api/people", "/api/v1");
     const method = c.req.method as HttpMethod;
     const actorId = c.req.header("x-actor-id");
 
@@ -205,10 +205,7 @@ export const createApiRoutes = (remoteClient: RemoteClient): Hono<AppEnv> => {
     }
     const responseBody = toJsonBody(result.value.body);
     return c.json(responseBody, responseStatus);
-  };
-
-  api.all("/api/people", handlePeopleProxy);
-  api.all("/api/people/*", handlePeopleProxy);
+  });
 
   return api;
 };

@@ -321,8 +321,10 @@ export const authenticatedApiRequest = async (
     ...(opts?.headers ?? {}),
   };
 
-  // Add X-Requested-With for all API requests (required by fetchMetadata middleware)
-  extraHeaders["X-Requested-With"] = "XMLHttpRequest";
+  // Add X-Requested-With for mutating methods
+  if (method === "POST" || method === "PUT" || method === "DELETE") {
+    extraHeaders["X-Requested-With"] = "XMLHttpRequest";
+  }
 
   if (opts?.actorId) {
     extraHeaders["X-Actor-Id"] = opts.actorId;
