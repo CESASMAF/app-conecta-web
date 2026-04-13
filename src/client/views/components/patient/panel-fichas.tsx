@@ -1,67 +1,15 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { color, font, weight, space } from "../../../styles/tokens.ts"
+import { color, font, weight, radius } from "../../../styles/tokens.ts"
 import type { FichaStatus } from "../../../viewmodels/social-care/types.ts"
-import { FichaRow } from "./ficha-row.tsx"
 
 interface PanelFichasProps {
-  readonly lastName: string
   readonly fichas: readonly FichaStatus[]
-  readonly filledCount: number
-  readonly onBack: () => void
-  readonly onClose: () => void
   readonly onFichaClick: (route: string | null) => void
 }
 
-const containerStyle = css`
-  display: flex;
-  flex-direction: column;
-  padding: ${space[5]};
-  gap: ${space[4]};
-  overflow-y: auto;
-  height: 100%;
-`
-
-const headerRowStyle = css`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const titleStyle = css`
-  font-family: ${font.satoshi};
-  font-size: 48px;
-  font-weight: ${weight.bold};
-  color: ${color.textOnDark};
-  margin: 0;
-`
-
-const subtitleStyle = css`
-  font-family: ${font.playfair};
-  font-size: 15px;
-  font-weight: 300;
-  font-style: italic;
-  color: rgba(242, 226, 196, 0.7);
-`
-
-const circleButtonStyle = css`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid ${color.borderOnDark};
-  background: transparent;
-  color: ${color.textOnDark};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: background 200ms ease;
-  &:hover { background: rgba(242, 226, 196, 0.1); }
-`
-
-const closeButtonStyle = css`
-  &:hover { background: rgba(166, 41, 13, 0.2); }
+const bodyStyle = css`
+  padding: clamp(0.75rem, 0.5rem + 1vw, 1rem) clamp(1rem, 0.75rem + 1vw, 1.5rem);
 `
 
 const listStyle = css`
@@ -69,42 +17,100 @@ const listStyle = css`
   flex-direction: column;
 `
 
-export const PanelFichas: FC<PanelFichasProps> = ({
-  lastName,
-  fichas,
-  filledCount,
-  onBack,
-  onClose,
-  onFichaClick,
-}) => (
-  <div class={containerStyle}>
-    <div class={headerRowStyle}>
-      <div>
-        <h2 class={titleStyle}>Fichas</h2>
-        <span class={subtitleStyle}>
-          {lastName} &middot; {filledCount}/{fichas.length} preenchidas
-        </span>
-      </div>
-      <div style={{ display: "flex", gap: "8px" }}>
-        <button class={circleButtonStyle} onClick={onBack} type="button" aria-label="Voltar">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-        <button class={`${circleButtonStyle} ${closeButtonStyle}`} onClick={onClose} type="button" aria-label="Fechar">
-          &times;
-        </button>
-      </div>
-    </div>
+const itemStyle = css`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(79, 132, 72, 0.06);
+  cursor: pointer;
+  transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
 
+  &:hover {
+    padding-left: 0.5rem;
+  }
+`
+
+const numberStyle = css`
+  font-size: 11px;
+  font-weight: ${weight.medium};
+  color: ${color.textSageSoft};
+  min-width: 20px;
+  font-variant-numeric: tabular-nums;
+  font-family: ${font.satoshi};
+`
+
+const nameStyle = css`
+  flex: 1;
+  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem);
+  font-weight: ${weight.regular};
+  color: ${color.textSageSecondary};
+  font-family: ${font.satoshi};
+  transition: color 150ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  div:hover > & {
+    color: ${color.textSagePrimary};
+  }
+`
+
+const pillStyle = css`
+  font-size: 10px;
+  font-weight: ${weight.bold};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: ${radius.pill};
+  font-family: ${font.satoshi};
+`
+
+const pillFilledStyle = css`
+  background: rgba(79, 132, 72, 0.1);
+  color: ${color.primary};
+`
+
+const pillPendingStyle = css`
+  background: rgba(107, 127, 101, 0.08);
+  color: ${color.textSageSoft};
+`
+
+const arrowStyle = css`
+  font-size: 14px;
+  color: ${color.textSageSoft};
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  div:hover > & {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`
+
+export const PanelFichas: FC<PanelFichasProps> = ({ fichas, onFichaClick }) => (
+  <div class={bodyStyle}>
     <div class={listStyle}>
       {fichas.map((f, i) => (
-        <FichaRow
+        <div
           key={i}
-          name={f.name}
-          filled={f.filled}
-          onFichaClick={() => onFichaClick(f.route)}
-        />
+          class={itemStyle}
+          onClick={() => onFichaClick(f.route)}
+          role="button"
+          tabIndex={0}
+          aria-label={`${f.name}, ${f.filled ? "preenchida" : "pendente"}`}
+          onKeyDown={(e: KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              onFichaClick(f.route)
+            }
+          }}
+        >
+          <span class={numberStyle}>{String(i + 1).padStart(2, "0")}</span>
+          <span class={nameStyle}>{f.name}</span>
+          <span class={`${pillStyle} ${f.filled ? pillFilledStyle : pillPendingStyle}`}>
+            {f.filled ? "Preenchida" : "Pendente"}
+          </span>
+          <span class={arrowStyle} aria-hidden="true">&rarr;</span>
+        </div>
       ))}
     </div>
   </div>

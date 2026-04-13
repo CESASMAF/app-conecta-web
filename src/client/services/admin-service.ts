@@ -5,7 +5,6 @@
 import { get, post, put } from "./base-client.ts";
 import type { Result, ServiceError } from "./base-client.ts";
 import type { Person, SystemRole } from "./people-service.ts";
-import type { AuditEntry } from "../viewmodels/admin-hub/types.ts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -98,14 +97,3 @@ export const reactivateRole = (
     {},
   );
 
-// ---------------------------------------------------------------------------
-// Audit
-// ---------------------------------------------------------------------------
-
-export const listAudit = (
-  limit = 50,
-  offset = 0,
-): Promise<Result<readonly AuditEntry[], ServiceError>> =>
-  get<readonly AuditEntry[]>(
-    `/api/admin/audit?limit=${limit}&offset=${offset}`,
-  );

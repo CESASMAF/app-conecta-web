@@ -1,6 +1,6 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { color, font, space } from "../../../styles/tokens.ts"
+import { color, font, radius } from "../../../styles/tokens.ts"
 
 interface SearchInputProps {
   readonly query: string
@@ -16,49 +16,56 @@ const wrapperStyle = css`
 `
 
 const inputStyle = css`
-  border: none;
-  border-bottom: 1px solid ${color.inputLine};
-  padding: 8px 32px 8px 28px;
-  font-family: ${font.satoshi};
-  font-size: 18px;
-  color: ${color.textPrimary};
-  background: transparent;
-  outline: none;
   width: 100%;
-  transition: border-color 0.2s;
-  &:focus { border-bottom: 2px solid ${color.textPrimary}; }
+  padding: 0.625rem 1rem 0.625rem 2.5rem;
+  background: ${color.bgCard};
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid ${color.bgCardBorder};
+  border-radius: ${radius.pill};
+  font-family: ${font.satoshi};
+  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem);
+  color: ${color.textSagePrimary};
+  outline: none;
+  transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+
   &::placeholder {
-    color: ${color.textMuted};
-    font-family: ${font.playfair};
+    color: ${color.textSageSoft};
     font-style: italic;
-    font-weight: 300;
+  }
+
+  &:focus {
+    border-color: ${color.bgCardBorderHover};
+    box-shadow: 0 0 0 3px rgba(79, 132, 72, 0.08);
   }
 `
 
 const iconStyle = css`
   position: absolute;
-  left: 0;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
-  opacity: 0.5;
+  font-size: 14px;
+  color: ${color.textSageSoft};
   pointer-events: none;
+  width: 14px;
+  height: 14px;
 `
 
 const clearButtonStyle = css`
   position: absolute;
-  right: 0;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   border: none;
   background: transparent;
   cursor: pointer;
-  padding: ${space[1]};
-  color: ${color.textMuted};
-  font-size: 18px;
+  padding: 4px;
+  color: ${color.textSageMuted};
+  font-size: 16px;
   line-height: 1;
-  &:hover { color: ${color.textPrimary}; }
+  transition: color 150ms ease;
+  &:hover { color: ${color.textSagePrimary}; }
 `
 
 export const SearchInput: FC<SearchInputProps> = ({ query, onSearch, onClear }) => (
@@ -70,9 +77,10 @@ export const SearchInput: FC<SearchInputProps> = ({ query, onSearch, onClear }) 
     <input
       class={inputStyle}
       type="text"
-      placeholder="Buscar paciente..."
+      placeholder="Buscar por nome, CPF..."
       value={query}
       onInput={(e) => onSearch((e.target as HTMLInputElement).value)}
+      aria-label="Buscar familias"
     />
     {query.length > 0 && (
       <button class={clearButtonStyle} onClick={onClear} type="button" aria-label="Limpar busca">
