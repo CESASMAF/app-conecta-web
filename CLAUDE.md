@@ -202,56 +202,82 @@ src/adapters/
 
 ---
 
-## Client-Side Rules
+## Client-Side Architecture
 
-### Services (src/client/services/)
+The client follows a **3-layer architecture** inspired by Clean Frontend Architecture + MVU (Model-View-Update). The unidirectional data flow is:
 
-- **Unique place where `fetch` exists** on the client
+```
+User Event → Page dispatch(action) → Presenter reducer → newState → View re-renders
+                                        ↑
+              Page calls data/service → Result → Page dispatch(result)
+```
+
+### Layer 1 — Data (src/client/data/)
+
+Responsible for **all communication with the server** and **type translation** between server DTOs and client models.
+
+```
+src/client/data/
+  dtos/                    — Types that mirror server responses (raw)
+    patient-dto.ts
+  mappers/                 — Pure functions: Server DTO → Client Model
+    patient-mapper.ts
+  services/                — HTTP calls → Result<DTO, Error> (only place with fetch)
+    base-client.ts         — fetch wrapper → Result
+    patient-service.ts     — search, getById, create
+    family-service.ts      — addMember, removeMember
+```
+
+**Rules:**
+- **Only place where `fetch` exists** on the client
 - Returns `Result<T, E>` — never throws
 - Includes security headers: `X-Requested-With: XMLHttpRequest`, `credentials: "same-origin"`
 - Talks to `/api/*` on the Hono server (NEVER directly to backend)
+- **Mappers are pure functions**: `(dto: ServerDTO) => ClientModel` — no side effects
+- **DTOs are `Readonly<{}>`** — exact shape of what the server returns
+
+### Layer 2 — Presenter (src/client/presenter/)
+
+Responsible for **reactive state**, **business computations for the screen**, and **validation**. Pure functions only — zero side effects.
 
 ```
-src/client/services/
-  base-client.ts         — fetch wrapper → Result
-  patient-service.ts     — search, getById, create
-  family-service.ts      — addMember, removeMember
+src/client/presenter/
+  <feature>/
+    state.ts               — State type + Action union + initialState
+    reducer.ts             — pure reducer: (state, action) => newState
+    validators.ts          — pure validation: validateStep() → Map<string, string>
+    computations.ts        — pure derived data (e.g., buildFichas, mapToViewDetail)
+    persistence.ts         — save/load/clear draft (called by Page, not by reducer)
 ```
 
-### ViewModels (src/client/viewmodels/)
-
-- **Pure reducer**: `(state, action) => newState`
-- **Zero side effects**: no fetch, no useEffect, no localStorage, no DOM inside reducer
-- **State is Readonly** with readonly arrays/maps
+**Rules:**
+- **Pure reducer**: `(state, action) => newState` — zero fetch, useEffect, DOM
+- **State is `Readonly<{}>`** with `readonly` arrays/maps
 - **Actions are discriminated unions** with `type` field and exhaustive switch
-- **Validators are separate pure functions**: `validateStep(step, fields) => Map<string, string>`
+- **Validators are separate pure functions**: `validateStep(step, fields) => ReadonlyMap<string, string>`
+- **Computations are separate pure functions**: derived data that would otherwise pollute the page
 - **Persistence is separate functions** called by the Page: `saveDraft(state)`, `loadDraft()`
 
-```
-src/client/viewmodels/
-  <feature>/
-    types.ts          — State + Action + initialState
-    reducer.ts        — pure reducer function
-    validators.ts     — pure validation functions
-    persistence.ts    — save/load/clear (called by Page)
-```
+### Layer 3 — Views (src/client/views/)
 
-### Views — Pages (src/client/views/pages/)
+#### Pages (src/client/views/pages/) — Orchestrators
 
-- **Orchestrators**: wire useReducer + service + components
-- **Max ~100 lines** — if growing, extract to components
-- **useReducer** connects the ViewModel
+- Wire `useReducer` + data service + components
+- **Max ~80 lines** — if growing, extract to components
+- **useReducer** connects the Presenter
 - **useEffect** ONLY for: persistence (saveDraft on state change), event listeners
-- **Fetch flow**: call service → get Result → dispatch action to reducer
+- **Fetch flow**: call data/service → get Result → dispatch action to presenter reducer
 - **God pages are FORBIDDEN**
+- **Zero data transformation** — that belongs in data/mappers or presenter/computations
 
-### Views — Components (src/client/views/components/)
+#### Components (src/client/views/components/) — Pure Visual
 
 - **(props) => JSX** — autocontained, specialized, does ONE thing
 - **Zero fetch, useEffect, useReducer** in components
 - **useState** ONLY for local UI state (tooltip open, dropdown expanded) — NEVER business state
 - **If > 50 lines JSX**, break into subcomponents
 - **Styles** via hono/css with tokens from `src/client/styles/tokens.ts`
+- **Receives ONLY raw data via props** — never imports from data/ or presenter/
 
 ```
 src/client/views/components/
@@ -262,11 +288,42 @@ src/client/views/components/
   care/             — knows how to render care concepts
 ```
 
+### Contracts (src/client/contracts/)
+
+**Bridge between developer and designer.** Defines the TypeScript prop types that each visual component receives. Derived from `src/application/` Input types but adapted for the screen (adds `errors`, `disabled`, `onFieldChange`, etc.).
+
+```
+src/client/contracts/
+  registration.ts          — Props for each registration wizard step
+  social-care.ts           — Props for the social care panel
+  family.ts                — Props for family composition components
+```
+
+**Rules:**
+- Props are `Readonly<{...}>` — always immutable
+- Fields come as **raw strings** (what the user types)
+- Errors come as `ReadonlyMap<string, string>` — field name → human-readable message
+- Callbacks are named `on<Action>` — e.g., `onFieldChange`, `onSubmit`
+- Include UI state: `disabled`, `loading`, `readOnly` where relevant
+- One type per component — never a god-type
+
+### Mocks (src/client/mocks/)
+
+**Realistic mock data for visual development.** Generated from application layer contracts. Always include 3+ scenarios: empty, filled (realistic Brazilian data), and withErrors.
+
+```
+src/client/mocks/
+  registration-mock.ts     — Empty, filled, error scenarios for registration
+  social-care-mock.ts      — Patient lists, detail panels, fichas
+  family-mock.ts           — Family members with various states
+```
+
 ### Styles (src/client/styles/)
 
 - **hono/css** — CSS-in-JS built into Hono, zero extra dependencies
 - **TypeScript design tokens** — type-safe, importable: `tokens.ts`
 - **Composable styles** via `css` template literals, `cx()` for conditional
+- **Shared styles** (gradients, animations, backgrounds) defined ONCE in `shared.ts`
 - **No Tailwind**, no styled-components, no inline styles (except dynamic values)
 - **CSP nonce** on `<Style nonce={...} />` in SSR layouts
 
@@ -288,17 +345,77 @@ src/client/apps/
 
 ---
 
+## Design Companion Workflow (Parallel Dev + Designer)
+
+The `design-companion` agent (`.claude/agents/design-companion.md`) enables a **parallel workflow** where the designer builds final components while the developer builds data + presenter layers independently.
+
+### The Contract is the Handshake
+
+```
+src/application/ (Input types, Error unions)
+    │  Developer reads → extracts fields and constraints
+    ▼
+src/client/contracts/ (Component Props types)
+    │  Source of truth for both developer and designer
+    ├──→ Designer: builds components that satisfy these props
+    └──→ Developer: builds presenter that produces these props
+```
+
+### Workflow
+
+```
+1. Developer writes contracts/<feature>.ts     ← defines prop types (30 min)
+2. Developer writes mocks/<feature>-mock.ts    ← realistic scenarios (30 min)
+3. IN PARALLEL:
+   ├── Designer: views/components/ with mocks  ← visual + reactivity + CSS
+   └── Developer: data/ + presenter/           ← fetch + state + logic
+4. Developer writes views/pages/ (~80 lines)   ← glues everything together
+```
+
+### Designer Scope (Enforced by ui-contributor skill)
+
+| CAN modify | CANNOT modify |
+|---|---|
+| `src/client/views/components/` | `src/client/data/` |
+| `src/client/styles/` | `src/client/presenter/` |
+| `src/views/` (SSR templates) | `src/domain/`, `src/application/` |
+| `static/` | `src/adapters/`, `src/middleware/`, `src/routes/` |
+
+### Designer Rules
+
+1. Read the contract in `contracts/<feature>.ts` (prop types)
+2. Use the mocks in `mocks/<feature>-mock.ts` (realistic data)
+3. Write components in `views/components/` — `(props) => JSX`
+4. NEVER import from `data/` or `presenter/`
+5. NEVER use `fetch`, `useReducer`, or `useEffect`
+6. The component IS the final component — not a prototype
+
+---
+
 ## Import Boundary Rules
 
-| From \ To | domain | application | adapters | client/services | client/viewmodels | client/views |
-|-----------|:------:|:-----------:|:--------:|:---------------:|:-----------------:|:------------:|
-| domain | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| application | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| adapters | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| client/services | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| client/viewmodels | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| client/views (pages) | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| client/views (components) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+### Server-Side
+| From \ To | domain | application | adapters |
+|-----------|:------:|:-----------:|:--------:|
+| domain | ✅ | ❌ | ❌ |
+| application | ✅ | ✅ | ❌ |
+| adapters | ✅ | ✅ | ✅ |
+
+### Client-Side
+| From \ To | contracts | data | presenter | views/pages | views/components | mocks |
+|-----------|:---------:|:----:|:---------:|:-----------:|:----------------:|:-----:|
+| contracts | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| data | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| presenter | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| views/pages | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| views/components | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| mocks | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+**Key rules:**
+- **Components import ONLY from:** contracts, other components, styles — NEVER data or presenter
+- **Pages are the ONLY layer** that sees all client layers (they are the glue)
+- **Mocks import ONLY from:** contracts (they implement the same prop types)
+- **No client layer imports from server layers** (domain, application, adapters)
 
 ### JSX Import Boundary (CRITICAL)
 - **Server code** (src/views/, src/routes/): imports from `hono/jsx`
@@ -310,7 +427,17 @@ src/client/apps/
 ## Data Flow: Browser ↔ Server ↔ Backend
 
 ```
-Browser (View + ViewModel + Service)
+Browser
+  ┌─────────────────────────────────────────────────────────┐
+  │  Component (props → JSX)                                 │
+  │    ↑ props from page                                     │
+  │  Page (orchestrator)                                     │
+  │    ├── useReducer(presenter/reducer)                     │
+  │    ├── calls data/service → Result → dispatch            │
+  │    └── data/mapper transforms DTO → client model         │
+  │  Presenter (reducer + validators + computations)         │
+  │  Data (services + DTOs + mappers)                        │
+  └─────────────────────────────────────────────────────────┘
   │ Cookie: __Host-session=<opaque>
   │ X-Requested-With: XMLHttpRequest
   │ Body: raw JSON
@@ -341,9 +468,10 @@ Agents communicate via `.pipeline/<ticket>/` folders. Each agent writes REPORT.m
 | test-writer | 002-tests/ | implementations, src/ |
 | domain-modeler | 003-domain/ + src/domain/ | app, client, tests |
 | application-orchestrator | 003-application/ + src/application/ | domain impl, client, tests |
-| viewmodel-engineer | 003-viewmodel/ + src/client/viewmodels/ | domain, app, views, tests |
-| view-implementer | 003-view/ + src/client/views/ | domain, app, viewmodels, tests |
-| infra-implementer | 003-infra/ + src/adapters,routes,middleware,client/services,apps/ | domain, app, viewmodels, tests |
+| viewmodel-engineer | 003-viewmodel/ + src/client/presenter/ | domain, app, views, tests |
+| view-implementer | 003-view/ + src/client/views/ | domain, app, presenter, tests |
+| infra-implementer | 003-infra/ + src/adapters,routes,middleware,client/data,apps/ | domain, app, presenter, tests |
+| design-companion | src/client/contracts/, mocks/, views/components/ | data, presenter, domain, app, adapters |
 | code-reviewer | 004-code-review/ | cannot modify code |
 | ts-quality-checker | 005-ts-quality/ | cannot modify code |
 | integration-validator | 006-integration/ | cannot modify anything |
@@ -420,27 +548,40 @@ social-care-deno/
 │   │   ├── remote/remote_client.ts
 │   │   └── infrastructure/dtos/, mappers/
 │   └── client/
-│       ├── apps/
+│       ├── apps/                    — entry points (one per interactive page)
 │       │   ├── registration/entry.tsx
 │       │   ├── family-composition/entry.tsx
 │       │   ├── social-care/entry.tsx
 │       │   ├── search/entry.tsx
 │       │   ├── auth-hub/entry.tsx
 │       │   └── admin-hub/entry.tsx
-│       ├── services/
-│       │   ├── base-client.ts
-│       │   ├── patient-service.ts
-│       │   └── family-service.ts
-│       ├── viewmodels/
-│       │   ├── registration/types.ts, reducer.ts, validators.ts, persistence.ts
+│       ├── contracts/               — component prop types (bridge dev ↔ designer)
+│       │   ├── registration.ts
+│       │   ├── social-care.ts
+│       │   └── family.ts
+│       ├── mocks/                   — realistic mock data for visual development
+│       │   ├── registration-mock.ts
+│       │   ├── social-care-mock.ts
+│       │   └── family-mock.ts
+│       ├── data/                    — server communication + type translation
+│       │   ├── dtos/                — raw server response types
+│       │   ├── mappers/             — DTO → client model (pure functions)
+│       │   └── services/            — HTTP calls → Result (only place with fetch)
+│       │       ├── base-client.ts
+│       │       ├── patient-service.ts
+│       │       └── family-service.ts
+│       ├── presenter/               — reactive state + business computations
+│       │   ├── registration/state.ts, reducer.ts, validators.ts, computations.ts, persistence.ts
 │       │   ├── family-composition/
-│       │   └── social-care/
+│       │   ├── social-care/
+│       │   ├── auth-hub/
+│       │   └── admin-hub/
 │       ├── views/
-│       │   ├── pages/
+│       │   ├── pages/               — orchestrators (~80 lines, glue layer)
 │       │   │   ├── social-care-page.tsx
 │       │   │   ├── registration-page.tsx
 │       │   │   └── family-page.tsx
-│       │   └── components/
+│       │   └── components/          — (props) → JSX, zero side effects
 │       │       ├── ui/
 │       │       ├── patient/
 │       │       ├── family/
@@ -448,7 +589,8 @@ social-care-deno/
 │       │       └── care/
 │       └── styles/
 │           ├── tokens.ts
-│           └── base.ts
+│           ├── base.ts
+│           └── shared.ts            — shared gradients, animations, backgrounds
 ├── tests/
 │   ├── domain/
 │   ├── application/
