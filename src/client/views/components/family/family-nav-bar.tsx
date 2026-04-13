@@ -6,30 +6,26 @@ interface FamilyNavBarProps {
   readonly lastName: string
 }
 
-const navStyle = css`
-  display: flex;
+const backLink = css`
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.375rem;
   font-family: ${font.satoshi};
-  font-size: 14px;
-  font-weight: ${weight.bold};
-  color: ${color.textMuted};
-`
+  font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
+  color: ${color.textSageMuted};
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 150ms ease;
+  margin-bottom: ${color.textSageMuted ? "1.5rem" : "1.5rem"};
 
-const separatorStyle = css`
-  color: ${color.textMuted};
-`
-
-const activeStyle = css`
-  color: ${color.textPrimary};
+  &:hover {
+    color: ${color.textSageSecondary};
+    text-decoration: underline;
+  }
 `
 
 export const FamilyNavBar: FC<FamilyNavBarProps> = ({ lastName }) => (
-  <nav class={navStyle}>
-    <span>Familias</span>
-    <span class={separatorStyle}>/</span>
-    <span>{lastName}</span>
-    <span class={separatorStyle}>/</span>
-    <span class={activeStyle}>Composicao Familiar</span>
-  </nav>
+  <a href="/social-care" class={backLink} aria-label="Voltar para lista de familias">
+    &#8592; Voltar para Familias
+  </a>
 )

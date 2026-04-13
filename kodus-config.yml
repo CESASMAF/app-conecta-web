@@ -1,0 +1,57 @@
+version: '1.2'
+
+summary:
+  generatePRSummary: true
+  customInstructions: >
+    Summarize changes by layer (Domain, Application, Adapters, Client/Views, Client/ViewModels, Client/Services).
+    Highlight any domain model changes, import boundary violations, security-related modifications, and JSX runtime mixing.
+    Note if the PR touches shared files (deno.json, server.ts, types.ts) together with feature code (violation of config-first rule).
+  behaviourForExistingDescription: concatenate
+
+ignorePaths:
+  - .pipeline/
+  - coverage/
+  - scripts/
+  - handbook/
+  - prototypes/
+  - contracts/
+  - static/images/
+  - .claude/
+  - .github/
+  - .vscode/
+  - '*.lock'
+  - .env
+  - .env.*
+  - docker-compose.yml
+  - Dockerfile
+
+baseBranches: []
+
+reviewOptions:
+  security: true
+  code_style: true
+  kody_rules: true
+  refactoring: true
+  error_handling: true
+  maintainability: true
+  potential_issues: true
+  documentation_and_comments: false
+  performance_and_optimization: true
+  business_logic: true
+
+suggestionControl:
+  groupingMode: full
+  limitationType: pr
+  maxSuggestions: 9
+  severityLevelFilter: medium
+
+ignoredTitleKeywords:
+  - chore
+  - docs
+  - ci
+  - proto
+
+automatedReviewActive: true
+pullRequestApprovalActive: false
+isRequestChangesActive: false
+llmGeneratedMemoriesRequireApproval: false

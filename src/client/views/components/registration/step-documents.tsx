@@ -1,6 +1,6 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { space } from "../../../styles/tokens.ts"
+import { color, font, weight, alpha } from "../../../styles/tokens.ts"
 import { UnderlineInput } from "../ui/underline-input.tsx"
 import type { WizardState } from "../../../viewmodels/registration/types.ts"
 
@@ -11,27 +11,45 @@ interface StepDocumentsProps {
 }
 
 const gridStyle = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${space[6]};
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1rem, 0.75rem + 1vw, 1.5rem) clamp(1.25rem, 1rem + 1vw, 1.75rem);
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 `
 
-const fieldItem = css`
-  min-width: 280px;
-  flex: 1;
+const fullCol = css`
+  grid-column: 1 / -1;
 `
 
-const sectionTitle = css`
-  width: 100%;
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(38, 29, 17, 0.6);
-  margin-top: 8px;
+const sectionTitleStyle = css`
+  grid-column: 1 / -1;
+  font-family: ${font.satoshi};
+  font-size: clamp(0.6875rem, 0.65rem + 0.2vw, 0.75rem);
+  font-weight: ${weight.semibold};
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  color: ${color.textSageSoft};
+  padding-top: 1rem;
+  border-top: 1px solid ${alpha(color.primary, 0.08)};
+  margin-top: 0.5rem;
 `
 
-// Pure formatting functions — store raw digits, format for display
+const globalErrorStyle = css`
+  grid-column: 1 / -1;
+  padding: clamp(0.625rem, 0.5rem + 0.5vw, 0.75rem) clamp(0.875rem, 0.75rem + 0.5vw, 1rem);
+  background: ${alpha(color.dangerAlt, 0.06)};
+  border: 1px solid ${alpha(color.dangerAlt, 0.15)};
+  border-radius: 12px;
+  font-family: ${font.satoshi};
+  font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
+  font-weight: ${weight.medium};
+  color: ${color.dangerAlt};
+  line-height: 1.4;
+`
+
 const formatCpf = (raw: string): string => {
   const digits = raw.replace(/\D/g, "").slice(0, 11)
   if (digits.length <= 3) return digits
@@ -47,74 +65,85 @@ const formatDate = (raw: string): string => {
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
 }
 
-const unformatToDigits = (value: string): string => value.replace(/\D/g, "")
+const unformat = (value: string): string => value.replace(/\D/g, "")
 
-export const StepDocuments: FC<StepDocumentsProps> = ({ documents, errors, onUpdate }) => (
-  <div class={gridStyle}>
-    <div class={fieldItem}>
-      <UnderlineInput
-        label="CPF"
-        value={formatCpf(documents.cpf)}
-        onChange={(v) => onUpdate("cpf", unformatToDigits(v))}
-        error={errors.get("cpf")}
-      />
+export const StepDocuments: FC<StepDocumentsProps> = ({ documents, errors, onUpdate }) => {
+  const hasGlobalError = errors.get("cpf") === undefined
+    && errors.get("nis") === undefined
+    && errors.get("rgNumber") === undefined
+    && errors.size > 0
+    && errors.has("documents")
+
+  return (
+    <div class={gridStyle}>
+      {errors.get("documents") && (
+        <div class={globalErrorStyle}>{errors.get("documents")}</div>
+      )}
+      <div>
+        <UnderlineInput
+          label="CPF"
+          value={formatCpf(documents.cpf)}
+          onChange={(v) => onUpdate("cpf", unformat(v))}
+          error={errors.get("cpf")}
+        />
+      </div>
+      <div>
+        <UnderlineInput
+          label="NIS"
+          value={documents.nis}
+          onChange={(v) => onUpdate("nis", v)}
+          error={errors.get("nis")}
+        />
+      </div>
+      <div>
+        <UnderlineInput
+          label="CNS"
+          value={documents.cnsNumber}
+          onChange={(v) => onUpdate("cnsNumber", v)}
+          error={errors.get("cnsNumber")}
+        />
+      </div>
+      <div>
+        <UnderlineInput
+          label="Data de Nascimento"
+          value={formatDate(documents.birthDate)}
+          onChange={(v) => onUpdate("birthDate", unformat(v))}
+          error={errors.get("birthDate")}
+        />
+      </div>
+      <div class={sectionTitleStyle}>RG (preencha todos ou nenhum)</div>
+      <div>
+        <UnderlineInput
+          label="Numero do RG"
+          value={documents.rgNumber}
+          onChange={(v) => onUpdate("rgNumber", v)}
+          error={errors.get("rgNumber")}
+        />
+      </div>
+      <div>
+        <UnderlineInput
+          label="UF"
+          value={documents.rgUf}
+          onChange={(v) => onUpdate("rgUf", v)}
+          error={errors.get("rgUf")}
+        />
+      </div>
+      <div>
+        <UnderlineInput
+          label="Orgao Emissor"
+          value={documents.rgAgency}
+          onChange={(v) => onUpdate("rgAgency", v)}
+          error={errors.get("rgAgency")}
+        />
+      </div>
+      <div>
+        <UnderlineInput
+          label="Data de Emissao"
+          value={formatDate(documents.rgDate)}
+          onChange={(v) => onUpdate("rgDate", unformat(v))}
+          error={errors.get("rgDate")}
+        />
+      </div>
     </div>
-    <div class={fieldItem}>
-      <UnderlineInput
-        label="Data de nascimento"
-        value={formatDate(documents.birthDate)}
-        onChange={(v) => onUpdate("birthDate", unformatToDigits(v))}
-        error={errors.get("birthDate")}
-      />
-    </div>
-    <div class={fieldItem}>
-      <UnderlineInput
-        label="NIS"
-        value={documents.nis}
-        onChange={(v) => onUpdate("nis", v)}
-        error={errors.get("nis")}
-      />
-    </div>
-    <div class={fieldItem}>
-      <UnderlineInput
-        label="CNS"
-        value={documents.cnsNumber}
-        onChange={(v) => onUpdate("cnsNumber", v)}
-        error={errors.get("cnsNumber")}
-      />
-    </div>
-    <span class={sectionTitle}>RG (preencha todos ou nenhum)</span>
-    <div class={fieldItem}>
-      <UnderlineInput
-        label="Numero do RG"
-        value={documents.rgNumber}
-        onChange={(v) => onUpdate("rgNumber", v)}
-        error={errors.get("rgNumber")}
-      />
-    </div>
-    <div class={fieldItem}>
-      <UnderlineInput
-        label="UF"
-        value={documents.rgUf}
-        onChange={(v) => onUpdate("rgUf", v)}
-        error={errors.get("rgUf")}
-      />
-    </div>
-    <div class={fieldItem}>
-      <UnderlineInput
-        label="Orgao emissor"
-        value={documents.rgAgency}
-        onChange={(v) => onUpdate("rgAgency", v)}
-        error={errors.get("rgAgency")}
-      />
-    </div>
-    <div class={fieldItem}>
-      <UnderlineInput
-        label="Data de emissao"
-        value={formatDate(documents.rgDate)}
-        onChange={(v) => onUpdate("rgDate", unformatToDigits(v))}
-        error={errors.get("rgDate")}
-      />
-    </div>
-  </div>
-)
+  )
+}

@@ -1,5 +1,5 @@
-// Admin API routes — proxies to people-context and social-care backends
-// with audit logging on all mutations. Mounted at /api/admin.
+// Admin API routes — proxies to people-context and social-care backends.
+// Mounted at /api/admin.
 
 import { Hono } from "@hono/hono";
 import type { ContentfulStatusCode } from "@hono/hono/utils/http-status";
@@ -9,7 +9,6 @@ import type {
   RemoteError,
   RemoteResponse,
 } from "../adapters/remote/remote_client.ts";
-import type { AuditAppendInput, AuditAction, AuditStore } from "../adapters/admin/types.ts";
 import type { Result } from "../domain/shared/result.ts";
 
 // ---------------------------------------------------------------------------
@@ -18,7 +17,6 @@ import type { Result } from "../domain/shared/result.ts";
 
 export type AdminRoutesDeps = Readonly<{
   remoteClient: RemoteClient;
-  auditStore: AuditStore;
 }>;
 
 // ---------------------------------------------------------------------------
@@ -34,6 +32,17 @@ const toJsonBody = (
   // Safe: typeof + null check narrows to object, cast adds index signature
   if (typeof body === "object") return body as Record<string, unknown>;
   return null;
+};
+
+/** Wraps backend response body in { data: ... } for consistent client consumption. */
+const toDataResponse = (
+  body: unknown,
+): Readonly<{ data: unknown }> => {
+  if (body === null || body === undefined) return { data: null };
+  if (typeof body === "object" && body !== null && "data" in body) {
+    return body as Readonly<{ data: unknown }>;
+  }
+  return { data: body };
 };
 
 const isNullBodyStatus = (status: number): boolean =>
@@ -77,11 +86,29 @@ const UUID_RE =
 
 const isValidUuid = (value: string): boolean => UUID_RE.test(value);
 
-/** Max entries per page on audit endpoint. */
-const MAX_AUDIT_LIMIT = 100;
-
 /** Status value used by social-care backend for pending lookup requests. */
 const PENDING_REQUEST_STATUS = "pendente";
+
+/** Type guard for items with a `status` string field. */
+type RequestItem = Readonly<{ status: string }>;
+
+const isRequestItem = (v: unknown): v is RequestItem =>
+  typeof v === "object" && v !== null && "status" in v &&
+  typeof (v as Record<string, unknown>).status === "string";
+
+/** Extracts count of pending items from a response body (array or { data: [] }). */
+const extractPendingCount = (body: unknown): number => {
+  if (!body || typeof body !== "object") return 0;
+  const obj = body as Record<string, unknown>;
+  const arr: readonly unknown[] = Array.isArray(body)
+    ? body
+    : "data" in obj && Array.isArray(obj.data)
+    ? obj.data as unknown[]
+    : [];
+  return arr.filter(
+    (item) => isRequestItem(item) && item.status === PENDING_REQUEST_STATUS,
+  ).length;
+};
 
 /** Extracts a numeric `total` from a remote response body, defaulting to 0. */
 const extractTotal = (
@@ -102,15 +129,6 @@ const extractTotal = (
   return 0;
 };
 
-/** Build audit input with discriminated outcome (SUCCESS has no errorMessage). */
-const auditInput = (
-  base: Readonly<{ actorId: string; actorName: string; action: AuditAction; targetId: string; details?: string }>,
-  result: Result<RemoteResponse, RemoteError>,
-): AuditAppendInput =>
-  result.ok
-    ? { ...base, outcome: "SUCCESS" as const }
-    : { ...base, outcome: "FAILURE" as const, errorMessage: result.error };
-
 // ---------------------------------------------------------------------------
 // Factory
 // ---------------------------------------------------------------------------
@@ -118,7 +136,7 @@ const auditInput = (
 export const createAdminApiRoutes = (
   deps: AdminRoutesDeps,
 ): Hono<AppEnv> => {
-  const { remoteClient, auditStore } = deps;
+  const { remoteClient } = deps;
   const admin = new Hono<AppEnv>();
 
   // --- Validate JSON body on mutating methods ---
@@ -161,10 +179,16 @@ export const createAdminApiRoutes = (
     });
 
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
-    return c.json(toJsonBody(result.value.body), 200);
+    return c.json(
+      toDataResponse(result.value.body),
+      toResponseStatus(result.value.status),
+    );
   });
 
   // GET /people/:id — detail
@@ -186,11 +210,14 @@ export const createAdminApiRoutes = (
     });
 
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -212,17 +239,15 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "PERSON_CREATED", targetId: "new" },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -248,17 +273,15 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "PERSON_UPDATED", targetId: personId },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -286,10 +309,16 @@ export const createAdminApiRoutes = (
     });
 
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
-    return c.json(toJsonBody(result.value.body), 200);
+    return c.json(
+      toDataResponse(result.value.body),
+      toResponseStatus(result.value.status),
+    );
   });
 
   // POST /people/:id/roles — assign role
@@ -313,17 +342,15 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "ROLE_ASSIGNED", targetId: personId },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -347,17 +374,15 @@ export const createAdminApiRoutes = (
       actorId: session.userSub,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "ROLE_DEACTIVATED", targetId: personId, details: `roleId: ${roleId}` },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -381,17 +406,15 @@ export const createAdminApiRoutes = (
       actorId: session.userSub,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "ROLE_REACTIVATED", targetId: personId, details: `roleId: ${roleId}` },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -417,10 +440,16 @@ export const createAdminApiRoutes = (
     });
 
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
-    return c.json(toJsonBody(result.value.body), 200);
+    return c.json(
+      toDataResponse(result.value.body),
+      toResponseStatus(result.value.status),
+    );
   });
 
   // POST /lookups/requests — create a new lookup request
@@ -440,17 +469,15 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_REQUEST_CREATED", targetId: "new-request" },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -473,17 +500,15 @@ export const createAdminApiRoutes = (
       actorId: session.userSub,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_REQUEST_APPROVED", targetId: requestId },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -509,17 +534,15 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_REQUEST_REJECTED", targetId: requestId },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -547,10 +570,16 @@ export const createAdminApiRoutes = (
     });
 
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
-    return c.json(toJsonBody(result.value.body), 200);
+    return c.json(
+      toDataResponse(result.value.body),
+      toResponseStatus(result.value.status),
+    );
   });
 
   // POST /lookups/:tableName — create entry
@@ -574,17 +603,15 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_CREATED", targetId: tableName },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -614,17 +641,15 @@ export const createAdminApiRoutes = (
       body,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_UPDATED", targetId: `${tableName}/${entryId}` },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
   });
@@ -651,38 +676,17 @@ export const createAdminApiRoutes = (
       actorId: session.userSub,
     });
 
-    auditStore.append(auditInput(
-      { actorId: session.userSub, actorName: session.userName, action: "LOOKUP_TOGGLED", targetId: `${tableName}/${entryId}` },
-      result,
-    ));
-
     if (!result.ok) {
-      return c.json({ error: result.error }, ERROR_STATUS_MAP[result.error]);
+      return c.json(
+        { error: result.error, message: `Upstream service error: ${result.error}` },
+        ERROR_STATUS_MAP[result.error],
+      );
     }
     if (isNullBodyStatus(result.value.status)) return c.body(null, 204);
     return c.json(
-      toJsonBody(result.value.body),
+      toDataResponse(result.value.body),
       toResponseStatus(result.value.status),
     );
-  });
-
-  // =========================================================================
-  // Audit Route (local store, not proxied)
-  // =========================================================================
-
-  admin.get("/audit", (c) => {
-    const session = c.get("session");
-    if (!session) return c.json({ error: "Unauthorized" }, 401);
-
-    const rawLimit = Number(c.req.query("limit") ?? "50");
-    const rawOffset = Number(c.req.query("offset") ?? "0");
-    const limit = Number.isFinite(rawLimit) && rawLimit > 0
-      ? Math.min(rawLimit, MAX_AUDIT_LIMIT)
-      : 50;
-    const offset = Number.isFinite(rawOffset) && rawOffset >= 0 ? rawOffset : 0;
-
-    const result = auditStore.list({ limit, offset });
-    return c.json(result);
   });
 
   // =========================================================================
@@ -717,34 +721,25 @@ export const createAdminApiRoutes = (
     const rolesActive = extractTotal(rolesResult);
 
     // Fetch pending lookup requests from social-care backend
-    let pendingCount = 0;
-    try {
-      const requestsResult = await remoteClient.fetch({
-        baseUrl: config.apiBaseUrl,
-        path: "/api/v1/dominios/requests",
-        method: "GET",
-        accessToken: session.accessToken,
-        actorId: session.userSub,
-      });
-      if (requestsResult.ok && requestsResult.value.body) {
-        const reqBody = requestsResult.value.body as { data?: unknown[] };
-        if (Array.isArray(reqBody?.data)) {
-          pendingCount = reqBody.data.filter(
-            (item: unknown) =>
-              typeof item === "object" && item !== null && (item as Record<string, unknown>).status === PENDING_REQUEST_STATUS,
-          ).length;
-        }
-      }
-    } catch {
-      // Stats should not break if one sub-fetch fails — default to 0
-    }
+    const requestsResult = await remoteClient.fetch({
+      baseUrl: config.apiBaseUrl,
+      path: "/api/v1/dominios/requests",
+      method: "GET",
+      accessToken: session.accessToken,
+      actorId: session.userSub,
+    });
+
+    const pendingCount = requestsResult.ok && requestsResult.value.body
+      ? extractPendingCount(requestsResult.value.body)
+      : 0;
 
     return c.json({
       data: {
         totalPeople: peopleTotal,
         activeRoles: rolesActive,
         pendingRequests: pendingCount,
-        recentAuditCount: auditStore.count(),
+        recentAuditCount: 0,
+        health: (peopleResult.ok && rolesResult.ok) ? "ok" as const : "partial" as const,
       },
     });
   });

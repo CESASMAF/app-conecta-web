@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Conecta ACDG — [NOME DA TELA]</title>
+
+<!-- ============================================================
+     FONTES — Satoshi (UI), Playfair Display (decorativa), Erode (inputs)
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,300;1,400&display=swap" rel="stylesheet" />
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&f[]=erode@300,400,500,600,700&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   DESIGN TOKENS — Conecta ACDG (Sage Garden)
+   GERADO AUTOMATICAMENTE por: deno task gen-starter
+   NÃO EDITE MANUALMENTE — edite src/client/styles/tokens.ts
+
+   REGRA: USE APENAS var(--nome) nos seus estilos.
+   NUNCA escreva um hex (#...) ou rgb() diretamente.
+   Se precisar de uma cor que não existe aqui, PEÇA ao dev
+   para adicionar no tokens.ts — não invente.
+   ============================================================ */
+:root {
+  /* Colors */
+  --color-background: #F2E2C4;
+  --color-background-dark: #172D48;
+  --color-surface: #FAF0E0;
+  --color-surface-light: #FFFBF4;
+  --color-card-alternate: #C8BBA4;
+  --color-text-primary: #261D11;
+  --color-text-on-dark: #F2E2C4;
+  --color-text-muted: rgba(38, 29, 17, 0.65);
+  --color-anti-flash: #EBEBEB;
+  --color-primary: #4F8448;
+  --color-danger: #A6290D;
+  --color-warning: #C9960A;
+  --color-input-line: rgba(38, 29, 17, 0.2);
+  --color-border-on-dark: #F2E2C4;
+
+  /* Spacing scale (use: var(--space-1) até var(--space-10)) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 40px;
+  --space-7: 48px;
+  --space-8: 56px;
+  --space-9: 64px;
+  --space-10: 72px;
+
+  /* Border radius */
+  --radius-pill: 100px;
+  --radius-panel: 24px;
+  --radius-card: 12px;
+  --radius-dropdown: 8px;
+  --radius-modal: 6px;
+  --radius-checkbox: 4px;
+  --radius-small: 3px;
+
+  /* Fonts */
+  --font-satoshi: Satoshi, sans-serif;
+  --font-playfair: Playfair Display, serif;
+  --font-erode: Erode, serif;
+
+  /* Font weights */
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Shadows */
+  --shadow-button: 2.5px 2.5px 5px 2px rgba(0,0,0,0.12), -1px -1px 4px rgba(0,0,0,0.06);
+  --shadow-card:   0 2px 8px rgba(0,0,0,0.08);
+  --shadow-modal:  0 24px 80px rgba(38, 29, 17, 0.2);
+
+  /* Breakpoints (referência — use em @media) */
+  /* Mobile: < 600px */
+  /* Tablet: 600px - 1199px */
+  /* Desktop: >= 1200px */
+}
+
+/* ============================================================
+   CSS RESET — idêntico à produção (app_layout.tsx)
+   NÃO MODIFIQUE este bloco.
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-satoshi);
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+::selection { background: var(--color-primary); color: #fff; }
+
+/* ============================================================
+   SEUS ESTILOS COMEÇAM AQUI
+
+   Dicas:
+   - Cores: var(--color-primary), var(--color-surface), etc.
+   - Espaçamento: var(--space-3), var(--space-4), etc.
+   - Bordas: var(--radius-card), var(--radius-pill), etc.
+   - Fontes: var(--font-satoshi), var(--font-playfair), var(--font-erode)
+   - Peso: var(--weight-bold), var(--weight-medium), etc.
+   - Sombras: var(--shadow-button), var(--shadow-card), var(--shadow-modal)
+
+   Breakpoints:
+   @media (max-width: 599px)  { /* Mobile */ }
+   @media (min-width: 600px)  { /* Tablet+ */ }
+   @media (min-width: 1200px) { /* Desktop */ }
+   ============================================================ */
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SEU PROTÓTIPO COMEÇA AQUI
+
+     Marque cada componente com data-component="NomeDoComponente"
+     Exemplo:
+
+     <header data-component="PageHeader">
+       <h1>Título da Página</h1>
+     </header>
+
+     <section data-component="FamilyMemberCard">
+       <div>Nome do membro</div>
+     </section>
+
+     Isso ajuda o dev a saber onde cortar os componentes.
+     ============================================================ -->
+
+
+
+</body>
+</html>

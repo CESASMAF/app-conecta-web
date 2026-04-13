@@ -1,6 +1,6 @@
 import type { FC } from "hono/jsx/dom"
 import { css, cx } from "hono/css"
-import { color, font, weight, space } from "../../../styles/tokens.ts"
+import { color, font, weight, alpha } from "../../../styles/tokens.ts"
 
 interface UnderlineInputProps {
   readonly label: string
@@ -14,49 +14,55 @@ interface UnderlineInputProps {
 const wrapperStyle = css`
   display: flex;
   flex-direction: column;
-  gap: ${space[1]};
+  gap: 0.375rem;
   width: 100%;
 `
 
 const labelStyle = css`
   font-family: ${font.satoshi};
-  font-size: 13px;
-  font-weight: ${weight.bold};
-  letter-spacing: 0.65px;
+  font-size: clamp(0.6875rem, 0.65rem + 0.2vw, 0.75rem);
+  font-weight: ${weight.semibold};
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: ${color.textMuted};
+  color: ${color.textSageSoft};
 `
 
 const inputStyle = css`
   border: none;
-  border-bottom: 1px solid ${color.inputLine};
-  padding: 8px 0;
+  border-bottom: 1.5px solid ${alpha(color.primary, 0.15)};
+  padding: clamp(0.5rem, 0.4rem + 0.4vw, 0.625rem) 0;
   font-family: ${font.satoshi};
-  font-size: 16px;
-  color: ${color.textPrimary};
+  font-size: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem);
+  color: ${color.textSagePrimary};
   background: transparent;
   outline: none;
   width: 100%;
-  transition: border-color 0.2s;
-  &:focus { border-bottom: 2px solid ${color.textPrimary}; }
+  transition: border-color 300ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:focus {
+    border-color: ${color.primary};
+  }
+
   &::placeholder {
-    color: ${color.textMuted};
-    font-family: ${font.playfair};
+    color: ${color.textSageSoft};
     font-style: italic;
-    font-weight: 300;
   }
 `
 
+const inputFilledStyle = css`
+  border-color: ${alpha(color.primary, 0.3)};
+`
+
 const inputErrorStyle = css`
-  border-bottom: 2px solid ${color.danger};
-  &:focus { border-bottom: 2px solid ${color.danger}; }
+  border-bottom: 2px solid ${color.dangerAlt};
+  &:focus { border-bottom: 2px solid ${color.dangerAlt}; }
 `
 
 const errorTextStyle = css`
   font-family: ${font.satoshi};
-  font-size: 11px;
-  color: ${color.danger};
-  margin-top: ${space[1]};
+  font-size: clamp(0.6875rem, 0.65rem + 0.15vw, 0.75rem);
+  color: ${color.dangerAlt};
+  margin-top: 0.25rem;
 `
 
 const disabledStyle = css`
@@ -69,11 +75,15 @@ export const UnderlineInput: FC<UnderlineInputProps> = ({ label, value, onChange
   <div class={cx(wrapperStyle, disabled ? disabledStyle : undefined)}>
     <label class={labelStyle}>{label}</label>
     <input
-      class={cx(inputStyle, error ? inputErrorStyle : undefined)}
+      class={cx(
+        inputStyle,
+        error ? inputErrorStyle : value ? inputFilledStyle : undefined,
+      )}
       type={type ?? "text"}
       value={value}
       onInput={(e) => onChange((e.target as HTMLInputElement).value)}
       disabled={disabled}
+      aria-label={label}
     />
     {error && <span class={errorTextStyle}>{error}</span>}
   </div>
