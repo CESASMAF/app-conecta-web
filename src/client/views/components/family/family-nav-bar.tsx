@@ -1,10 +1,8 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { color, font, weight } from "../../../styles/tokens.ts"
+import { color, font } from "../../../styles/tokens.ts"
 
-interface FamilyNavBarProps {
-  readonly lastName: string
-}
+type FamilyNavBarProps = Record<string, never>
 
 const backLink = css`
   display: inline-flex;
@@ -16,7 +14,7 @@ const backLink = css`
   text-decoration: none;
   cursor: pointer;
   transition: color 150ms ease;
-  margin-bottom: ${color.textSageMuted ? "1.5rem" : "1.5rem"};
+  margin-bottom: 1.5rem;
 
   &:hover {
     color: ${color.textSageSecondary};
@@ -24,8 +22,8 @@ const backLink = css`
   }
 `
 
-export const FamilyNavBar: FC<FamilyNavBarProps> = ({ lastName }) => (
-  <a href="/social-care" class={backLink} aria-label="Voltar para lista de familias">
-    &#8592; Voltar para Familias
+export const FamilyNavBar: FC<FamilyNavBarProps> = () => (
+  <a href="/social-care" class={backLink} aria-label="Voltar para lista de fam\u00edlias">
+    &#8592; Voltar para Fam\u00edlias
   </a>
 )

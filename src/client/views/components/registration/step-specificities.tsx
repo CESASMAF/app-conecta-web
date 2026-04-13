@@ -1,5 +1,5 @@
 import type { FC } from "hono/jsx/dom"
-import { css, cx } from "hono/css"
+import { css } from "hono/css"
 import { color, font, weight, alpha } from "../../../styles/tokens.ts"
 import { UnderlineInput } from "../ui/underline-input.tsx"
 import type { WizardState } from "../../../viewmodels/registration/types.ts"
@@ -113,11 +113,13 @@ export const StepSpecificities: FC<StepSpecificitiesProps> = ({ specificity, err
       />
     </div>
     <div class={fullCol}>
-      <label class={fieldLabelStyle}>Observacoes</label>
+      <label class={fieldLabelStyle}>Observa\u00e7\u00f5es</label>
       <textarea
         class={textareaStyle}
-        placeholder="Informacoes complementares sobre especificidades..."
-        aria-label="Observacoes sobre especificidades"
+        placeholder="Informa\u00e7\u00f5es complementares sobre especificidades..."
+        aria-label="Observa\u00e7\u00f5es sobre especificidades"
+        value={specificity.observations}
+        onInput={(e) => onUpdate("observations", (e.target as HTMLTextAreaElement).value)}
       />
     </div>
   </div>

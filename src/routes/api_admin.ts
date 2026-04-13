@@ -23,17 +23,6 @@ export type AdminRoutesDeps = Readonly<{
 // Proxy helpers (duplicated from api.ts to avoid touching stable code)
 // ---------------------------------------------------------------------------
 
-const toJsonBody = (
-  body: unknown,
-): Record<string, unknown> | readonly unknown[] | null => {
-  if (body === null || body === undefined) return null;
-  // Safe: Array.isArray narrows to unknown[], cast adds readonly
-  if (Array.isArray(body)) return body as readonly unknown[];
-  // Safe: typeof + null check narrows to object, cast adds index signature
-  if (typeof body === "object") return body as Record<string, unknown>;
-  return null;
-};
-
 /** Wraps backend response body in { data: ... } for consistent client consumption. */
 const toDataResponse = (
   body: unknown,

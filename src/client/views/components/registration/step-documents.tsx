@@ -20,10 +20,6 @@ const gridStyle = css`
   }
 `
 
-const fullCol = css`
-  grid-column: 1 / -1;
-`
-
 const sectionTitleStyle = css`
   grid-column: 1 / -1;
   font-family: ${font.satoshi};
@@ -68,12 +64,6 @@ const formatDate = (raw: string): string => {
 const unformat = (value: string): string => value.replace(/\D/g, "")
 
 export const StepDocuments: FC<StepDocumentsProps> = ({ documents, errors, onUpdate }) => {
-  const hasGlobalError = errors.get("cpf") === undefined
-    && errors.get("nis") === undefined
-    && errors.get("rgNumber") === undefined
-    && errors.size > 0
-    && errors.has("documents")
-
   return (
     <div class={gridStyle}>
       {errors.get("documents") && (

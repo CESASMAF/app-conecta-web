@@ -48,8 +48,8 @@ app.use("*", async (c, next) => {
 // securityHeaders -> serveStatic -> csrf -> session -> fetchMetadata -> authGuard
 // ---------------------------------------------------------------------------
 
-app.use("/prototypes/*", serveStatic({ root: "./" }));
 app.use("*", securityHeaders());
+app.use("/prototypes/*", serveStatic({ root: "./" }));
 app.use("/static/*", serveStatic({ root: "./" }));
 app.use("*", csrf());
 app.use("*", sessionMiddleware());

@@ -1,6 +1,6 @@
 import type { FC } from "hono/jsx/dom"
 import { css, keyframes } from "hono/css"
-import { color, font, weight, alpha } from "../../../styles/tokens.ts"
+import { color, font, weight } from "../../../styles/tokens.ts"
 import type { FamilyMemberModel } from "../../../viewmodels/family-composition/types.ts"
 import { FamilyMemberRow } from "./family-member-row.tsx"
 
@@ -37,7 +37,7 @@ const headerStyle = css`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: ${alpha(color.primary, 0) ? "1.5rem" : "1.5rem"};
+  margin-bottom: 1.5rem;
 `
 
 const titleStyle = css`

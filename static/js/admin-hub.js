@@ -108,7 +108,7 @@ var yo=Object.defineProperty;var So=(e,t)=>{for(var o in t)yo(e,o,{get:t[o],enum
   margin: 0 ${m[3]};
   background: ${d.warning}1a;
   color: ${d.warning};
-  border-radius: ${R.sm};
+  border-radius: ${R.small};
   font-family: ${b.satoshi};
   font-size: 0.875rem;
   @media (min-width: ${I.mobile}px) {

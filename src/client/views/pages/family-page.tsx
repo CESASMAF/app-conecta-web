@@ -192,7 +192,7 @@ export const FamilyPage: FC<FamilyPageProps> = ({ patientId }) => {
       <div class={appLayout}>
         <AppSidebar userName="Davi Franklin" userInitials="DF" familyCount={42} activeItem="familias" />
         <main class={mainContent}>
-          <FamilyNavBar lastName={lastName} />
+          <FamilyNavBar />
           {state.error && <FamilyErrorBanner message={state.error} />}
           <FamilyHeader
             memberCount={state.members.length}

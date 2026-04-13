@@ -25,7 +25,7 @@ const warningStyle = css`
   margin: 0 ${space[3]};
   background: ${color.warning}1a;
   color: ${color.warning};
-  border-radius: ${radius.sm};
+  border-radius: ${radius.small};
   font-family: ${font.satoshi};
   font-size: 0.875rem;
   @media (min-width: ${breakpoint.mobile}px) {

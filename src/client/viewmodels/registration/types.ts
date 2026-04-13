@@ -63,6 +63,7 @@ export type WizardState = Readonly<{
   specificity: Readonly<{
     selectedIdentity: string
     description: string
+    observations: string
   }>
   // Step 6: Ingresso
   intake: Readonly<{
@@ -132,6 +133,7 @@ export const initialState: WizardState = {
   specificity: {
     selectedIdentity: "",
     description: "",
+    observations: "",
   },
   intake: {
     ingressType: "",

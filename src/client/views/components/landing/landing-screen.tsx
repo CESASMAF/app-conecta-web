@@ -43,7 +43,7 @@ const contentStyle = css`
 `
 
 export const LandingScreen: FC<LandingScreenProps> = ({ alert, onLogin, loading }) => (
-  <main class={screenStyle} aria-label="Pagina de login">
+  <main class={screenStyle} aria-label="P\u00e1gina de login">
     <div class={bodyOverride} />
     <LandingOrbs />
     <div class={contentStyle}>

@@ -95,7 +95,7 @@ var kr=Object.defineProperty;var $r=(e,t)=>{for(var r in t)kr(e,r,{get:t[r],enum
   max-width: min(90%, 24rem);
   text-align: center;
   margin: 0;
-`,er=()=>i("p",{class:Co,children:"Plataforma integrada de assistencia e cuidado social para gestao de familias e acompanhamento comunitario"});var Ao=L`
+`,er=()=>i("p",{class:Co,children:"Plataforma integrada de assist\\u00eancia e cuidado social para gest\\u00e3o de fam\\u00edlias e acompanhamento comunit\\u00e1rio"});var Ao=L`
   from { opacity: 0; transform: translateY(1.5rem); }
   to { opacity: 1; transform: translateY(0); }
 `,To=m`
@@ -188,7 +188,7 @@ var kr=Object.defineProperty;var $r=(e,t)=>{for(var r in t)kr(e,r,{get:t[r],enum
   font-size: clamp(0.6875rem, 0.625rem + 0.25vw, 0.8125rem);
   color: ${l.textSageSoft};
   letter-spacing: 0.5px;
-`,nr=()=>i("footer",{class:Fo,children:"ACDG \u2014 Assistencia e Cuidado em Desenvolvimento e Gestao"});var Ho=m`
+`,nr=()=>i("footer",{class:Fo,children:"ACDG \u2014 Assist\\u00eancia e Cuidado em Desenvolvimento e Gest\\u00e3o"});var Ho=m`
   ${ce}
   background: linear-gradient(155deg, ${l.bgBase} 0%, ${l.bgWarm} 25%, ${l.bgSage} 55%, ${l.bgSageDeep} 100%);
   background-attachment: fixed;
@@ -207,7 +207,7 @@ var kr=Object.defineProperty;var $r=(e,t)=>{for(var r in t)kr(e,r,{get:t[r],enum
   padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
   max-width: min(90%, 32rem);
   animation: ${E} 800ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
-`,ir=({alert:e,onLogin:t,loading:r})=>i("main",{class:Ho,"aria-label":"Pagina de login",children:[i("div",{class:Uo}),i(Zt,{}),i("div",{class:zo,children:[i(Jt,{}),i(Qt,{}),i(er,{}),e?i(rr,{type:e.type,title:e.title,description:e.description}):null,i(or,{onClick:t,loading:r})]}),i(nr,{})]});var Vo=L`
+`,ir=({alert:e,onLogin:t,loading:r})=>i("main",{class:Ho,"aria-label":"P\\u00e1gina de login",children:[i("div",{class:Uo}),i(Zt,{}),i("div",{class:zo,children:[i(Jt,{}),i(Qt,{}),i(er,{}),e?i(rr,{type:e.type,title:e.title,description:e.description}):null,i(or,{onClick:t,loading:r})]}),i(nr,{})]});var Vo=L`
   to { transform: rotate(360deg); }
 `,Ko=m`
   width: 32px;
