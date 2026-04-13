@@ -32,14 +32,16 @@ deno test --coverage=cov/ && deno coverage cov/
 |---------|----------|
 | Type check — domain file | domain-modeler |
 | Type check — application file | application-orchestrator |
-| Type check — viewmodel file | viewmodel-engineer |
+| Type check — presenter file | viewmodel-engineer |
+| Type check — data file | infra-implementer |
+| Type check — contract/mock file | design-companion |
 | Type check — view file | view-implementer |
 | Type check — adapter/route/middleware file | infra-implementer |
 | Lint issue | responsible implementer (by file path) |
 | Format issue | responsible implementer |
 | Test failure — domain test | domain-modeler |
 | Test failure — app test | application-orchestrator |
-| Test failure — viewmodel test | viewmodel-engineer |
+| Test failure — presenter test | viewmodel-engineer |
 | Test failure — view test | view-implementer |
 | Test failure — route/middleware test | infra-implementer |
 | Test error (crash) | test-writer |

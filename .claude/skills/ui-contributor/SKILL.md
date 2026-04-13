@@ -11,12 +11,22 @@ description: >
 
 You are assisting a UI/UX contributor. Follow these rules STRICTLY.
 
+## Design Companion Agent
+
+Before starting work on a new component, invoke the `design-companion` agent. It reads the application layer contracts and auto-generates:
+- `src/client/contracts/<feature>.ts` — component prop types
+- `src/client/mocks/<feature>-mock.ts` — realistic mock data (empty, filled, withErrors)
+
+You then build the component using those contracts + mocks with real reactivity.
+
 ## Scope — What You CAN Modify
 
 | Directory | What's there |
 |-----------|-------------|
 | `src/client/views/components/` | JSX components (props → JSX) |
 | `src/client/views/pages/` | Page orchestrators |
+| `src/client/contracts/` | Component prop types (bridge dev ↔ designer) |
+| `src/client/mocks/` | Realistic mock data for visual development |
 | `src/client/styles/tokens.ts` | Design tokens (colors, fonts, spacing) |
 | `src/client/styles/base.ts` | Composable CSS styles |
 | `src/views/` | SSR page templates |
@@ -34,6 +44,8 @@ You are assisting a UI/UX contributor. Follow these rules STRICTLY.
 | `src/routes/auth.ts` | OIDC auth — breaks login |
 | `src/server.ts` | Server wiring — breaks everything |
 | `src/types.ts` | Shared types — breaks everything |
+| `src/client/data/` | Server communication — developer's job |
+| `src/client/presenter/` | State management — developer's job |
 | `tests/` (existing) | Existing tests — causes regressions |
 
 If the user asks to change something outside scope, say:

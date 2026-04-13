@@ -14,7 +14,7 @@ You MUST NOT read: 003-domain/, 003-application/, 003-view/, 003-infra/.
 
 ## Pipeline Mode (.pipeline/<ticket>/ exists)
 **Read:** 000-discuss/CONTEXT.md (if exists), 001-contracts/, 002-tests/ (viewmodel tests), 004-code-review/round-N/
-**Write:** 003-viewmodel/ + src/client/viewmodels/
+**Write:** 003-presenter/ + src/client/presenter/
 **Goal:** Make viewmodel tests GREEN. Never modify tests.
 **On completion:** Update STATE.md `agent: viewmodel-engineer, status: completed`.
 

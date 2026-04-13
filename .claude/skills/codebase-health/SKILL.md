@@ -34,22 +34,30 @@ Compare against CLAUDE.md tree. Flag discrepancies.
 
 CLAUDE.md declares strict import boundaries:
 
-| From \ To | domain | application | adapters | client/services | client/viewmodels | client/views |
-|-----------|:------:|:-----------:|:--------:|:---------------:|:-----------------:|:------------:|
-| domain | OK | X | X | X | X | X |
-| application | OK | OK | X | X | X | X |
-| adapters | OK | OK | OK | X | X | X |
-| client/services | X | X | X | OK | X | X |
-| client/viewmodels | X | X | X | X | OK | X |
-| client/views (pages) | X | X | X | OK | OK | OK |
-| client/views (components) | X | X | X | X | X | OK |
+### Server-Side
+| From \ To | domain | application | adapters |
+|-----------|:------:|:-----------:|:--------:|
+| domain | OK | X | X |
+| application | OK | OK | X |
+| adapters | OK | OK | OK |
+
+### Client-Side
+| From \ To | contracts | data | presenter | views/pages | views/components | mocks |
+|-----------|:---------:|:----:|:---------:|:-----------:|:----------------:|:-----:|
+| contracts | OK | X | X | X | X | X |
+| data | X | OK | X | X | X | X |
+| presenter | X | X | OK | X | X | X |
+| views/pages | OK | OK | OK | OK | OK | X |
+| views/components | OK | X | X | X | OK | X |
+| mocks | OK | X | X | X | X | OK |
 
 **Scan for violations:**
 - Domain files importing from application, adapters, or client
 - Application files importing from adapters or client
-- Client components importing from services or viewmodels
+- Client components importing from data/ or presenter/
 - Client code importing from `hono/jsx` (should be `hono/jsx/dom`)
 - Server code importing from `hono/jsx/dom` (should be `hono/jsx`)
+- Mocks importing from anything other than contracts/
 
 ### 3. Prohibited Patterns
 
@@ -64,8 +72,8 @@ Scan for patterns that CLAUDE.md prohibits:
 | domain/ | `any` type | `: any[;\s,)]` or `as any[;\s,)]` | Anchored to avoid `analytics` etc |
 | application/ | `throw` | `^\s*throw ` | Anchored to line start |
 | application/ | `class` | `^export\s+(default\s+)?class ` | Only class declarations |
-| client/viewmodels/ | `fetch(` | `[^a-zA-Z]fetch\(` | Actual fetch calls, not `prefetch` |
-| client/viewmodels/ | `useEffect` | `\buseEffect\(` | With paren — actual hook calls |
+| client/presenter/ | `fetch(` | `[^a-zA-Z]fetch\(` | Actual fetch calls, not `prefetch` |
+| client/presenter/ | `useEffect` | `\buseEffect\(` | With paren — actual hook calls |
 | client/views/components/ | `fetch(` | `[^a-zA-Z]fetch\(` | Actual fetch calls |
 | client/views/components/ | `useReducer` | `\buseReducer\(` | With paren — actual hook calls |
 | client/views/components/ | `useEffect` | `\buseEffect\(` | With paren — actual hook calls |

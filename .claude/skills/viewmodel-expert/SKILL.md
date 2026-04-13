@@ -135,7 +135,7 @@ type LoadingState<T> =
 
 ## Folder Structure
 ```
-src/client/viewmodels/
+src/client/presenter/
   <feature>/
     types.ts           — State type + Action union + initialState
     reducer.ts         — Reducer function (pure)

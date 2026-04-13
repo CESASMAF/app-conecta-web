@@ -8,7 +8,7 @@
 All requests go to same-origin `/api/v1/*`. The Hono BFF handles auth.
 
 ```typescript
-// src/client/services/base-client.ts
+// src/client/data/services/base-client.ts
 const headers = {
   "Content-Type": "application/json",
   "X-Requested-With": "XMLHttpRequest",  // Required by fetchMetadata guard

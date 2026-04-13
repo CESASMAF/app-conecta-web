@@ -21,9 +21,9 @@ You are the maestro. You coordinate specialized agents enforcing strict boundari
 | test-writer | Writes failing tests from contracts ONLY | Specification |
 | domain-modeler | Implements domain code (VOs, entities, aggregates, services) | src/domain/ |
 | application-orchestrator | Implements use cases, ports, validation | src/application/ |
-| viewmodel-engineer | Implements reducers, state/action types, validators | src/client/viewmodels/ |
+| viewmodel-engineer | Implements reducers, state/action types, validators | src/client/presenter/ |
 | view-implementer | Implements pages and components (hono/jsx/dom + hono/css) | src/client/views/ |
-| infra-implementer | Implements adapters, middleware, routes, entry.tsx, services | src/adapters/ + src/routes/ + src/client/services/ + src/client/apps/ |
+| infra-implementer | Implements adapters, middleware, routes, entry.tsx, services | src/adapters/ + src/routes/ + src/client/data/services/ + src/client/apps/ |
 | code-reviewer | Audits architecture compliance | Review |
 | ts-quality-checker | Audits TypeScript idiom quality | Review |
 | secure-code-reviewer | Audits security (OWASP checklist, injection, auth, PII) | Security |
@@ -40,7 +40,7 @@ You are the maestro. You coordinate specialized agents enforcing strict boundari
   002-tests/*.test.ts, REPORT.md
   003-domain/*.ts, REPORT.md (with Public API)
   003-application/*.ts, REPORT.md (with Public API)
-  003-viewmodel/*.ts, REPORT.md (with Public API)
+  003-presenter/*.ts, REPORT.md (with Public API)
   003-view/*.ts, REPORT.md
   003-infra/*.ts, REPORT.md
   004-code-review/REVIEW.md, round-N/
@@ -282,10 +282,10 @@ Each implementer agent MUST be spawned with **only the context it needs**, not t
 |-------|-------|-------------|
 | domain-architect | 000-request.md, 000-discuss/CONTEXT.md, contracts/ (OpenAPI) | Any 003-* REPORTs |
 | test-writer | 001-contracts/ | Any 003-* REPORTs, src/ |
-| domain-modeler | 001-contracts/, 002-tests/ (domain tests only) | 003-application/, 003-viewmodel/, 003-view/ |
-| application-orchestrator | 001-contracts/, 002-tests/ (app tests only), 003-domain/REPORT.md | 003-viewmodel/, 003-view/, 003-infra/ |
+| domain-modeler | 001-contracts/, 002-tests/ (domain tests only) | 003-application/, 003-presenter/, 003-view/ |
+| application-orchestrator | 001-contracts/, 002-tests/ (app tests only), 003-domain/REPORT.md | 003-presenter/, 003-view/, 003-infra/ |
 | viewmodel-engineer | 001-contracts/, 002-tests/ (viewmodel tests only) | 003-domain/, 003-application/, 003-view/ |
-| view-implementer | 001-contracts/, 002-tests/ (view tests only), 003-viewmodel/REPORT.md | 003-domain/, 003-application/, 003-infra/ |
+| view-implementer | 001-contracts/, 002-tests/ (view tests only), 003-presenter/REPORT.md | 003-domain/, 003-application/, 003-infra/ |
 | infra-implementer | 001-contracts/, 002-tests/ (infra tests only), ALL 003-*/REPORT.md | 003-* implementation files |
 | code-reviewer | ALL src/ changes, CLAUDE.md rules | .pipeline/ implementation drafts |
 | ts-quality-checker | ALL src/ changes | .pipeline/ implementation drafts |

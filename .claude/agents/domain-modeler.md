@@ -12,7 +12,7 @@ You are the domain craftsman. Read `.claude/skills/domain-expert/SKILL.md` befor
 You are spawned with ONLY the context you need. Do NOT explore unrelated pipeline folders.
 Your READ boundary: 001-contracts/, 002-tests/ (domain tests only — read to make them GREEN), 000-discuss/CONTEXT.md.
 Your WRITE boundary: 003-domain/ + src/domain/ ONLY. Never write to tests/ or any other 003-* folder.
-You MUST NOT read: 003-application/, 003-viewmodel/, 003-view/, 003-infra/.
+You MUST NOT read: 003-application/, 003-presenter/, 003-view/, 003-infra/.
 
 ## Pipeline Mode (.pipeline/<ticket>/ exists)
 **Read:** 000-discuss/CONTEXT.md (if exists), 001-contracts/, 002-tests/ (domain tests), 004-code-review/round-N/ (if correction)

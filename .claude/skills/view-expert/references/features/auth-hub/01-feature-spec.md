@@ -49,7 +49,7 @@ O Page é um orchestrator puro: lê state, despacha actions, e renderiza o scree
 ## ViewModel (hubReducer)
 
 ```typescript
-// src/client/viewmodels/auth-hub/types.ts
+// src/client/presenter/auth-hub/types.ts
 
 type HubScreen = 'landing' | 'loading' | 'hub' | 'redirect'
 type HubLoadingContext = 'authenticating' | 'loading-permissions' | 'entering-app'
@@ -86,7 +86,7 @@ type AppInfo = Readonly<{
 ### Actions
 
 ```typescript
-// src/client/viewmodels/auth-hub/types.ts
+// src/client/presenter/auth-hub/types.ts
 
 type HubAction =
   | Readonly<{ type: 'INIT_SESSION_CHECK' }>
@@ -106,7 +106,7 @@ type HubAction =
 ### Reducer (esqueleto)
 
 ```typescript
-// src/client/viewmodels/auth-hub/reducer.ts
+// src/client/presenter/auth-hub/reducer.ts
 
 function hubReducer(state: HubState, action: HubAction): HubState {
   switch (action.type) {

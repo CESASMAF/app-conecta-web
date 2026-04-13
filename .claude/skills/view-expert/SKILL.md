@@ -44,9 +44,9 @@ Pages are **orchestrators** — they wire ViewModel + Service + Components. Max 
 
 ```tsx
 import { useReducer, useEffect } from "hono/jsx"
-import { wizardReducer, initialState } from "../../viewmodels/registration/reducer.ts"
-import { loadDraft, saveDraft } from "../../viewmodels/registration/persistence.ts"
-import { patientService } from "../../services/patient-service.ts"
+import { wizardReducer, initialState } from "../../presenter/registration/reducer.ts"
+import { loadDraft, saveDraft } from "../../presenter/registration/persistence.ts"
+import { patientService } from "../../data/services/patient-service.ts"
 import { StepPersonalData } from "../components/registration/step-personal-data.tsx"
 import { StepIndicator } from "../components/ui/step-indicator.tsx"
 
@@ -206,10 +206,17 @@ src/client/views/
 ```
 
 ## Import Boundaries
-- Components import from: `hono/jsx`, `hono/css`, `../styles/tokens.ts`, other components
-- Components NEVER import from: `../../services/`, `../../viewmodels/`, `hono` (server)
-- Pages import from: `hono/jsx`, components, viewmodels, services
+- Components import from: `hono/jsx`, `hono/css`, `../styles/tokens.ts`, `../../contracts/`, other components
+- Components NEVER import from: `../../data/`, `../../presenter/`, `hono` (server)
+- Pages import from: `hono/jsx`, contracts, components, presenter, data/services
+- Mocks import ONLY from: `../../contracts/`
 - Client code uses `hono/jsx/dom`. Server code uses `hono/jsx`. NEVER mix.
+
+## Contracts & Mocks (Design Companion workflow)
+- **Contracts** (`src/client/contracts/`) define component prop types — the handshake between developer and designer
+- **Mocks** (`src/client/mocks/`) provide realistic test data with 3+ scenarios (empty, filled, withErrors)
+- Components MUST satisfy contract prop types
+- When a contract exists for a component, use it as the props type
 
 ## Checklist
 - [ ] Pages max ~100 lines, only orchestrate (reducer + service + components)

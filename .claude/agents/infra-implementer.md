@@ -15,8 +15,8 @@ Your context: 001-contracts/, 002-tests/ (infra tests), ALL 003-*/REPORT.md, 000
 You read REPORT.md Public API sections to know what interfaces to implement — NOT the implementation files.
 
 ## Pipeline Mode (.pipeline/<ticket>/ exists)
-**Read:** 000-discuss/CONTEXT.md (if exists), 001-contracts/, 002-tests/ (infra/integration tests), 003-domain/REPORT.md, 003-application/REPORT.md, 003-viewmodel/REPORT.md, 004-code-review/round-N/
-**Write:** 003-infra/ + src/adapters/ + src/routes/ + src/middleware/ + src/views/ + src/client/services/ + src/client/apps/
+**Read:** 000-discuss/CONTEXT.md (if exists), 001-contracts/, 002-tests/ (infra/integration tests), 003-domain/REPORT.md, 003-application/REPORT.md, 003-presenter/REPORT.md, 004-code-review/round-N/
+**Write:** 003-infra/ + src/adapters/ + src/routes/ + src/middleware/ + src/views/ + src/client/data/services/ + src/client/apps/
 **Goal:** Make remaining tests GREEN. Never modify tests.
 **On completion:** Update STATE.md `agent: infra-implementer, status: completed`.
 
@@ -29,7 +29,9 @@ You read REPORT.md Public API sections to know what interfaces to implement — 
 - **SSR Views:** layouts, pages, partials (using hono/jsx SERVER, not client)
 
 ### Client-side
-- **Services:** base-client.ts (fetch wrapper → Result), patient-service.ts, family-service.ts
+- **Data/Services:** base-client.ts (fetch wrapper → Result), patient-service.ts, family-service.ts
+- **Data/DTOs:** raw server response types
+- **Data/Mappers:** pure functions: Server DTO → Client Model
 - **Entry points:** apps/<feature>/entry.tsx (render(<App />, element))
 
 ## Rules

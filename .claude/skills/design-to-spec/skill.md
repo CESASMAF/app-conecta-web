@@ -257,11 +257,16 @@ Deve conter:
 ## Page Structure
 (tree ASCII: Page orchestrator → useReducer → useEffect → componentes)
 
-## ViewModel (reducer)
+## Presenter (reducer)
 - State type completo (Readonly<{...}>)
 - Action discriminated union completa
 - Reducer esqueleto (switch/case com transições de estado)
 - Initial state
+- Computations (derived data functions)
+
+## Contracts (component props)
+- Contract types for each component (from src/application/ Input types)
+- Mock scenarios (empty, filled, withErrors)
 
 ## App Registry / Data Models (se aplicável)
 (tipos TypeScript dos dados que a tela consome)
@@ -490,6 +495,8 @@ Você:
 - **Design:** Inspirado em Apple Liquid Glass (WWDC 2025), paleta quente
 - **Cores:** #F2E2C4 (bg), #172D48 (dark), #FAF0E0 (surface), #4F8448 (primary), #A6290D (danger), #C9960A (warning)
 - **Fontes:** Satoshi (UI), Playfair Display (decorativo, sempre italic), Erode (inputs)
-- **Pipeline:** 10 agentes especializados, comunicação via .pipeline/<ticket>/
+- **Client Architecture:** 3 camadas (data/ → presenter/ → views/) + contracts/ + mocks/
+- **Design Companion:** Agent que gera contracts + mocks a partir de src/application/
+- **Pipeline:** 10+ agentes especializados, comunicação via .pipeline/<ticket>/
 - **Regras globais:** No throw (Result<T,E>), no class/this, Readonly, branded types, import boundaries
 - **Telas existentes:** Home (family list), Registration (7-step wizard), Family Composition (table + modals), Auth Hub (landing + app selector)

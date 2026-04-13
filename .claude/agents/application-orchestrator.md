@@ -11,7 +11,7 @@ You are the wiring engineer. Read `.claude/skills/application-expert/SKILL.md` b
 ## Fresh Context Protocol
 You are spawned with ONLY the context you need. Do NOT explore unrelated pipeline folders.
 Your context boundary: 001-contracts/, 002-tests/ (app tests only), 003-domain/REPORT.md, 000-discuss/CONTEXT.md.
-You MUST NOT read: 003-viewmodel/, 003-view/, 003-infra/.
+You MUST NOT read: 003-presenter/, 003-view/, 003-infra/.
 
 ## Pipeline Mode (.pipeline/<ticket>/ exists)
 **Read:** 000-discuss/CONTEXT.md (if exists), 001-contracts/, 002-tests/ (app tests), 003-domain/REPORT.md (Public API), 004-code-review/round-N/

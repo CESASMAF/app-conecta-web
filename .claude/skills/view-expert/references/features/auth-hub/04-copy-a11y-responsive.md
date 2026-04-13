@@ -9,7 +9,7 @@
 Todas as strings da UI. Código em inglês, UI em português brasileiro.
 
 ```typescript
-// src/client/viewmodels/auth-hub/strings.ts
+// src/client/presenter/auth-hub/strings.ts
 
 export const AUTH_HUB_STRINGS = {
   // ── Landing ──────────────────────────────────────────────
