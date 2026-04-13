@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Conecta — Trabalho e Rendimento</title>
+<style>
+@import url('https://api.fontshare.com/v2/css?f[]=erode@400,500,600,700&f[]=satoshi@400,500,600,700&display=swap');
+
+/* ===================================================================
+   DESIGN TOKENS — Sage Garden
+   =================================================================== */
+:root {
+  --bg-base: #F8F3EC;
+  --bg-warm: #F0E8DC;
+  --bg-sage: #E2E8DF;
+  --bg-sage-deep: #D4DDD0;
+  --bg-card: rgba(255,255,255,0.45);
+  --bg-card-hover: rgba(255,255,255,0.65);
+  --bg-card-border: rgba(255,255,255,0.6);
+  --bg-card-border-hover: rgba(79,132,72,0.2);
+
+  --text-primary: #1E2B1A;
+  --text-secondary: #3D5235;
+  --text-muted: #6B7F65;
+  --text-soft: #4A5E44;
+  --text-label: #5A7154;
+
+  --green-primary: #4F8448;
+  --green-dark: #3D6A37;
+  --green-light: rgba(79,132,72,0.08);
+
+  --danger: #C4422B;
+  --danger-light: rgba(196,66,43,0.08);
+  --warning: #D4A017;
+  --warning-light: rgba(212,160,23,0.08);
+
+  --sidebar-width: 64px;
+
+  --font-display: 'Erode', Georgia, serif;
+  --font-body: 'Satoshi', system-ui, -apple-system, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+  --s6: 32px; --s7: 40px; --s8: 48px; --s9: 64px; --s10: 80px;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-pill: 100px;
+
+  --line: rgba(79,132,72,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::selection { background: var(--green-primary); color: #fff; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(79,132,72,0.2); border-radius: 3px; }
+
+/* ===================================================================
+   BACKGROUND
+   =================================================================== */
+.bg-gradient {
+  position: fixed; inset: 0; z-index: 0;
+  background: linear-gradient(155deg, var(--bg-base) 0%, var(--bg-warm) 25%, var(--bg-sage) 55%, var(--bg-sage-deep) 100%);
+}
+.bg-blob-1 {
+  position: fixed; top: -10%; right: 5%; width: 450px; height: 450px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,132,72,0.06) 0%, transparent 70%); z-index: 0;
+}
+.bg-blob-2 {
+  position: fixed; bottom: -15%; left: 10%; width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(180,160,100,0.04) 0%, transparent 70%); z-index: 0;
+}
+
+/* ===================================================================
+   LAYOUT
+   =================================================================== */
+.app { position: relative; z-index: 1; display: flex; min-height: 100vh; }
+
+/* ===================================================================
+   SIDEBAR
+   =================================================================== */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-width);
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(79,132,72,0.08);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 0; z-index: 40;
+  transition: width var(--duration-normal) var(--ease-out);
+  overflow: hidden;
+}
+.sidebar:hover { width: 220px; }
+
+.sidebar-logo {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-family: var(--font-display); font-size: 16px; font-weight: 700;
+  margin-bottom: 8px; flex-shrink: 0;
+}
+.sidebar-brand {
+  font-family: var(--font-display); font-size: 14px; color: var(--text-secondary); font-weight: 600;
+  white-space: nowrap; opacity: 0; transform: translateX(-8px);
+  transition: all var(--duration-normal) var(--ease-out); margin-bottom: 32px;
+}
+.sidebar:hover .sidebar-brand { opacity: 1; transform: translateX(0); }
+
+.sidebar-nav { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 0 12px; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-radius: var(--r-sm); cursor: pointer;
+  transition: all var(--duration-fast) ease; text-decoration: none;
+  color: var(--text-muted); white-space: nowrap;
+}
+.sidebar-item:hover { background: var(--green-light); color: var(--text-secondary); }
+.sidebar-item.active { background: var(--green-light); color: var(--green-primary); }
+.sidebar-icon {
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 16px;
+}
+.sidebar-label {
+  font-size: 13px; font-weight: 500; opacity: 0; transform: translateX(-8px);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+.sidebar:hover .sidebar-label { opacity: 1; transform: translateX(0); }
+.sidebar-badge {
+  margin-left: auto; font-size: 11px; font-weight: 600;
+  background: var(--green-light); color: var(--green-primary);
+  padding: 2px 8px; border-radius: var(--r-pill);
+  opacity: 0; transition: opacity var(--duration-normal) var(--ease-out);
+}
+.sidebar:hover .sidebar-badge { opacity: 1; }
+
+.sidebar-footer { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 0 12px; width: 100%; }
+.sidebar-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-sage), var(--bg-sage-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--green-dark); flex-shrink: 0;
+}
+.sidebar-username {
+  font-size: 12px; color: var(--text-muted); white-space: nowrap;
+  opacity: 0; transition: opacity var(--duration-normal) var(--ease-out);
+}
+.sidebar:hover .sidebar-username { opacity: 1; }
+
+/* ===================================================================
+   MAIN CONTENT
+   =================================================================== */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 32px;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+.main-inner {
+  width: 100%;
+}
+
+/* ===================================================================
+   PAGE HEADER
+   =================================================================== */
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-muted); text-decoration: none;
+  transition: color var(--duration-fast) ease; cursor: pointer;
+  margin-bottom: var(--s5);
+}
+.back-link:hover { color: var(--text-secondary); text-decoration: underline; }
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 36px; font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.03em; line-height: 1;
+  margin-bottom: var(--s6);
+}
+
+/* ===================================================================
+   PATIENT NAV BAR
+   =================================================================== */
+.patient-bar {
+  display: flex; align-items: center; gap: var(--s5);
+  padding: var(--s5) var(--s6);
+  background: var(--bg-card);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--r-lg);
+  margin-bottom: var(--s5);
+}
+.patient-bar-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-sage), var(--bg-sage-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 600; color: var(--green-dark); flex-shrink: 0;
+}
+.patient-bar-info { flex: 1; }
+.patient-bar-name {
+  font-family: var(--font-display); font-size: 19px; font-weight: 600;
+  color: var(--text-primary);
+}
+.patient-bar-meta {
+  font-size: 13px; color: var(--text-muted); margin-top: 4px;
+}
+.patient-bar-badge {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; padding: 5px 14px; border-radius: var(--r-pill);
+  background: var(--green-light); color: var(--green-primary);
+}
+
+/* ===================================================================
+   CONTENT GRID — 2 columns
+   =================================================================== */
+.content-grid {
+  display: grid;
+  grid-template-columns: 5fr 3fr;
+  gap: var(--s5);
+  align-items: start;
+}
+.content-left {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+}
+.content-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+  position: sticky;
+  top: 40px;
+}
+
+/* ===================================================================
+   SECTION CARDS — glass morphism
+   =================================================================== */
+.section-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--r-xl);
+  padding: var(--s6) var(--s6);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  animation: containerFadeIn 0.6s var(--ease-out);
+}
+@keyframes containerFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--s5);
+}
+.section-title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 700;
+  color: var(--text-primary); letter-spacing: -0.02em;
+}
+.section-subtitle {
+  font-size: 13px; color: var(--text-secondary); margin-top: var(--s1);
+}
+.section-icon {
+  font-size: 20px; margin-right: var(--s2);
+}
+
+.content-right .section-title {
+  font-size: 18px;
+}
+
+/* ===================================================================
+   FORM FIELDS — underline style
+   =================================================================== */
+.form-group {
+  margin-bottom: var(--s5);
+}
+.form-group:last-child {
+  margin-bottom: 0;
+}
+.form-group-label {
+  font-size: 13px; font-weight: 600; text-transform: none;
+  letter-spacing: 0.2px; color: var(--text-soft);
+  margin-bottom: var(--s3); display: block;
+}
+
+.field-label {
+  font-size: 13px; font-weight: 600; text-transform: none;
+  letter-spacing: 0.2px; color: var(--text-soft);
+  display: block; margin-bottom: var(--s1);
+}
+
+.field-input {
+  background: transparent; border: none;
+  border-bottom: 1.5px solid rgba(79,132,72,0.15);
+  padding: 10px 0; font-family: var(--font-body); font-size: 15px;
+  color: var(--text-primary); outline: none;
+  transition: border-color var(--duration-normal) var(--ease-out); width: 100%;
+}
+.field-input::placeholder { color: var(--text-soft); font-style: italic; }
+.field-input:focus { border-color: var(--green-primary); }
+.field-input.filled { border-color: rgba(79,132,72,0.3); }
+.field-input.error { border-color: var(--danger); }
+.field-input[type="number"] {
+  -moz-appearance: textfield;
+}
+.field-input[type="number"]::-webkit-outer-spin-button,
+.field-input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none; margin: 0;
+}
+
+.field-error {
+  font-size: 12px; color: var(--danger); min-height: 0; margin-top: 4px;
+}
+.field-error:not(:empty) { min-height: 16px; }
+
+.field-select {
+  background: transparent; border: none;
+  border-bottom: 1.5px solid rgba(79,132,72,0.15);
+  padding: 10px 0; font-family: var(--font-body); font-size: 15px;
+  color: var(--text-primary); outline: none;
+  transition: border-color var(--duration-normal) var(--ease-out); width: 100%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%236B7F65' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  padding-right: 24px;
+}
+.field-select:focus { border-color: var(--green-primary); }
+.field-select.filled { border-color: rgba(79,132,72,0.3); }
+.field-select.error { border-color: var(--danger); }
+.field-select option { font-family: var(--font-body); }
+
+/* ===================================================================
+   TOGGLE SWITCH
+   =================================================================== */
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  user-select: none;
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-row:hover .toggle-label { color: var(--text-secondary); }
+
+.toggle-label {
+  font-size: 14px; font-weight: 500; color: var(--text-secondary);
+  transition: color var(--duration-fast) ease;
+  flex: 1;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 44px; height: 28px;
+  background: rgba(79,132,72,0.15);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background var(--duration-normal) var(--ease-out);
+  flex-shrink: 0;
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 24px; height: 24px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: transform var(--duration-normal) var(--ease-spring);
+}
+.toggle-switch[aria-checked="true"] {
+  background: var(--green-primary);
+}
+.toggle-switch[aria-checked="true"]::after {
+  transform: translateX(20px);
+}
+.toggle-switch:focus-visible {
+  outline: 2px solid var(--green-primary); outline-offset: 2px;
+}
+
+/* ===================================================================
+   ACCORDION
+   =================================================================== */
+.accordion-list {
+  display: flex; flex-direction: column; gap: var(--s3);
+}
+
+.accordion-card {
+  background: rgba(255,255,255,0.3);
+  border: 1.5px solid rgba(79,132,72,0.1);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  transition: border-color var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+.accordion-card.expanded {
+  border-color: rgba(79,132,72,0.2);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.accordion-header {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s4) var(--s5);
+  cursor: pointer; user-select: none;
+  transition: background var(--duration-fast) ease;
+}
+.accordion-header:hover {
+  background: rgba(255,255,255,0.3);
+}
+.accordion-header:focus-visible {
+  outline: 2px solid var(--green-primary); outline-offset: -2px;
+}
+
+.accordion-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-sage), var(--bg-sage-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--green-dark); flex-shrink: 0;
+}
+
+.accordion-info {
+  flex: 1; min-width: 0;
+}
+.accordion-name {
+  font-size: 15px; font-weight: 600; color: var(--text-primary);
+  display: flex; align-items: center; gap: var(--s2);
+}
+.accordion-relationship {
+  display: inline-flex; padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--green-light); color: var(--green-primary);
+  font-size: 11px; font-weight: 600;
+}
+
+.accordion-income-preview {
+  font-family: var(--font-display);
+  font-size: 15px; font-weight: 600; color: var(--text-secondary);
+  white-space: nowrap; flex-shrink: 0;
+  margin-right: var(--s2);
+}
+
+.accordion-chevron {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); flex-shrink: 0;
+  transition: transform var(--duration-normal) var(--ease-out);
+  font-size: 12px;
+}
+.accordion-card.expanded .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.accordion-body {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height var(--duration-slow) var(--ease-out),
+              opacity var(--duration-normal) var(--ease-out);
+}
+.accordion-card.expanded .accordion-body {
+  max-height: 400px; opacity: 1;
+}
+.accordion-body-inner {
+  padding: 0 var(--s5) var(--s5) var(--s5);
+  border-top: 1px solid var(--line);
+  padding-top: var(--s4);
+  display: flex; flex-direction: column; gap: var(--s4);
+}
+
+/* ===================================================================
+   BENEFIT CARDS
+   =================================================================== */
+.benefit-list {
+  display: flex; flex-direction: column; gap: var(--s3);
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height var(--duration-slow) var(--ease-out),
+              opacity var(--duration-normal) var(--ease-out),
+              margin var(--duration-normal) var(--ease-out);
+  margin-top: 0;
+}
+.benefit-list.open {
+  max-height: 1000px; opacity: 1;
+  margin-top: var(--s4);
+}
+
+.benefit-card {
+  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto;
+  gap: var(--s3); align-items: end;
+  padding: var(--s4);
+  background: rgba(255,255,255,0.3);
+  border: 1.5px solid rgba(79,132,72,0.1);
+  border-radius: var(--r-md);
+  animation: rowFadeIn var(--duration-slow) var(--ease-out) both;
+}
+.benefit-card .field-input,
+.benefit-card .field-select {
+  font-size: 14px;
+}
+
+.benefit-remove {
+  width: 32px; height: 32px; border: none; background: none;
+  color: var(--text-muted); font-size: 18px; cursor: pointer;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  transition: all var(--duration-fast) ease;
+  flex-shrink: 0;
+}
+.benefit-remove:hover {
+  background: var(--danger-light); color: var(--danger);
+}
+.benefit-remove:focus-visible {
+  outline: 2px solid var(--danger); outline-offset: 2px;
+}
+
+.add-benefit-btn {
+  display: inline-flex; align-items: center; gap: var(--s2);
+  font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  color: var(--green-primary); background: none; border: none;
+  cursor: pointer; padding: var(--s2) 0;
+  transition: opacity var(--duration-fast) ease;
+}
+.add-benefit-btn:hover { opacity: 0.7; }
+.add-benefit-btn:focus-visible {
+  outline: 2px solid var(--green-primary); outline-offset: 2px;
+}
+.add-benefit-btn:disabled {
+  opacity: 0.4; cursor: not-allowed;
+}
+.add-benefit-btn:disabled:hover { opacity: 0.4; }
+.add-benefit-limit-note {
+  font-size: 12px; color: var(--text-muted); font-style: italic;
+  margin-top: var(--s1);
+}
+
+/* Conditional field reveal (benefit type) */
+.conditional-field-reveal {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height var(--duration-slow) var(--ease-out),
+              opacity var(--duration-normal) var(--ease-out),
+              margin var(--duration-normal) var(--ease-out);
+  margin-top: 0;
+}
+.conditional-field-reveal.visible {
+  max-height: 80px; opacity: 1;
+  margin-top: var(--s3);
+}
+
+/* Consolidated income sub-section */
+.consolidated-divider {
+  border: none; border-top: 1px solid var(--line);
+  margin: var(--s5) 0 var(--s4) 0;
+}
+.consolidated-title {
+  font-size: 14px; font-weight: 600; color: var(--text-soft);
+  margin-bottom: var(--s4);
+}
+.consolidated-note {
+  font-size: 12px; color: var(--text-muted); font-style: italic;
+  margin-top: var(--s2);
+}
+.consolidated-fields {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5);
+}
+.field-input.auto-calculated {
+  background: rgba(79,132,72,0.03);
+  border-bottom-style: dashed;
+}
+
+/* ===================================================================
+   SUMMARY SIDEBAR
+   =================================================================== */
+.summary-icon-row {
+  display: flex; align-items: center; gap: var(--s3);
+  margin-bottom: var(--s5);
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--line);
+}
+.summary-icon-badge {
+  width: 48px; height: 48px; border-radius: var(--r-md);
+  background: var(--green-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0;
+}
+.summary-icon-info {
+  flex: 1;
+}
+.summary-icon-title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 700;
+  color: var(--text-primary); letter-spacing: -0.02em;
+}
+.summary-icon-subtitle {
+  font-size: 13px; color: var(--text-muted); margin-top: 4px;
+}
+
+.summary-metric {
+  margin-bottom: var(--s4);
+}
+.summary-metric:last-child { margin-bottom: 0; }
+.summary-metric-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-soft);
+  margin-bottom: var(--s2);
+}
+.summary-metric-value {
+  font-family: var(--font-display); font-size: 28px; font-weight: 700;
+  color: var(--text-primary);
+}
+.summary-metric-value.small {
+  font-size: 20px;
+}
+.summary-metric-unit {
+  font-size: 13px; font-weight: 400; color: var(--text-muted);
+  margin-left: var(--s1);
+}
+
+/* Vulnerability progress bar */
+.density-bar-wrap {
+  width: 100%; height: 8px;
+  background: rgba(79,132,72,0.08);
+  border-radius: 4px;
+  margin-top: var(--s2); margin-bottom: var(--s2);
+  overflow: hidden;
+}
+.density-bar {
+  height: 100%; border-radius: 4px;
+  transition: width var(--duration-slow) var(--ease-out),
+              background var(--duration-normal) ease;
+}
+.density-bar.green {
+  background: linear-gradient(90deg, var(--green-primary), var(--green-dark));
+}
+.density-bar.yellow {
+  background: linear-gradient(90deg, var(--warning), #C49317);
+}
+.density-bar.red {
+  background: linear-gradient(90deg, var(--danger), #A33520);
+}
+
+/* Vulnerability badge */
+.overcrowding-badge {
+  display: inline-flex; align-items: center; gap: var(--s2);
+  padding: 4px 12px; border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.overcrowding-badge.normal {
+  background: var(--green-light); color: var(--green-primary);
+}
+.overcrowding-badge.warning {
+  background: var(--warning-light); color: var(--warning);
+}
+.overcrowding-badge.overcrowded {
+  background: var(--danger-light); color: var(--danger);
+}
+
+.member-count {
+  font-size: 13px; color: var(--text-muted);
+  margin-top: var(--s4);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--line);
+}
+.member-count strong {
+  color: var(--text-secondary); font-weight: 600;
+}
+
+.income-source-line {
+  font-size: 13px; color: var(--text-muted);
+  margin-top: var(--s2);
+}
+.income-source-line strong {
+  color: var(--text-secondary); font-weight: 600;
+}
+
+/* ===================================================================
+   INCOME COMPOSITION BAR
+   =================================================================== */
+.composition-bar-wrap {
+  width: 100%; height: 24px;
+  background: rgba(79,132,72,0.06);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  display: flex;
+  margin-top: var(--s3); margin-bottom: var(--s3);
+}
+.composition-segment {
+  height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #fff;
+  transition: width var(--duration-slow) var(--ease-out);
+  min-width: 0;
+  overflow: hidden;
+}
+.composition-segment.work {
+  background: linear-gradient(90deg, var(--green-primary), var(--green-dark));
+}
+.composition-segment.benefits {
+  background: linear-gradient(90deg, #7B68EE, #6A5ACD);
+}
+
+.composition-legend {
+  display: flex; gap: var(--s5); margin-top: var(--s2);
+}
+.legend-item {
+  display: flex; align-items: center; gap: var(--s2);
+  font-size: 12px; color: var(--text-muted);
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.legend-dot.work {
+  background: var(--green-primary);
+}
+.legend-dot.benefits {
+  background: #7B68EE;
+}
+.legend-value {
+  font-weight: 600; color: var(--text-secondary);
+}
+
+/* ===================================================================
+   BUTTONS
+   =================================================================== */
+.btn {
+  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  padding: 12px 28px; border-radius: var(--r-pill);
+  cursor: pointer; transition: all var(--duration-normal) var(--ease-out);
+  border: none; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+  color: #fff; box-shadow: 0 2px 12px rgba(79,132,72,0.2);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px); box-shadow: 0 4px 20px rgba(79,132,72,0.3);
+}
+.btn-primary:disabled {
+  opacity: 0.5; cursor: not-allowed;
+  transform: none; box-shadow: none;
+}
+.btn-secondary {
+  background: transparent; border: 1.5px solid rgba(79,132,72,0.2);
+  color: var(--text-muted); padding: 10px 20px;
+}
+.btn-secondary:hover { border-color: rgba(79,132,72,0.4); color: var(--text-secondary); }
+
+/* Spinner inside button */
+.btn-spinner {
+  display: none;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+.btn-primary.loading .btn-spinner { display: inline-block; }
+.btn-primary.loading .btn-text { opacity: 0.7; }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===================================================================
+   FOOTER BAR
+   =================================================================== */
+.footer-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: var(--s5); border-top: 1px solid var(--line);
+  margin-top: var(--s5);
+}
+.footer-bar-info {
+  font-size: 12px; color: var(--text-soft); font-style: italic;
+}
+.footer-bar-actions {
+  display: flex; gap: var(--s3); align-items: center;
+}
+
+/* ===================================================================
+   TOAST
+   =================================================================== */
+.toast {
+  position: fixed; bottom: var(--s5); right: var(--s5);
+  background: rgba(255,255,255,0.9); backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-card-border); border-radius: var(--r-md);
+  padding: var(--s3) var(--s5);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  font-size: 14px; color: var(--text-secondary);
+  display: flex; align-items: center; gap: var(--s3);
+  z-index: 200; transform: translateY(100px); opacity: 0;
+  transition: all var(--duration-normal) var(--ease-spring);
+}
+.toast.visible { transform: translateY(0); opacity: 1; }
+.toast-icon { font-size: 18px; }
+.toast.success { border-left: 3px solid var(--green-primary); }
+.toast.error { border-left: 3px solid var(--danger); }
+
+/* ===================================================================
+   SKELETON LOADING
+   =================================================================== */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, rgba(79,132,72,0.04) 25%, rgba(79,132,72,0.08) 50%, rgba(79,132,72,0.04) 75%);
+  background-size: 800px 100%; animation: shimmer 1.8s infinite ease-in-out;
+  border-radius: var(--r-sm);
+}
+.skeleton-line { height: 12px; }
+.skeleton-line.short { width: 60%; }
+.skeleton-line.tiny { width: 40%; }
+.skeleton-line.medium { width: 80%; }
+.skeleton-accordion {
+  height: 64px; border-radius: var(--r-md); margin-bottom: var(--s3);
+}
+.skeleton-toggle-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--s3) 0; border-bottom: 1px solid var(--line);
+}
+.skeleton-toggle {
+  width: 44px; height: 24px; border-radius: 12px;
+}
+.skeleton-benefit {
+  height: 52px; border-radius: var(--r-md); margin-bottom: var(--s3);
+}
+
+@keyframes rowFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===================================================================
+   SCENARIO PANEL
+   =================================================================== */
+.scenario-panel {
+  position: fixed; top: var(--s3); right: var(--s3);
+  background: rgba(255,255,255,0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(79,132,72,0.12); border-radius: var(--r-lg);
+  padding: var(--s3); z-index: 1000; min-width: 200px;
+  cursor: default; user-select: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  max-height: 90vh; overflow-y: auto;
+}
+.scenario-panel .drag-handle {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: grab; margin-bottom: var(--s2);
+}
+.scenario-panel .drag-handle:active { cursor: grabbing; }
+.scenario-panel .drag-handle h3 { margin-bottom: 0; }
+.scenario-panel .drag-dots { color: var(--text-soft); font-size: 14px; letter-spacing: 2px; }
+.scenario-panel h3 {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--text-soft); margin-bottom: var(--s2);
+}
+.scenario-btn {
+  display: block; width: 100%; padding: var(--s2) var(--s3);
+  font-family: var(--font-body); font-size: 12px; color: var(--text-muted);
+  background: none; border: none; border-radius: var(--r-sm);
+  cursor: pointer; text-align: left;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.scenario-btn:hover { background: var(--green-light); color: var(--text-secondary); }
+.scenario-btn.active { background: var(--green-light); color: var(--green-primary); font-weight: 600; }
+
+/* ===================================================================
+   RESPONSIVE
+   =================================================================== */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 16px; }
+  .content-grid { grid-template-columns: 1fr; }
+  .content-right { position: static; order: -1; }
+  .page-title { font-size: 28px; }
+  .patient-bar { flex-direction: column; text-align: center; gap: var(--s3); }
+  .footer-bar { flex-direction: column; gap: var(--s3); text-align: center; }
+  .footer-bar-actions { width: 100%; justify-content: center; }
+  .benefit-card { grid-template-columns: 1fr; }
+  .scenario-panel { top: auto; bottom: var(--s3); right: var(--s3); left: var(--s3); min-width: auto; }
+}
+
+/* ===================================================================
+   REDUCED MOTION
+   =================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-gradient"></div>
+<div class="bg-blob-1"></div>
+<div class="bg-blob-2"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" role="navigation" aria-label="Menu principal">
+    <div class="sidebar-logo">C</div>
+    <div class="sidebar-brand">Conecta</div>
+    <div class="sidebar-nav">
+      <a class="sidebar-item active">
+        <span class="sidebar-icon">&#9776;</span>
+        <span class="sidebar-label">Familias</span>
+        <span class="sidebar-badge">42</span>
+      </a>
+      <a class="sidebar-item">
+        <span class="sidebar-icon">&#43;</span>
+        <span class="sidebar-label">Cadastro</span>
+      </a>
+      <a class="sidebar-item">
+        <span class="sidebar-icon">&#9638;</span>
+        <span class="sidebar-label">Relatorios</span>
+      </a>
+      <a class="sidebar-item">
+        <span class="sidebar-icon">&#9881;</span>
+        <span class="sidebar-label">Config</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-avatar">DF</div>
+      <div class="sidebar-username">Davi Franklin</div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="mainContent">
+    <div class="main-inner">
+      <a class="back-link" aria-label="Voltar para lista de fichas">&#8592; Voltar para Fichas</a>
+
+      <!-- Patient navigation bar -->
+      <div class="patient-bar">
+        <div class="patient-bar-avatar">MS</div>
+        <div class="patient-bar-info">
+          <div class="patient-bar-name">Silva, Maria Aparecida</div>
+          <div class="patient-bar-meta">Nascimento: 15/03/1985 &middot; CPF: 123.456.789-00 &middot; G80 — Paralisia cerebral</div>
+        </div>
+        <div class="patient-bar-badge">Ativo</div>
+      </div>
+
+      <!-- PAGE TITLE -->
+      <h1 class="page-title">Trabalho e Rendimento</h1>
+
+      <!-- CONTENT AREA -->
+      <div id="contentArea" class="content-grid">
+        <!-- LEFT COLUMN -->
+        <div class="content-left">
+
+          <!-- Section 1: Trabalho e Renda por Membro -->
+          <div class="section-card" id="sectionTrabalho">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Trabalho e Renda por Membro</div>
+                <div class="section-subtitle">Ocupacao e rendimento mensal de cada membro da familia</div>
+              </div>
+            </div>
+            <div class="accordion-list" id="memberAccordions">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Section 2: Beneficios Sociais e Visao Geral -->
+          <div class="section-card" id="sectionBeneficios">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Beneficios Sociais e Visao Geral</div>
+                <div class="section-subtitle">Programas sociais, fonte de renda e situacao da familia</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="toggle-row" onclick="toggleBenefits()" role="switch" aria-checked="false" id="benefitToggleRow" tabindex="0" onkeydown="handleBenefitToggleKey(event)">
+                <span class="toggle-label">Recebe beneficio social?</span>
+                <div class="toggle-switch" aria-checked="false" id="benefitToggleSwitch"></div>
+              </div>
+            </div>
+
+            <div class="benefit-list" id="benefitList">
+              <!-- Populated by JS -->
+            </div>
+
+            <div style="margin-top: var(--s4);">
+              <div class="form-group">
+                <label class="field-label" for="incomeSource">Fonte principal de renda</label>
+                <input class="field-input" type="text" id="incomeSource" placeholder="Ex: Trabalho informal, comercio..." aria-label="Fonte principal de renda" maxlength="200" />
+                <div class="field-error" id="incomeSourceError" role="alert"></div>
+              </div>
+
+              <div class="form-group">
+                <div class="toggle-row" onclick="toggleSimple('unemployed')" role="switch" aria-checked="false" id="unemployedRow" tabindex="0" onkeydown="handleSimpleToggleKey(event, 'unemployed')">
+                  <span class="toggle-label">Ha desempregados na familia?</span>
+                  <div class="toggle-switch" aria-checked="false" id="unemployedSwitch"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="toggle-row" onclick="toggleSimple('retired')" role="switch" aria-checked="false" id="retiredRow" tabindex="0" onkeydown="handleSimpleToggleKey(event, 'retired')">
+                  <span class="toggle-label">Ha aposentados na familia?</span>
+                  <div class="toggle-switch" aria-checked="false" id="retiredSwitch"></div>
+                </div>
+              </div>
+
+              <!-- Consolidated Income (FIX 3) -->
+              <hr class="consolidated-divider" />
+              <div class="consolidated-title">Renda Consolidada (submetida ao servidor)</div>
+              <div class="consolidated-fields">
+                <div class="form-group">
+                  <label class="field-label" for="totalFamilyIncome">Renda familiar total</label>
+                  <div style="display:flex;align-items:baseline;gap:var(--s2);">
+                    <span style="font-size:14px;color:var(--text-muted);font-weight:600;">R$</span>
+                    <input class="field-input auto-calculated" type="text" id="totalFamilyIncome" readonly
+                      aria-label="Renda familiar total calculada automaticamente" tabindex="0" />
+                  </div>
+                  <div class="field-error" id="totalFamilyIncomeError" role="alert"></div>
+                </div>
+                <div class="form-group">
+                  <label class="field-label" for="incomePerCapita">Renda per capita</label>
+                  <div style="display:flex;align-items:baseline;gap:var(--s2);">
+                    <span style="font-size:14px;color:var(--text-muted);font-weight:600;">R$</span>
+                    <input class="field-input auto-calculated" type="text" id="incomePerCapita" readonly
+                      aria-label="Renda per capita calculada automaticamente" tabindex="0" />
+                  </div>
+                  <div class="field-error" id="incomePerCapitaError" role="alert"></div>
+                </div>
+              </div>
+              <div class="consolidated-note">Calculados automaticamente. Editaveis se necessario.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Sticky Summary -->
+        <div class="content-right">
+          <!-- Resumo Financeiro -->
+          <div class="section-card" id="summaryCard">
+            <div class="summary-icon-row">
+              <div class="summary-icon-badge">&#128176;</div>
+              <div class="summary-icon-info">
+                <div class="summary-icon-title">Resumo Financeiro</div>
+                <div class="summary-icon-subtitle">Indicadores de renda da familia</div>
+              </div>
+            </div>
+
+            <div class="summary-metric">
+              <div class="summary-metric-label">Renda do trabalho</div>
+              <div>
+                <span class="summary-metric-value" id="totalWorkIncome">--</span>
+              </div>
+            </div>
+
+            <div class="summary-metric">
+              <div class="summary-metric-label">Renda per capita trabalho</div>
+              <div>
+                <span class="summary-metric-value small" id="perCapitaWork">--</span>
+              </div>
+            </div>
+
+            <div class="summary-metric">
+              <div class="summary-metric-label">Total beneficios</div>
+              <div>
+                <span class="summary-metric-value small" id="totalBenefits">--</span>
+              </div>
+            </div>
+
+            <div class="summary-metric">
+              <div class="summary-metric-label">Renda global</div>
+              <div>
+                <span class="summary-metric-value" id="totalGlobal">--</span>
+              </div>
+            </div>
+
+            <div class="summary-metric">
+              <div class="summary-metric-label">Renda per capita global</div>
+              <div>
+                <span class="summary-metric-value small" id="perCapitaGlobal">--</span>
+              </div>
+              <div class="density-bar-wrap">
+                <div class="density-bar green" id="vulnerabilityBar" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="summary-metric" style="margin-top: var(--s3);">
+              <div class="summary-metric-label">Faixa de vulnerabilidade</div>
+              <div id="vulnerabilityBadge" class="overcrowding-badge normal" style="margin-top: var(--s2);">
+                --
+              </div>
+            </div>
+
+            <div class="member-count" id="memberCountInfo">
+              <strong>5</strong> membros na familia
+            </div>
+            <div class="income-source-line" id="incomeSourceLine">
+              Fonte de renda: <strong>--</strong>
+            </div>
+          </div>
+
+          <!-- Composicao da Renda -->
+          <div class="section-card" id="compositionCard">
+            <div class="section-header">
+              <div class="section-title">Composicao da Renda</div>
+            </div>
+
+            <div class="composition-bar-wrap" id="compositionBar">
+              <div class="composition-segment work" id="segWork" style="width:0%"></div>
+              <div class="composition-segment benefits" id="segBenefits" style="width:0%"></div>
+            </div>
+
+            <div class="composition-legend">
+              <div class="legend-item">
+                <div class="legend-dot work"></div>
+                <span>Trabalho: <span class="legend-value" id="legendWorkPct">--</span></span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot benefits"></div>
+                <span>Beneficios: <span class="legend-value" id="legendBenefitsPct">--</span></span>
+              </div>
+            </div>
+
+            <div class="composition-legend" style="margin-top: var(--s2);">
+              <div class="legend-item">
+                <span>Trabalho: <span class="legend-value" id="legendWorkVal">--</span></span>
+              </div>
+              <div class="legend-item">
+                <span>Beneficios: <span class="legend-value" id="legendBenefitsVal">--</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOADING STATE -->
+      <div id="loadingState" style="display:none">
+        <div class="content-grid">
+          <div class="content-left">
+            <div class="section-card">
+              <div style="margin-bottom:var(--s5)">
+                <div class="skeleton skeleton-line" style="width:250px;height:20px;margin-bottom:var(--s2)"></div>
+                <div class="skeleton skeleton-line" style="width:200px;height:12px"></div>
+              </div>
+              <div class="skeleton skeleton-accordion"></div>
+              <div class="skeleton skeleton-accordion"></div>
+              <div class="skeleton skeleton-accordion"></div>
+              <div class="skeleton skeleton-accordion"></div>
+              <div class="skeleton skeleton-accordion"></div>
+            </div>
+            <div class="section-card">
+              <div style="margin-bottom:var(--s5)">
+                <div class="skeleton skeleton-line" style="width:280px;height:20px;margin-bottom:var(--s2)"></div>
+                <div class="skeleton skeleton-line" style="width:220px;height:12px"></div>
+              </div>
+              <div class="skeleton-toggle-row"><div class="skeleton skeleton-line medium"></div><div class="skeleton skeleton-toggle"></div></div>
+              <div class="skeleton skeleton-benefit"></div>
+              <div class="skeleton skeleton-benefit"></div>
+              <div style="margin-top:var(--s5)">
+                <div class="skeleton skeleton-line" style="width:150px;height:12px;margin-bottom:var(--s3)"></div>
+                <div class="skeleton" style="width:100%;height:36px;border-radius:var(--r-sm);margin-bottom:var(--s4)"></div>
+              </div>
+              <div class="skeleton-toggle-row"><div class="skeleton skeleton-line medium"></div><div class="skeleton skeleton-toggle"></div></div>
+              <div class="skeleton-toggle-row"><div class="skeleton skeleton-line medium"></div><div class="skeleton skeleton-toggle"></div></div>
+              <div style="margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--line);">
+                <div class="skeleton skeleton-line" style="width:220px;height:14px;margin-bottom:var(--s4)"></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);">
+                  <div><div class="skeleton skeleton-line tiny" style="margin-bottom:var(--s2)"></div><div class="skeleton" style="width:100%;height:36px;border-radius:var(--r-sm)"></div></div>
+                  <div><div class="skeleton skeleton-line tiny" style="margin-bottom:var(--s2)"></div><div class="skeleton" style="width:100%;height:36px;border-radius:var(--r-sm)"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="content-right">
+            <div class="section-card">
+              <div style="display:flex;gap:var(--s3);margin-bottom:var(--s5);padding-bottom:var(--s4);border-bottom:1px solid var(--line);">
+                <div class="skeleton" style="width:48px;height:48px;border-radius:var(--r-md)"></div>
+                <div style="flex:1"><div class="skeleton skeleton-line" style="width:140px;margin-bottom:var(--s2)"></div><div class="skeleton skeleton-line tiny"></div></div>
+              </div>
+              <div class="skeleton skeleton-line tiny" style="margin-bottom:var(--s2)"></div>
+              <div class="skeleton" style="width:100px;height:32px;border-radius:var(--r-sm);margin-bottom:var(--s4)"></div>
+              <div class="skeleton skeleton-line tiny" style="margin-bottom:var(--s2)"></div>
+              <div class="skeleton" style="width:80px;height:24px;border-radius:var(--r-sm);margin-bottom:var(--s4)"></div>
+              <div class="skeleton skeleton-line tiny" style="margin-bottom:var(--s2)"></div>
+              <div class="skeleton" style="width:80px;height:24px;border-radius:var(--r-sm);margin-bottom:var(--s4)"></div>
+              <div class="skeleton skeleton-line tiny" style="margin-bottom:var(--s2)"></div>
+              <div class="skeleton" style="width:120px;height:32px;border-radius:var(--r-sm);margin-bottom:var(--s4)"></div>
+              <div class="skeleton skeleton-line tiny" style="margin-bottom:var(--s2)"></div>
+              <div class="skeleton" style="width:80px;height:24px;border-radius:var(--r-sm);margin-bottom:var(--s4)"></div>
+              <div class="skeleton" style="width:100%;height:8px;border-radius:4px;margin-bottom:var(--s4)"></div>
+              <div class="skeleton" style="width:100px;height:24px;border-radius:var(--r-pill)"></div>
+            </div>
+            <div class="section-card">
+              <div class="skeleton skeleton-line" style="width:160px;height:20px;margin-bottom:var(--s4)"></div>
+              <div class="skeleton" style="width:100%;height:24px;border-radius:var(--r-sm);margin-bottom:var(--s3)"></div>
+              <div style="display:flex;gap:var(--s5)">
+                <div class="skeleton skeleton-line" style="width:80px"></div>
+                <div class="skeleton skeleton-line" style="width:80px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER BAR -->
+      <div class="footer-bar" id="footerBar">
+        <span class="footer-bar-info" id="footerInfo">Ultima atualizacao: nao registrada</span>
+        <div class="footer-bar-actions">
+          <button class="btn btn-primary" id="btnSave" disabled onclick="handleSave()">
+            <span class="btn-spinner"></span>
+            <span class="btn-text">Salvar condicoes</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon"></span>
+  <span id="toastText"></span>
+</div>
+
+<!-- SCENARIO PANEL -->
+<div class="scenario-panel" id="scenarioPanel">
+  <div class="drag-handle" id="dragHandle">
+    <h3>Cenarios</h3>
+    <span class="drag-dots">&#10303;</span>
+  </div>
+  <button class="scenario-btn active" data-scenario="filled" onclick="showScenario('filled', this)">1. Formulario preenchido</button>
+  <button class="scenario-btn" data-scenario="empty" onclick="showScenario('empty', this)">2. Formulario vazio</button>
+  <button class="scenario-btn" data-scenario="loading" onclick="showScenario('loading', this)">3. Loading</button>
+  <button class="scenario-btn" data-scenario="validation" onclick="showScenario('validation', this)">4. Erro de validacao</button>
+  <button class="scenario-btn" data-scenario="saving" onclick="showScenario('saving', this)">5. Salvando...</button>
+  <button class="scenario-btn" data-scenario="saved" onclick="showScenario('saved', this)">6. Salvo com sucesso</button>
+</div>
+
+<script>
+// ===================================================================
+// DATA
+// ===================================================================
+var OCCUPATIONS = [
+  'Diarista', 'Pedreiro', 'Estudante', 'Aposentado(a)',
+  'Menor - nao trabalha', 'Autonomo', 'CLT', 'Servidor Publico', 'Desempregado'
+];
+
+var MOCK_MEMBERS = [
+  { id: 1, name: 'Maria Aparecida Silva', initials: 'MA', relationship: 'Titular', occupation: 'Diarista', hasWorkCard: false, income: 1200 },
+  { id: 2, name: 'Joao Carlos Silva', initials: 'JC', relationship: 'Esposo', occupation: 'Pedreiro', hasWorkCard: true, income: 2800 },
+  { id: 3, name: 'Ana Lucia Silva', initials: 'AL', relationship: 'Filha, 22a', occupation: 'Estudante', hasWorkCard: false, income: 0 },
+  { id: 4, name: 'Pedro Henrique Silva', initials: 'PH', relationship: 'Filho, 16a', occupation: 'Menor - nao trabalha', hasWorkCard: false, income: 0 },
+  { id: 5, name: 'Conceicao da Silva', initials: 'CS', relationship: 'Mae, 68a', occupation: 'Aposentado(a)', hasWorkCard: false, income: 1412 }
+];
+
+var BENEFIT_TYPES = [
+  'Bolsa Familia',
+  'BPC/LOAS',
+  'Auxilio Doenca',
+  'Pensao por Morte',
+  'Seguro Defeso',
+  'Outro'
+];
+
+var MOCK_BENEFITS = [
+  { id: 1, name: 'Bolsa Familia', value: 600, beneficiary: 1, benefitType: 'Bolsa Familia' },
+  { id: 2, name: 'BPC/LOAS', value: 1412, beneficiary: 5, benefitType: 'BPC/LOAS' }
+];
+
+var MEMBER_COUNT = 5;
+var SALARIO_MINIMO = 1518;
+
+// ===================================================================
+// STATE
+// ===================================================================
+var formState = {
+  members: [],
+  receiveBenefits: false,
+  benefits: [],
+  incomeSource: '',
+  hasUnemployed: false,
+  hasRetired: false
+};
+
+var isDirty = false;
+var benefitIdCounter = 10;
+var expandedMember = 0; // first accordion expanded by default
+
+// ===================================================================
+// CURRENCY FORMATTING
+// ===================================================================
+function formatCurrency(value) {
+  if (value === null || value === undefined || isNaN(value)) return '--';
+  return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function parseCurrencyInput(str) {
+  if (!str || str.trim() === '') return 0;
+  // Replace comma with dot for parsing
+  var cleaned = str.replace(/\./g, '').replace(',', '.');
+  var val = parseFloat(cleaned);
+  return isNaN(val) ? 0 : val;
+}
+
+// ===================================================================
+// RENDER — Member Accordions
+// ===================================================================
+function renderAccordions() {
+  var container = document.getElementById('memberAccordions');
+  var html = '';
+
+  formState.members.forEach(function(member, idx) {
+    var isExpanded = expandedMember === idx;
+    var incomeDisplay = formatCurrency(member.income);
+    var occupationOptions = OCCUPATIONS.map(function(occ) {
+      var selected = member.occupation === occ ? ' selected' : '';
+      return '<option value="' + occ + '"' + selected + '>' + occ + '</option>';
+    }).join('');
+
+    html += '<div class="accordion-card' + (isExpanded ? ' expanded' : '') + '" data-idx="' + idx + '">' +
+      '<div class="accordion-header" role="button" aria-expanded="' + isExpanded + '" ' +
+        'tabindex="0" onclick="toggleAccordion(' + idx + ')" ' +
+        'onkeydown="handleAccordionKey(event, ' + idx + ')" ' +
+        'aria-label="' + member.name + ', ' + member.relationship + ', renda ' + incomeDisplay + '">' +
+        '<div class="accordion-avatar">' + member.initials + '</div>' +
+        '<div class="accordion-info">' +
+          '<div class="accordion-name">' +
+            member.name +
+            ' <span class="accordion-relationship">' + member.relationship + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="accordion-income-preview">' + incomeDisplay + '</div>' +
+        '<div class="accordion-chevron">&#9660;</div>' +
+      '</div>' +
+      '<div class="accordion-body">' +
+        '<div class="accordion-body-inner">' +
+          '<div>' +
+            '<label class="field-label" for="occupation_' + idx + '">Ocupacao</label>' +
+            '<select class="field-select' + (member.occupation ? ' filled' : '') + '" id="occupation_' + idx + '" ' +
+              'onchange="updateMemberField(' + idx + ', \'occupation\', this.value)" ' +
+              'aria-label="Ocupacao de ' + member.name + '">' +
+              '<option value="">Selecione...</option>' +
+              occupationOptions +
+            '</select>' +
+          '</div>' +
+          '<div class="toggle-row" onclick="toggleWorkCard(' + idx + ')" role="switch" ' +
+            'aria-checked="' + member.hasWorkCard + '" tabindex="0" ' +
+            'onkeydown="handleWorkCardKey(event, ' + idx + ')" ' +
+            'id="workCardRow_' + idx + '">' +
+            '<span class="toggle-label">Carteira de trabalho assinada</span>' +
+            '<div class="toggle-switch" aria-checked="' + member.hasWorkCard + '" id="workCardSwitch_' + idx + '"></div>' +
+          '</div>' +
+          '<div>' +
+            '<label class="field-label" for="income_' + idx + '">Renda mensal</label>' +
+            '<div style="display:flex;align-items:baseline;gap:var(--s2);">' +
+              '<span style="font-size:14px;color:var(--text-muted);font-weight:600;">R$</span>' +
+              '<input class="field-input' + (member.income > 0 ? ' filled' : '') + '" type="text" id="income_' + idx + '" ' +
+                'value="' + (member.income > 0 ? member.income.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '') + '" ' +
+                'placeholder="0,00" ' +
+                'oninput="updateMemberIncome(' + idx + ', this.value)" ' +
+                'aria-label="Renda mensal de ' + member.name + '" />' +
+            '</div>' +
+            '<div class="field-error" id="incomeError_' + idx + '" role="alert"></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+// ===================================================================
+// RENDER — Benefit Cards
+// ===================================================================
+function renderBenefits() {
+  var container = document.getElementById('benefitList');
+  if (!formState.receiveBenefits) {
+    container.classList.remove('open');
+    return;
+  }
+  container.classList.add('open');
+
+  var html = '';
+  formState.benefits.forEach(function(b, idx) {
+    var selectedMemberOpts = formState.members.map(function(m) {
+      var selected = b.beneficiary === m.id ? ' selected' : '';
+      return '<option value="' + m.id + '"' + selected + '>' + m.name + '</option>';
+    }).join('');
+
+    var typeOptions = BENEFIT_TYPES.map(function(t) {
+      var selected = b.benefitType === t ? ' selected' : '';
+      return '<option value="' + t + '"' + selected + '>' + t + '</option>';
+    }).join('');
+
+    // Conditional fields based on benefit type
+    var conditionalHtml = '';
+    if (b.benefitType === 'Pensao por Morte') {
+      conditionalHtml = '<div class="conditional-field-reveal visible" style="grid-column: 1 / -1;">' +
+        '<label class="field-label">CPF do falecido</label>' +
+        '<input class="field-input' + (b.deceasedCpf ? ' filled' : '') + '" type="text" ' +
+          'value="' + (b.deceasedCpf || '') + '" ' +
+          'placeholder="000.000.000-00" maxlength="14" ' +
+          'oninput="updateBenefitConditional(' + idx + ', \'deceasedCpf\', this.value)" ' +
+          'aria-label="CPF do falecido para beneficio ' + (b.name || (idx + 1)) + '" />' +
+      '</div>';
+    } else if (b.benefitType === 'Auxilio Doenca') {
+      conditionalHtml = '<div class="conditional-field-reveal visible" style="grid-column: 1 / -1;">' +
+        '<label class="field-label">N\u00ba da certidao de nascimento</label>' +
+        '<input class="field-input' + (b.birthCertificateNumber ? ' filled' : '') + '" type="text" ' +
+          'value="' + (b.birthCertificateNumber || '') + '" ' +
+          'placeholder="Numero da certidao" ' +
+          'oninput="updateBenefitConditional(' + idx + ', \'birthCertificateNumber\', this.value)" ' +
+          'aria-label="Numero da certidao de nascimento para beneficio ' + (b.name || (idx + 1)) + '" />' +
+      '</div>';
+    }
+
+    html += '<div class="benefit-card" data-benefit-idx="' + idx + '">' +
+      '<div>' +
+        '<label class="field-label">Tipo de beneficio</label>' +
+        '<select class="field-select' + (b.benefitType ? ' filled' : '') + '" ' +
+          'onchange="updateBenefitType(' + idx + ', this.value)" ' +
+          'aria-label="Tipo de beneficio ' + (idx + 1) + '" tabindex="0">' +
+          '<option value="">Selecione o tipo...</option>' +
+          typeOptions +
+        '</select>' +
+      '</div>' +
+      '<div>' +
+        '<label class="field-label">Nome do beneficio</label>' +
+        '<input class="field-input' + (b.name ? ' filled' : '') + '" type="text" value="' + (b.name || '') + '" ' +
+          'placeholder="Nome do beneficio" maxlength="200" ' +
+          'oninput="updateBenefitField(' + idx + ', \'name\', this.value)" ' +
+          'aria-label="Nome do beneficio ' + (idx + 1) + '" />' +
+        '<div class="field-error" id="benefitNameError_' + idx + '" role="alert"></div>' +
+      '</div>' +
+      '<div>' +
+        '<label class="field-label">Valor (R$)</label>' +
+        '<input class="field-input' + (b.value > 0 ? ' filled' : '') + '" type="text" ' +
+          'value="' + (b.value > 0 ? b.value.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '') + '" ' +
+          'placeholder="0,00" ' +
+          'oninput="updateBenefitValue(' + idx + ', this.value)" ' +
+          'aria-label="Valor do beneficio ' + (b.name || (idx + 1)) + '" />' +
+        '<div class="field-error" id="benefitValueError_' + idx + '" role="alert"></div>' +
+      '</div>' +
+      '<div>' +
+        '<label class="field-label">Beneficiario</label>' +
+        '<select class="field-select filled" ' +
+          'onchange="updateBenefitField(' + idx + ', \'beneficiary\', parseInt(this.value))" ' +
+          'aria-label="Beneficiario do beneficio ' + (b.name || (idx + 1)) + '" tabindex="0">' +
+          selectedMemberOpts +
+        '</select>' +
+      '</div>' +
+      '<button class="benefit-remove" onclick="removeBenefit(' + idx + ')" ' +
+        'aria-label="Remover beneficio ' + (b.name || (idx + 1)) + '" tabindex="0">' +
+        '&#10005;' +
+      '</button>' +
+      conditionalHtml +
+    '</div>';
+  });
+
+  // FIX 6: maxItems 100
+  var atLimit = formState.benefits.length >= 100;
+  html += '<button class="add-benefit-btn" onclick="addBenefit()" tabindex="0"' + (atLimit ? ' disabled' : '') + '>' +
+    '&#43; Adicionar beneficio' +
+  '</button>';
+  if (atLimit) {
+    html += '<div class="add-benefit-limit-note">Limite maximo de 100 beneficios atingido</div>';
+  }
+
+  container.innerHTML = html;
+}
+
+// ===================================================================
+// INTERACTIONS — Accordion
+// ===================================================================
+function toggleAccordion(idx) {
+  if (expandedMember === idx) {
+    expandedMember = -1;
+  } else {
+    expandedMember = idx;
+  }
+  renderAccordions();
+}
+
+function handleAccordionKey(event, idx) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    toggleAccordion(idx);
+  }
+}
+
+// ===================================================================
+// INTERACTIONS — Member fields
+// ===================================================================
+function updateMemberField(idx, field, value) {
+  formState.members[idx][field] = value;
+  markDirty();
+  // Re-render just the preview
+  var previewEl = document.querySelector('[data-idx="' + idx + '"] .accordion-income-preview');
+  if (previewEl) {
+    previewEl.textContent = formatCurrency(formState.members[idx].income);
+  }
+  updateSummary();
+}
+
+function updateMemberIncome(idx, rawValue) {
+  var val = parseCurrencyInput(rawValue);
+  if (val < 0) val = 0;
+  formState.members[idx].income = val;
+  markDirty();
+
+  // Update preview
+  var previewEl = document.querySelector('[data-idx="' + idx + '"] .accordion-income-preview');
+  if (previewEl) {
+    previewEl.textContent = formatCurrency(val);
+  }
+
+  // Validate WI-001: income >= 0
+  var errEl = document.getElementById('incomeError_' + idx);
+  if (errEl) {
+    if (val < 0) {
+      errEl.textContent = 'Renda mensal deve ser igual ou maior que zero';
+    } else {
+      errEl.textContent = '';
+    }
+  }
+
+  updateSummary();
+}
+
+function toggleWorkCard(idx) {
+  formState.members[idx].hasWorkCard = !formState.members[idx].hasWorkCard;
+  markDirty();
+  var switchEl = document.getElementById('workCardSwitch_' + idx);
+  var rowEl = document.getElementById('workCardRow_' + idx);
+  var checked = formState.members[idx].hasWorkCard;
+  switchEl.setAttribute('aria-checked', checked);
+  rowEl.setAttribute('aria-checked', checked);
+}
+
+function handleWorkCardKey(event, idx) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    toggleWorkCard(idx);
+  }
+}
+
+// ===================================================================
+// INTERACTIONS — Benefits toggle
+// ===================================================================
+function toggleBenefits() {
+  formState.receiveBenefits = !formState.receiveBenefits;
+  markDirty();
+  var switchEl = document.getElementById('benefitToggleSwitch');
+  var rowEl = document.getElementById('benefitToggleRow');
+  switchEl.setAttribute('aria-checked', formState.receiveBenefits);
+  rowEl.setAttribute('aria-checked', formState.receiveBenefits);
+
+  // SES-001: If toggling ON and no benefits, add empty one
+  if (formState.receiveBenefits && formState.benefits.length === 0) {
+    addBenefit();
+    return; // addBenefit calls renderBenefits
+  }
+  // SES-002: If toggling OFF, keep benefits data but hide
+  renderBenefits();
+  updateSummary();
+}
+
+function handleBenefitToggleKey(event) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    toggleBenefits();
+  }
+}
+
+// ===================================================================
+// INTERACTIONS — Benefit cards
+// ===================================================================
+function addBenefit() {
+  if (formState.benefits.length >= 100) return;
+  benefitIdCounter++;
+  formState.benefits.push({
+    id: benefitIdCounter,
+    name: '',
+    value: 0,
+    beneficiary: formState.members[0].id,
+    benefitType: '',
+    deceasedCpf: '',
+    birthCertificateNumber: ''
+  });
+  markDirty();
+  renderBenefits();
+  updateSummary();
+}
+
+function updateBenefitType(idx, value) {
+  formState.benefits[idx].benefitType = value;
+  // Clear conditional fields when type changes
+  formState.benefits[idx].deceasedCpf = '';
+  formState.benefits[idx].birthCertificateNumber = '';
+  markDirty();
+  renderBenefits();
+}
+
+function updateBenefitConditional(idx, field, value) {
+  formState.benefits[idx][field] = value;
+  markDirty();
+}
+
+function removeBenefit(idx) {
+  formState.benefits.splice(idx, 1);
+  markDirty();
+  renderBenefits();
+  updateSummary();
+}
+
+function updateBenefitField(idx, field, value) {
+  formState.benefits[idx][field] = value;
+  markDirty();
+  updateSummary();
+}
+
+function updateBenefitValue(idx, rawValue) {
+  var val = parseCurrencyInput(rawValue);
+  formState.benefits[idx].value = val;
+  markDirty();
+
+  // Validate SB-002: value > 0
+  var errEl = document.getElementById('benefitValueError_' + idx);
+  if (errEl) {
+    if (val <= 0 && formState.benefits[idx].name) {
+      errEl.textContent = 'Valor do beneficio deve ser maior que zero';
+    } else {
+      errEl.textContent = '';
+    }
+  }
+
+  updateSummary();
+}
+
+// ===================================================================
+// INTERACTIONS — Simple toggles
+// ===================================================================
+function toggleSimple(key) {
+  var stateKey = key === 'unemployed' ? 'hasUnemployed' : 'hasRetired';
+  formState[stateKey] = !formState[stateKey];
+  markDirty();
+  var switchEl = document.getElementById(key + 'Switch');
+  var rowEl = document.getElementById(key + 'Row');
+  switchEl.setAttribute('aria-checked', formState[stateKey]);
+  rowEl.setAttribute('aria-checked', formState[stateKey]);
+}
+
+function handleSimpleToggleKey(event, key) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    toggleSimple(key);
+  }
+}
+
+// ===================================================================
+// INTERACTIONS — Income source
+// ===================================================================
+function setupIncomeSource() {
+  var input = document.getElementById('incomeSource');
+  input.addEventListener('input', function() {
+    formState.incomeSource = input.value;
+    markDirty();
+    updateSummary();
+    // Clear validation
+    var errEl = document.getElementById('incomeSourceError');
+    if (formState.incomeSource.length > 200) {
+      errEl.textContent = 'Fonte de renda nao pode exceder 200 caracteres';
+      input.classList.add('error');
+    } else if (formState.incomeSource.trim()) {
+      errEl.textContent = '';
+      input.classList.remove('error');
+    }
+  });
+}
+
+// ===================================================================
+// DIRTY STATE
+// ===================================================================
+function markDirty() {
+  isDirty = true;
+  document.getElementById('btnSave').disabled = false;
+}
+
+function markClean() {
+  isDirty = false;
+  document.getElementById('btnSave').disabled = true;
+}
+
+// ===================================================================
+// VALIDATION
+// ===================================================================
+function validateForm() {
+  var errors = [];
+
+  // SES-005: Income source required
+  if (!formState.incomeSource.trim()) {
+    errors.push({ field: 'incomeSource', message: 'Fonte principal de renda e obrigatoria' });
+    document.getElementById('incomeSourceError').textContent = 'Fonte principal de renda e obrigatoria';
+    document.getElementById('incomeSource').classList.add('error');
+  }
+  // maxLength 200 on incomeSource
+  if (formState.incomeSource.length > 200) {
+    errors.push({ field: 'incomeSource', message: 'Fonte de renda nao pode exceder 200 caracteres' });
+    document.getElementById('incomeSourceError').textContent = 'Fonte de renda nao pode exceder 200 caracteres';
+    document.getElementById('incomeSource').classList.add('error');
+  }
+
+  // WI-001: All incomes >= 0
+  formState.members.forEach(function(m, idx) {
+    if (m.income < 0) {
+      errors.push({ field: 'income_' + idx, message: 'Renda mensal deve ser >= 0' });
+      var errEl = document.getElementById('incomeError_' + idx);
+      if (errEl) errEl.textContent = 'Renda mensal deve ser igual ou maior que zero';
+    }
+  });
+
+  // If benefits are on, validate each
+  if (formState.receiveBenefits) {
+    formState.benefits.forEach(function(b, idx) {
+      // SB-001: name required
+      if (!b.name.trim()) {
+        errors.push({ field: 'benefitName_' + idx, message: 'Nome e obrigatorio' });
+        var nameErr = document.getElementById('benefitNameError_' + idx);
+        if (nameErr) nameErr.textContent = 'Nome do beneficio e obrigatorio';
+      }
+      // SB-002: value > 0
+      if (b.value <= 0) {
+        errors.push({ field: 'benefitValue_' + idx, message: 'Valor > 0' });
+        var valErr = document.getElementById('benefitValueError_' + idx);
+        if (valErr) valErr.textContent = 'Valor do beneficio deve ser maior que zero';
+      }
+    });
+
+    // SBC-002: duplicate names
+    var names = {};
+    formState.benefits.forEach(function(b, idx) {
+      var n = b.name.trim().toLowerCase();
+      if (n && names[n] !== undefined) {
+        var nameErr = document.getElementById('benefitNameError_' + idx);
+        if (nameErr) nameErr.textContent = 'Nome de beneficio duplicado';
+        errors.push({ field: 'benefitName_' + idx, message: 'Duplicado' });
+        // Also mark original
+        var origErr = document.getElementById('benefitNameError_' + names[n]);
+        if (origErr) origErr.textContent = 'Nome de beneficio duplicado';
+      } else if (n) {
+        names[n] = idx;
+      }
+    });
+
+    // FIX 4: maxLength 200 on benefit name
+    formState.benefits.forEach(function(b, idx) {
+      if (b.name.length > 200) {
+        var nameErr = document.getElementById('benefitNameError_' + idx);
+        if (nameErr) nameErr.textContent = 'Nome do beneficio nao pode exceder 200 caracteres';
+        errors.push({ field: 'benefitName_' + idx, message: 'Max 200 chars' });
+      }
+    });
+  }
+
+  // SES-003: totalFamilyIncome >= 0
+  var totalFamilyVal = parseCurrencyInput(document.getElementById('totalFamilyIncome').value);
+  if (totalFamilyVal < 0) {
+    errors.push({ field: 'totalFamilyIncome', message: 'Renda familiar total nao pode ser negativa' });
+    document.getElementById('totalFamilyIncomeError').textContent = 'Renda familiar total nao pode ser negativa';
+    document.getElementById('totalFamilyIncome').classList.add('error');
+  }
+
+  // SES-006: perCapita <= totalFamilyIncome
+  var perCapitaVal = parseCurrencyInput(document.getElementById('incomePerCapita').value);
+  if (perCapitaVal > totalFamilyVal && totalFamilyVal >= 0) {
+    errors.push({ field: 'incomePerCapita', message: 'Renda per capita > renda familiar' });
+    document.getElementById('incomePerCapitaError').textContent = 'Renda per capita nao pode ser maior que a renda familiar total';
+    document.getElementById('incomePerCapita').classList.add('error');
+  }
+
+  return errors;
+}
+
+function clearValidation() {
+  document.getElementById('incomeSourceError').textContent = '';
+  document.getElementById('incomeSource').classList.remove('error');
+  formState.members.forEach(function(m, idx) {
+    var errEl = document.getElementById('incomeError_' + idx);
+    if (errEl) errEl.textContent = '';
+  });
+  formState.benefits.forEach(function(b, idx) {
+    var nameErr = document.getElementById('benefitNameError_' + idx);
+    if (nameErr) nameErr.textContent = '';
+    var valErr = document.getElementById('benefitValueError_' + idx);
+    if (valErr) valErr.textContent = '';
+  });
+  // Clear consolidated income errors
+  var totalErr = document.getElementById('totalFamilyIncomeError');
+  if (totalErr) totalErr.textContent = '';
+  document.getElementById('totalFamilyIncome').classList.remove('error');
+  var pcErr = document.getElementById('incomePerCapitaError');
+  if (pcErr) pcErr.textContent = '';
+  document.getElementById('incomePerCapita').classList.remove('error');
+}
+
+// ===================================================================
+// SUMMARY
+// ===================================================================
+function updateSummary() {
+  var totalWork = 0;
+  formState.members.forEach(function(m) {
+    totalWork += (m.income || 0);
+  });
+
+  var totalBenefits = 0;
+  if (formState.receiveBenefits) {
+    formState.benefits.forEach(function(b) {
+      totalBenefits += (b.value || 0);
+    });
+  }
+
+  var totalGlobal = totalWork + totalBenefits;
+  var perCapitaWork = MEMBER_COUNT > 0 ? totalWork / MEMBER_COUNT : 0;
+  var perCapitaGlobal = MEMBER_COUNT > 0 ? totalGlobal / MEMBER_COUNT : 0;
+
+  var hasAnyData = formState.members.some(function(m) { return m.income > 0 || m.occupation; }) || totalBenefits > 0;
+
+  // Update DOM
+  document.getElementById('totalWorkIncome').textContent = hasAnyData ? formatCurrency(totalWork) : '--';
+  document.getElementById('perCapitaWork').textContent = hasAnyData ? formatCurrency(perCapitaWork) : '--';
+  document.getElementById('totalBenefits').textContent = hasAnyData ? formatCurrency(totalBenefits) : '--';
+  document.getElementById('totalGlobal').textContent = hasAnyData ? formatCurrency(totalGlobal) : '--';
+  document.getElementById('perCapitaGlobal').textContent = hasAnyData ? formatCurrency(perCapitaGlobal) : '--';
+
+  // Vulnerability bar and badge
+  var barEl = document.getElementById('vulnerabilityBar');
+  var badgeEl = document.getElementById('vulnerabilityBadge');
+
+  if (hasAnyData && perCapitaGlobal > 0) {
+    // Bar width: percentage relative to 2x salario minimo
+    var barWidth = Math.min((perCapitaGlobal / (SALARIO_MINIMO * 2)) * 100, 100);
+    barEl.style.width = barWidth + '%';
+
+    barEl.className = 'density-bar';
+    if (perCapitaGlobal >= SALARIO_MINIMO) {
+      barEl.classList.add('green');
+      badgeEl.className = 'overcrowding-badge normal';
+      badgeEl.innerHTML = '&#10003; Adequada';
+    } else if (perCapitaGlobal >= SALARIO_MINIMO * 0.5) {
+      barEl.classList.add('yellow');
+      badgeEl.className = 'overcrowding-badge warning';
+      badgeEl.innerHTML = '&#9888; Atencao';
+    } else {
+      barEl.classList.add('red');
+      badgeEl.className = 'overcrowding-badge overcrowded';
+      badgeEl.innerHTML = '&#10071; Vulneravel';
+    }
+  } else {
+    barEl.style.width = '0%';
+    barEl.className = 'density-bar green';
+    badgeEl.className = 'overcrowding-badge normal';
+    badgeEl.textContent = '--';
+  }
+
+  // Income source line
+  var sourceEl = document.getElementById('incomeSourceLine');
+  if (formState.incomeSource.trim()) {
+    sourceEl.innerHTML = 'Fonte de renda: <strong>' + formState.incomeSource + '</strong>';
+  } else {
+    sourceEl.innerHTML = 'Fonte de renda: <strong>--</strong>';
+  }
+
+  // Composition bar
+  updateComposition(totalWork, totalBenefits, totalGlobal);
+
+  // Update consolidated income fields (FIX 3)
+  var totalFamilyEl = document.getElementById('totalFamilyIncome');
+  var perCapitaEl = document.getElementById('incomePerCapita');
+  if (totalFamilyEl && perCapitaEl) {
+    if (totalFamilyEl.readOnly) {
+      totalFamilyEl.value = hasAnyData ? totalGlobal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '';
+      totalFamilyEl.classList.toggle('filled', hasAnyData);
+    }
+    if (perCapitaEl.readOnly) {
+      perCapitaEl.value = hasAnyData ? perCapitaGlobal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '';
+      perCapitaEl.classList.toggle('filled', hasAnyData);
+    }
+    // SES-006: Validate perCapita <= totalFamilyIncome
+    validateConsolidatedIncome();
+  }
+}
+
+function validateConsolidatedIncome() {
+  var totalVal = parseCurrencyInput(document.getElementById('totalFamilyIncome').value);
+  var perCapitaVal = parseCurrencyInput(document.getElementById('incomePerCapita').value);
+  var totalErr = document.getElementById('totalFamilyIncomeError');
+  var pcErr = document.getElementById('incomePerCapitaError');
+
+  // SES-003: totalFamilyIncome >= 0
+  if (totalVal < 0) {
+    totalErr.textContent = 'Renda familiar total nao pode ser negativa';
+    document.getElementById('totalFamilyIncome').classList.add('error');
+  } else {
+    totalErr.textContent = '';
+    document.getElementById('totalFamilyIncome').classList.remove('error');
+  }
+
+  // SES-006: perCapita <= totalFamilyIncome
+  if (perCapitaVal > totalVal && totalVal >= 0) {
+    pcErr.textContent = 'Renda per capita nao pode ser maior que a renda familiar total';
+    document.getElementById('incomePerCapita').classList.add('error');
+  } else {
+    pcErr.textContent = '';
+    document.getElementById('incomePerCapita').classList.remove('error');
+  }
+}
+
+function updateComposition(totalWork, totalBenefits, totalGlobal) {
+  var workPct = totalGlobal > 0 ? Math.round((totalWork / totalGlobal) * 100) : 0;
+  var benefitsPct = totalGlobal > 0 ? 100 - workPct : 0;
+
+  var segWork = document.getElementById('segWork');
+  var segBenefits = document.getElementById('segBenefits');
+
+  if (totalGlobal > 0) {
+    segWork.style.width = workPct + '%';
+    segWork.textContent = workPct > 10 ? workPct + '%' : '';
+    segBenefits.style.width = benefitsPct + '%';
+    segBenefits.textContent = benefitsPct > 10 ? benefitsPct + '%' : '';
+  } else {
+    segWork.style.width = '0%';
+    segWork.textContent = '';
+    segBenefits.style.width = '0%';
+    segBenefits.textContent = '';
+  }
+
+  document.getElementById('legendWorkPct').textContent = totalGlobal > 0 ? workPct + '%' : '--';
+  document.getElementById('legendBenefitsPct').textContent = totalGlobal > 0 ? benefitsPct + '%' : '--';
+  document.getElementById('legendWorkVal').textContent = totalGlobal > 0 ? formatCurrency(totalWork) : '--';
+  document.getElementById('legendBenefitsVal').textContent = totalGlobal > 0 ? formatCurrency(totalBenefits) : '--';
+}
+
+// ===================================================================
+// SAVE
+// ===================================================================
+function handleSave() {
+  clearValidation();
+  var errors = validateForm();
+
+  if (errors.length > 0) {
+    showToast('error', 'Corrija os erros antes de salvar');
+    return;
+  }
+
+  var btn = document.getElementById('btnSave');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  setTimeout(function() {
+    btn.classList.remove('loading');
+    markClean();
+    showToast('success', 'Condicoes de trabalho e rendimento salvas com sucesso');
+    document.getElementById('footerInfo').textContent = 'Ultima atualizacao: agora';
+  }, 1500);
+}
+
+// ===================================================================
+// TOAST
+// ===================================================================
+function showToast(type, text) {
+  var toast = document.getElementById('toast');
+  var icon = document.getElementById('toastIcon');
+  var txt = document.getElementById('toastText');
+  toast.className = 'toast ' + type;
+  icon.innerHTML = type === 'success' ? '&#10003;' : '&#9888;';
+  txt.textContent = text;
+  toast.classList.add('visible');
+  setTimeout(function() { toast.classList.remove('visible'); }, 3000);
+}
+
+// ===================================================================
+// APPLY STATE TO UI
+// ===================================================================
+function applyStateToUI() {
+  renderAccordions();
+
+  // Benefits toggle
+  var benefitSwitch = document.getElementById('benefitToggleSwitch');
+  var benefitRow = document.getElementById('benefitToggleRow');
+  benefitSwitch.setAttribute('aria-checked', formState.receiveBenefits);
+  benefitRow.setAttribute('aria-checked', formState.receiveBenefits);
+  renderBenefits();
+
+  // Income source
+  document.getElementById('incomeSource').value = formState.incomeSource;
+  document.getElementById('incomeSource').classList.toggle('filled', !!formState.incomeSource);
+
+  // Simple toggles
+  var unemployedSwitch = document.getElementById('unemployedSwitch');
+  var unemployedRow = document.getElementById('unemployedRow');
+  unemployedSwitch.setAttribute('aria-checked', formState.hasUnemployed);
+  unemployedRow.setAttribute('aria-checked', formState.hasUnemployed);
+
+  var retiredSwitch = document.getElementById('retiredSwitch');
+  var retiredRow = document.getElementById('retiredRow');
+  retiredSwitch.setAttribute('aria-checked', formState.hasRetired);
+  retiredRow.setAttribute('aria-checked', formState.hasRetired);
+
+  updateSummary();
+}
+
+// ===================================================================
+// SCENARIOS
+// ===================================================================
+function loadFilledState() {
+  formState.members = JSON.parse(JSON.stringify(MOCK_MEMBERS));
+  formState.receiveBenefits = true;
+  formState.benefits = JSON.parse(JSON.stringify(MOCK_BENEFITS));
+  formState.incomeSource = 'Diarista';
+  formState.hasUnemployed = false;
+  formState.hasRetired = true;
+  expandedMember = 0;
+}
+
+function loadEmptyState() {
+  formState.members = MOCK_MEMBERS.map(function(m) {
+    return { id: m.id, name: m.name, initials: m.initials, relationship: m.relationship, occupation: '', hasWorkCard: false, income: 0 };
+  });
+  formState.receiveBenefits = false;
+  formState.benefits = [];
+  formState.incomeSource = '';
+  formState.hasUnemployed = false;
+  formState.hasRetired = false;
+  expandedMember = 0;
+}
+
+function showContentArea() {
+  document.getElementById('contentArea').style.display = '';
+  document.getElementById('footerBar').style.display = '';
+  document.getElementById('loadingState').style.display = 'none';
+}
+
+function hideContentArea() {
+  document.getElementById('contentArea').style.display = 'none';
+  document.getElementById('footerBar').style.display = 'none';
+}
+
+function resetConsolidatedFields() {
+  var totalFamilyEl = document.getElementById('totalFamilyIncome');
+  var perCapitaEl = document.getElementById('incomePerCapita');
+  totalFamilyEl.readOnly = true;
+  totalFamilyEl.classList.add('auto-calculated');
+  totalFamilyEl.oninput = null;
+  perCapitaEl.readOnly = true;
+  perCapitaEl.classList.add('auto-calculated');
+  perCapitaEl.oninput = null;
+}
+
+function showScenario(scenario, btnEl) {
+  // Update active button
+  document.querySelectorAll('.scenario-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (btnEl) btnEl.classList.add('active');
+
+  // Reset loading
+  document.getElementById('loadingState').style.display = 'none';
+
+  // Reset save button
+  var saveBtn = document.getElementById('btnSave');
+  saveBtn.classList.remove('loading');
+
+  switch (scenario) {
+    case 'filled':
+      showContentArea();
+      loadFilledState();
+      isDirty = false;
+      applyStateToUI();
+      clearValidation();
+      resetConsolidatedFields();
+      saveBtn.disabled = true;
+      document.getElementById('footerInfo').textContent = 'Ultima atualizacao: nao registrada';
+      break;
+
+    case 'empty':
+      showContentArea();
+      loadEmptyState();
+      isDirty = false;
+      applyStateToUI();
+      clearValidation();
+      resetConsolidatedFields();
+      saveBtn.disabled = true;
+      document.getElementById('footerInfo').textContent = 'Ultima atualizacao: nao registrada';
+      break;
+
+    case 'loading':
+      hideContentArea();
+      document.getElementById('loadingState').style.display = '';
+      break;
+
+    case 'validation':
+      showContentArea();
+      loadFilledState();
+      // Introduce validation errors
+      formState.incomeSource = ''; // SES-005
+      formState.benefits.push({ id: 99, name: 'Bolsa Familia', value: 0, beneficiary: 1, benefitType: '' }); // SB-002 + SBC-002
+      isDirty = true;
+      expandedMember = 0;
+      applyStateToUI();
+      saveBtn.disabled = false;
+      // Make consolidated fields editable and trigger SES-006
+      var totalFamilyEl = document.getElementById('totalFamilyIncome');
+      var perCapitaEl = document.getElementById('incomePerCapita');
+      totalFamilyEl.readOnly = false;
+      totalFamilyEl.classList.remove('auto-calculated');
+      perCapitaEl.readOnly = false;
+      perCapitaEl.classList.remove('auto-calculated');
+      // Set perCapita > totalFamily to trigger SES-006
+      perCapitaEl.value = '10.000,00';
+      perCapitaEl.classList.add('filled');
+      // Wire up manual input events for editable consolidated fields
+      totalFamilyEl.oninput = function() { validateConsolidatedIncome(); markDirty(); };
+      perCapitaEl.oninput = function() { validateConsolidatedIncome(); markDirty(); };
+      // Trigger validation display
+      validateForm();
+      document.getElementById('footerInfo').textContent = 'Ultima atualizacao: nao registrada';
+      break;
+
+    case 'saving':
+      showContentArea();
+      saveBtn.classList.add('loading');
+      saveBtn.disabled = true;
+      break;
+
+    case 'saved':
+      showContentArea();
+      showToast('success', 'Condicoes de trabalho e rendimento salvas com sucesso');
+      document.getElementById('footerInfo').textContent = 'Ultima atualizacao: agora';
+      break;
+  }
+}
+
+// ===================================================================
+// DRAG SCENARIO PANEL
+// ===================================================================
+(function() {
+  var panel = document.getElementById('scenarioPanel');
+  var handle = document.getElementById('dragHandle');
+  var dragging = false, ox = 0, oy = 0;
+  handle.addEventListener('mousedown', function(e) {
+    dragging = true;
+    ox = e.clientX - panel.offsetLeft;
+    oy = e.clientY - panel.offsetTop;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    panel.style.left = (e.clientX - ox) + 'px';
+    panel.style.top = (e.clientY - oy) + 'px';
+    panel.style.right = 'auto';
+  });
+  document.addEventListener('mouseup', function() { dragging = false; });
+})();
+
+// ===================================================================
+// INIT
+// ===================================================================
+setupIncomeSource();
+loadFilledState();
+applyStateToUI();
+</script>
+
+</body>
+</html>
