@@ -15,9 +15,9 @@ interface RecentAppCardProps {
 
 const containerStyle = css`
   width: 100%;
-  max-width: min(90%, 45rem);
-  margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.5rem);
-  animation: ${fadeInUp} 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+  max-width: 720px;
+  margin-bottom: 40px;
+  animation: ${fadeInUp} 600ms ease 200ms both;
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
@@ -25,38 +25,31 @@ const containerStyle = css`
 
 const labelStyle = css`
   font-family: ${font.satoshi};
-  font-size: clamp(0.5625rem, 0.5rem + 0.25vw, 0.625rem);
+  font-size: 10px;
   font-weight: ${weight.bold};
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: ${color.textSageMuted};
-  margin: 0 0 clamp(0.5rem, 0.375rem + 0.5vw, 0.75rem);
+  color: ${color.textMuted};
+  margin: 0 0 12px;
 `
 
 const cardStyle = css`
   display: flex;
   align-items: center;
-  gap: clamp(0.875rem, 0.75rem + 0.5vw, 1.25rem);
-  padding: clamp(1rem, 0.75rem + 1vw, 1.25rem) clamp(1.125rem, 0.875rem + 1vw, 1.5rem);
-  background: ${color.bgCard};
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid ${color.bgCardBorder};
-  border-radius: 16px;
+  gap: 20px;
+  padding: 20px 24px;
+  background: ${color.backgroundDark};
+  border-radius: ${radius.card};
   cursor: pointer;
-  transition: background 300ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 300ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 300ms ease;
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 300ms ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   &:hover {
-    background: ${color.bgCardHover};
-    border-color: ${color.bgCardBorderHover};
-    transform: translateY(-2px) scale(1.005);
-    box-shadow: 0 8px 32px rgba(79,132,72,0.08);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   }
   &:hover [data-arrow] {
     transform: translateX(4px);
-    color: ${color.primary};
+    color: ${color.textOnDark};
   }
   &:focus-visible {
     outline: 2px solid ${color.primary};
@@ -83,25 +76,26 @@ const infoStyle = css`
 `
 
 const nameStyle = css`
-  font-family: ${font.erode};
-  font-size: clamp(0.9375rem, 0.875rem + 0.25vw, 1rem);
+  font-family: ${font.satoshi};
+  font-size: 16px;
   font-weight: ${weight.semibold};
-  color: ${color.textSagePrimary};
+  color: ${color.textOnDark};
   margin: 0 0 4px;
 `
 
 const descStyle = css`
-  font-family: ${font.satoshi};
-  font-size: clamp(0.75rem, 0.6875rem + 0.25vw, 0.8125rem);
-  font-weight: ${weight.regular};
-  color: ${color.textSageMuted};
+  font-family: ${font.playfair};
+  font-size: 13px;
+  font-style: italic;
+  font-weight: ${weight.light};
+  color: ${alpha(color.textOnDark, 0.75)};
   margin: 0;
   line-height: 1.5;
 `
 
 const arrowStyle = css`
-  font-size: clamp(1.125rem, 1rem + 0.25vw, 1.25rem);
-  color: ${color.textSageSoft};
+  font-size: 20px;
+  color: ${alpha(color.textOnDark, 0.75)};
   flex-shrink: 0;
   transition: transform 200ms ease, color 200ms ease;
   @media (prefers-reduced-motion: reduce) {
@@ -129,7 +123,7 @@ export const RecentAppCard: FC<RecentAppCardProps> = ({ app, label, onClick }) =
     >
       <div
         class={iconStyle}
-        style={{ background: alpha(app.color, 0.1) }}
+        style={{ background: alpha(app.color, 0.15) }}
         aria-hidden="true"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">

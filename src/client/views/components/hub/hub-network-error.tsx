@@ -14,15 +14,10 @@ interface HubNetworkErrorProps {
 
 const containerStyle = css`
   text-align: center;
-  padding: clamp(2rem, 1.5rem + 2vw, 3rem) clamp(1rem, 0.75rem + 1vw, 1.5rem);
-  max-width: min(90%, 25rem);
+  padding: 48px 24px;
+  max-width: 400px;
   margin: 0 auto;
-  background: ${color.bgCard};
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid ${color.bgCardBorder};
-  border-radius: 16px;
-  animation: ${fadeInUp} 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+  animation: ${fadeInUp} 600ms ease 200ms both;
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
@@ -32,61 +27,58 @@ const iconBoxStyle = css`
   width: 72px;
   height: 72px;
   border-radius: 18px;
-  background: ${alpha(color.dangerAlt, 0.08)};
+  background: ${alpha(color.danger, 0.08)};
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto clamp(1rem, 0.75rem + 1vw, 1.5rem);
+  margin: 0 auto 24px;
 `
 
 const titleStyle = css`
-  font-family: ${font.erode};
-  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
-  font-weight: ${weight.semibold};
-  color: ${color.textSagePrimary};
-  margin: 0 0 clamp(0.375rem, 0.25rem + 0.25vw, 0.5rem);
+  font-family: ${font.satoshi};
+  font-size: 20px;
+  font-weight: ${weight.bold};
+  color: ${color.textPrimary};
+  margin: 0 0 8px;
 `
 
 const descStyle = css`
-  font-family: ${font.satoshi};
-  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.9375rem);
-  font-weight: ${weight.regular};
-  color: ${color.textSageMuted};
+  font-family: ${font.playfair};
+  font-size: 15px;
+  font-style: italic;
+  font-weight: ${weight.light};
+  color: ${color.textMuted};
   line-height: 1.6;
-  margin: 0 0 clamp(1rem, 0.75rem + 1vw, 1.5rem);
+  margin: 0 0 24px;
 `
 
 const retryBtnStyle = css`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: clamp(0.75rem, 0.625rem + 0.5vw, 0.875rem) clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  padding: 14px 28px;
   border-radius: ${radius.pill};
   border: none;
   background: ${color.primary};
-  color: #fff;
+  color: ${color.textOnDark};
   font-family: ${font.satoshi};
-  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem);
+  font-size: 14px;
   font-weight: ${weight.semibold};
   cursor: pointer;
-  transition: background 200ms ease, transform 200ms ease;
+  transition: opacity 200ms ease;
   &:hover {
-    background: ${color.primaryDark};
-    transform: translateY(-1px);
+    opacity: 0.9;
   }
   &:focus-visible {
     outline: 2px solid ${color.primary};
     outline-offset: 2px;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
   }
 `
 
 export const HubNetworkError: FC<HubNetworkErrorProps> = ({ strings, onRetry }) => (
   <div class={containerStyle}>
     <div class={iconBoxStyle} aria-hidden="true">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color.dangerAlt} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color.danger} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="1" y1="1" x2="23" y2="23" />
         <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
         <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" />

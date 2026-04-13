@@ -9,6 +9,8 @@ import { assert, assertEquals } from "@std/assert";
 import { Hono } from "@hono/hono";
 import type { AppEnv, Session } from "../../src/types.ts";
 import { createAdminApiRoutes } from "../../src/routes/api_admin.ts";
+import { createAuditStore } from "../../src/adapters/admin/audit_store.ts";
+import type { AuditStore } from "../../src/adapters/admin/types.ts";
 import type {
   RemoteClient,
   RemoteRequestOptions,
@@ -76,6 +78,7 @@ const createMockRemoteClient = (
 // ---------------------------------------------------------------------------
 
 const createTestApp = (
+  auditStore: AuditStore,
   mockClient: RemoteClient,
 ): Hono<AppEnv> => {
   const app = new Hono<AppEnv>();
@@ -98,6 +101,7 @@ const createTestApp = (
 
   const adminRoutes = createAdminApiRoutes({
     remoteClient: mockClient,
+    auditStore,
   });
 
   app.route("/api/admin", adminRoutes);
@@ -109,8 +113,9 @@ const createTestApp = (
 // =============================================================================
 
 Deno.test("lookup routes - PATCH /lookups/:tableName/:id/toggle proxies correctly", async () => {
+  const auditStore = createAuditStore();
   const { client, calls } = createMockRemoteClient({ active: false });
-  const app = createTestApp(client);
+  const app = createTestApp(auditStore, client);
 
   const res = await app.request(
     `/api/admin/lookups/dominio_parentesco/${TEST_UUID}/toggle`,
@@ -129,9 +134,32 @@ Deno.test("lookup routes - PATCH /lookups/:tableName/:id/toggle proxies correctl
   );
 });
 
+Deno.test("lookup routes - PATCH toggle creates LOOKUP_TOGGLED audit entry", async () => {
+  const auditStore = createAuditStore();
+  const { client } = createMockRemoteClient({ active: false });
+  const app = createTestApp(auditStore, client);
+
+  await app.request(
+    `/api/admin/lookups/dominio_parentesco/${TEST_UUID}/toggle`,
+    {
+      method: "PATCH",
+      headers: { "X-Requested-With": "XMLHttpRequest" },
+    },
+  );
+
+  const auditResult = auditStore.list({ limit: 10, offset: 0 });
+  assert(auditResult.total >= 1, "Should create audit entry");
+  assertEquals(auditResult.entries[0]!.action, "LOOKUP_TOGGLED");
+  assertEquals(
+    auditResult.entries[0]!.targetId,
+    `dominio_parentesco/${TEST_UUID}`,
+  );
+});
+
 Deno.test("lookup routes - PATCH toggle rejects invalid table name", async () => {
+  const auditStore = createAuditStore();
   const { client } = createMockRemoteClient();
-  const app = createTestApp(client);
+  const app = createTestApp(auditStore, client);
 
   const res = await app.request(
     `/api/admin/lookups/invalid_table/${TEST_UUID}/toggle`,
@@ -145,8 +173,9 @@ Deno.test("lookup routes - PATCH toggle rejects invalid table name", async () =>
 });
 
 Deno.test("lookup routes - PATCH toggle rejects invalid UUID", async () => {
+  const auditStore = createAuditStore();
   const { client } = createMockRemoteClient();
-  const app = createTestApp(client);
+  const app = createTestApp(auditStore, client);
 
   const res = await app.request(
     "/api/admin/lookups/dominio_parentesco/not-a-uuid/toggle",
@@ -164,10 +193,11 @@ Deno.test("lookup routes - PATCH toggle rejects invalid UUID", async () => {
 // =============================================================================
 
 Deno.test("lookup routes - GET /lookups/requests proxies to social-care", async () => {
+  const auditStore = createAuditStore();
   const { client, calls } = createMockRemoteClient([
     { id: "r1", status: "pendente" },
   ]);
-  const app = createTestApp(client);
+  const app = createTestApp(auditStore, client);
 
   const res = await app.request("/api/admin/lookups/requests");
 
@@ -177,11 +207,13 @@ Deno.test("lookup routes - GET /lookups/requests proxies to social-care", async 
     calls[0]!.path.includes("/dominios/requests"),
     "Path must include /dominios/requests",
   );
+  assertEquals(auditStore.count(), 0, "GET should not create audit entries");
 });
 
 Deno.test("lookup routes - GET /lookups/requests is NOT captured by :tableName", async () => {
+  const auditStore = createAuditStore();
   const { client, calls } = createMockRemoteClient([]);
-  const app = createTestApp(client);
+  const app = createTestApp(auditStore, client);
 
   await app.request("/api/admin/lookups/requests");
 
@@ -198,9 +230,10 @@ Deno.test("lookup routes - GET /lookups/requests is NOT captured by :tableName",
 // Requests Routes — POST /lookups/requests
 // =============================================================================
 
-Deno.test("lookup routes - POST /lookups/requests proxies correctly", async () => {
+Deno.test("lookup routes - POST /lookups/requests creates audit entry", async () => {
+  const auditStore = createAuditStore();
   const { client } = createMockRemoteClient({ id: "req-1" }, 201);
-  const app = createTestApp(client);
+  const app = createTestApp(auditStore, client);
 
   const res = await app.request("/api/admin/lookups/requests", {
     method: "POST",
@@ -218,15 +251,21 @@ Deno.test("lookup routes - POST /lookups/requests proxies correctly", async () =
     res.status >= 200 && res.status < 300,
     `Expected 2xx, got ${res.status}`,
   );
+
+  const auditResult = auditStore.list({ limit: 10, offset: 0 });
+  assert(auditResult.total >= 1, "Should create audit entry");
+  assertEquals(auditResult.entries[0]!.action, "LOOKUP_REQUEST_CREATED");
+  assertEquals(auditResult.entries[0]!.actorId, "admin-001");
 });
 
 // =============================================================================
 // Requests Routes — PUT /lookups/requests/:requestId/approve
 // =============================================================================
 
-Deno.test("lookup routes - PUT /lookups/requests/:id/approve proxies correctly", async () => {
+Deno.test("lookup routes - PUT /lookups/requests/:id/approve creates audit entry", async () => {
+  const auditStore = createAuditStore();
   const { client, calls } = createMockRemoteClient({ approved: true });
-  const app = createTestApp(client);
+  const app = createTestApp(auditStore, client);
 
   const res = await app.request(
     `/api/admin/lookups/requests/${TEST_UUID}/approve`,
@@ -243,11 +282,17 @@ Deno.test("lookup routes - PUT /lookups/requests/:id/approve proxies correctly",
     calls[0]!.path.includes(`/requests/${TEST_UUID}/approve`),
     "Path must include /requests/:id/approve",
   );
+
+  const auditResult = auditStore.list({ limit: 10, offset: 0 });
+  assert(auditResult.total >= 1, "Should create audit entry");
+  assertEquals(auditResult.entries[0]!.action, "LOOKUP_REQUEST_APPROVED");
+  assertEquals(auditResult.entries[0]!.targetId, TEST_UUID);
 });
 
 Deno.test("lookup routes - PUT approve rejects invalid UUID", async () => {
+  const auditStore = createAuditStore();
   const { client } = createMockRemoteClient();
-  const app = createTestApp(client);
+  const app = createTestApp(auditStore, client);
 
   const res = await app.request(
     "/api/admin/lookups/requests/not-valid/approve",
@@ -264,9 +309,10 @@ Deno.test("lookup routes - PUT approve rejects invalid UUID", async () => {
 // Requests Routes — PUT /lookups/requests/:requestId/reject
 // =============================================================================
 
-Deno.test("lookup routes - PUT /lookups/requests/:id/reject proxies with body", async () => {
+Deno.test("lookup routes - PUT /lookups/requests/:id/reject requires body", async () => {
+  const auditStore = createAuditStore();
   const { client, calls } = createMockRemoteClient({ rejected: true });
-  const app = createTestApp(client);
+  const app = createTestApp(auditStore, client);
 
   const res = await app.request(
     `/api/admin/lookups/requests/${TEST_UUID}/reject`,
@@ -283,11 +329,17 @@ Deno.test("lookup routes - PUT /lookups/requests/:id/reject proxies with body", 
   assertEquals(res.status, 200);
   assert(calls.length > 0, "Should have forwarded request");
   assertEquals(calls[0]!.method, "PUT");
+
+  const auditResult = auditStore.list({ limit: 10, offset: 0 });
+  assert(auditResult.total >= 1, "Should create audit entry");
+  assertEquals(auditResult.entries[0]!.action, "LOOKUP_REQUEST_REJECTED");
+  assertEquals(auditResult.entries[0]!.targetId, TEST_UUID);
 });
 
 Deno.test("lookup routes - PUT reject rejects invalid UUID", async () => {
+  const auditStore = createAuditStore();
   const { client } = createMockRemoteClient();
-  const app = createTestApp(client);
+  const app = createTestApp(auditStore, client);
 
   const res = await app.request(
     "/api/admin/lookups/requests/bad-id/reject",
@@ -302,4 +354,62 @@ Deno.test("lookup routes - PUT reject rejects invalid UUID", async () => {
   );
 
   assertEquals(res.status, 400);
+});
+
+// =============================================================================
+// All new mutation routes create audit entries
+// =============================================================================
+
+Deno.test("lookup routes - all new mutations create correct audit actions", async (t) => {
+  const mutations = [
+    {
+      method: "PATCH",
+      path: `/api/admin/lookups/dominio_parentesco/${TEST_UUID}/toggle`,
+      expectedAction: "LOOKUP_TOGGLED",
+      body: undefined,
+    },
+    {
+      method: "POST",
+      path: "/api/admin/lookups/requests",
+      expectedAction: "LOOKUP_REQUEST_CREATED",
+      body: JSON.stringify({ tableName: "dominio_parentesco", label: "X" }),
+    },
+    {
+      method: "PUT",
+      path: `/api/admin/lookups/requests/${TEST_UUID}/approve`,
+      expectedAction: "LOOKUP_REQUEST_APPROVED",
+      body: undefined,
+    },
+    {
+      method: "PUT",
+      path: `/api/admin/lookups/requests/${TEST_UUID}/reject`,
+      expectedAction: "LOOKUP_REQUEST_REJECTED",
+      body: JSON.stringify({ reviewNote: "duplicado" }),
+    },
+  ];
+
+  for (const { method, path, expectedAction, body } of mutations) {
+    await t.step(`${method} ${path} → ${expectedAction}`, async () => {
+      const auditStore = createAuditStore();
+      const { client } = createMockRemoteClient({}, 200);
+      const app = createTestApp(auditStore, client);
+
+      const headers: Record<string, string> = {
+        "X-Requested-With": "XMLHttpRequest",
+      };
+      if (body) {
+        headers["Content-Type"] = "application/json";
+      }
+
+      await app.request(path, { method, headers, body });
+
+      const result = auditStore.list({ limit: 10, offset: 0 });
+      assert(
+        result.total >= 1,
+        `${method} ${path} must create an audit entry`,
+      );
+      assertEquals(result.entries[0]!.action, expectedAction);
+      assertEquals(result.entries[0]!.actorId, "admin-001");
+    });
+  }
 });

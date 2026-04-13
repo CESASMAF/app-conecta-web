@@ -1,17 +1,20 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { font, weight, color } from "../../../styles/tokens.ts"
+import { font, weight, color, alpha } from "../../../styles/tokens.ts"
 
 const taglineStyle = css`
-  font-family: ${font.satoshi};
-  font-size: clamp(0.9375rem, 0.875rem + 0.25vw, 1.0625rem);
+  font-family: ${font.playfair};
+  font-size: 18px;
   font-style: italic;
-  font-weight: ${weight.regular};
-  color: ${color.textSageMuted};
+  font-weight: ${weight.light};
+  color: ${alpha(color.textOnDark, 0.82)};
   line-height: 1.6;
-  max-width: min(90%, 24rem);
+  max-width: 380px;
   text-align: center;
   margin: 0;
+  @media (max-width: 599px) {
+    font-size: 16px;
+  }
 `
 
 export const LandingTagline: FC = () => (

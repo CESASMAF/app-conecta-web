@@ -1,56 +1,32 @@
 import type { FC } from "hono/jsx/dom"
-import { css, keyframes } from "hono/css"
-import { color, font, weight, alpha } from "../../../styles/tokens.ts"
+import { css } from "hono/css"
+import { color, font, weight, space } from "../../../styles/tokens.ts"
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
-`
-
-const topBarStyle = css`
-  width: 100%;
-  max-width: min(90%, 48rem);
+const navStyle = css`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  animation: ${fadeIn} 400ms ease-out;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-`
-
-const backLinkStyle = css`
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
+  gap: ${space[2]};
   font-family: ${font.satoshi};
-  font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
-  color: ${color.textSageMuted};
+  font-size: 14px;
+  color: ${color.textMuted};
+`
+
+const linkStyle = css`
   text-decoration: none;
-  cursor: pointer;
-  transition: color 150ms ease;
-  border: none;
-  background: none;
-  padding: 0;
-
-  &:hover {
-    color: ${color.textSageSecondary};
-  }
+  color: ${color.textMuted};
+  font-weight: ${weight.medium};
+  &:hover { color: ${color.textPrimary}; }
 `
 
-const draftHintStyle = css`
-  font-family: ${font.satoshi};
-  font-size: clamp(0.6875rem, 0.65rem + 0.2vw, 0.75rem);
-  color: ${color.textSageSoft};
-  font-weight: ${weight.medium};
+const currentStyle = css`
+  color: ${color.textPrimary};
+  font-weight: ${weight.semibold};
 `
 
 export const WizardNavBar: FC = () => (
-  <div class={topBarStyle}>
-    <a href="/social-care" class={backLinkStyle} aria-label="Voltar para Famílias">
-      &#8592; Voltar para Famílias
-    </a>
-    <span class={draftHintStyle}>Rascunho salvo automaticamente</span>
-  </div>
+  <nav class={navStyle}>
+    <a href="/social-care" class={linkStyle}>Familias</a>
+    <span>/</span>
+    <span class={currentStyle}>Cadastro</span>
+  </nav>
 )

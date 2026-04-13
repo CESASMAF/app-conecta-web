@@ -118,6 +118,8 @@ src/domain/
   assessment/       — VOs de avaliação
   care/             — Appointment, Diagnosis
   protection/       — Referral, ViolationReport
+  people/           — Person, SystemRole
+  analytics/        — Pure calculation services
 ```
 
 ---
@@ -147,6 +149,7 @@ src/application/
   assessment/commands/
   care/commands/
   protection/commands/
+  people/commands/
 ```
 
 ---
@@ -401,17 +404,21 @@ social-care-deno/
 │   │   ├── registry/
 │   │   ├── assessment/
 │   │   ├── care/
-│   │   └── protection/
+│   │   ├── protection/
+│   │   ├── people/
+│   │   └── analytics/
 │   ├── application/
 │   │   ├── shared/types.ts, pipe-async.ts, middleware/, errors.ts
-│   │   ├── registry/  (+ validation/)
-│   │   ├── assessment/ (+ validation/)
-│   │   ├── care/       (+ validation/)
-│   │   └── protection/ (+ validation/)
+│   │   ├── registry/
+│   │   ├── assessment/
+│   │   ├── care/
+│   │   ├── protection/
+│   │   └── people/
 │   ├── adapters/
 │   │   ├── config/server_config.ts
 │   │   ├── auth/bff_service.ts, session_store.ts
-│   │   └── remote/remote_client.ts
+│   │   ├── remote/remote_client.ts
+│   │   └── infrastructure/dtos/, mappers/
 │   └── client/
 │       ├── apps/
 │       │   ├── registration/entry.tsx
@@ -427,26 +434,18 @@ social-care-deno/
 │       ├── viewmodels/
 │       │   ├── registration/types.ts, reducer.ts, validators.ts, persistence.ts
 │       │   ├── family-composition/
-│       │   ├── social-care/
-│       │   ├── auth-hub/
-│       │   └── admin-hub/
+│       │   └── social-care/
 │       ├── views/
 │       │   ├── pages/
 │       │   │   ├── social-care-page.tsx
 │       │   │   ├── registration-page.tsx
-│       │   │   ├── family-page.tsx
-│       │   │   ├── auth-hub-page.tsx
-│       │   │   └── admin-hub-page.tsx
+│       │   │   └── family-page.tsx
 │       │   └── components/
 │       │       ├── ui/
 │       │       ├── patient/
 │       │       ├── family/
 │       │       ├── registration/
-│       │       ├── care/
-│       │       ├── admin/
-│       │       ├── hub/
-│       │       ├── landing/
-│       │       └── redirect/
+│       │       └── care/
 │       └── styles/
 │           ├── tokens.ts
 │           └── base.ts

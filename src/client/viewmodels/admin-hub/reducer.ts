@@ -93,6 +93,14 @@ export const adminReducer = (
         ),
       };
 
+    // -- Audit --
+    case "LOAD_AUDIT_START":
+      return { ...state, auditStatus: "loading", auditError: null };
+    case "LOAD_AUDIT_SUCCESS":
+      return { ...state, auditStatus: "loaded", auditEntries: action.entries };
+    case "LOAD_AUDIT_FAILURE":
+      return { ...state, auditStatus: "error", auditError: action.error };
+
     // -- Toast --
     case "SHOW_TOAST":
       return { ...state, toasts: [...state.toasts, action.toast] };
@@ -126,6 +134,8 @@ export const getTabStatus = (
       return state.lookupsStatus;
     case "solicitacoes":
       return state.requestsStatus;
+    case "auditoria":
+      return state.auditStatus;
   }
 };
 

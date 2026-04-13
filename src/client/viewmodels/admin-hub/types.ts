@@ -1,5 +1,5 @@
 // Admin Hub ViewModel — State types, action union, and initial state.
-// Pure state management for the 4-tab admin panel.
+// Pure state management for the 5-tab admin panel.
 
 import type {
   LookupEntry,
@@ -14,6 +14,41 @@ import type { Person, SystemRole } from "../../services/people-service.ts";
 export type { LookupEntry, LookupRequest, Person, SystemRole };
 
 // ---------------------------------------------------------------------------
+// Audit Entry (client-side representation, mirrors backend response)
+// ---------------------------------------------------------------------------
+
+export type AuditAction =
+  | "PERSON_CREATED"
+  | "PERSON_UPDATED"
+  | "PERSON_DEACTIVATED"
+  | "PERSON_REACTIVATED"
+  | "ROLE_ASSIGNED"
+  | "ROLE_DEACTIVATED"
+  | "ROLE_REACTIVATED"
+  | "LOOKUP_CREATED"
+  | "LOOKUP_UPDATED"
+  | "LOOKUP_TOGGLED"
+  | "LOOKUP_APPROVED"
+  | "LOOKUP_REJECTED"
+  | "LOOKUP_REQUEST_CREATED"
+  | "LOOKUP_REQUEST_APPROVED"
+  | "LOOKUP_REQUEST_REJECTED";
+
+export type AuditOutcome = "SUCCESS" | "FAILURE";
+
+export type AuditEntry = Readonly<{
+  id: string;
+  timestamp: string;
+  actorId: string;
+  actorName: string;
+  action: AuditAction;
+  targetId: string;
+  details: string | undefined;
+  outcome: AuditOutcome;
+  errorMessage: string | undefined;
+}>;
+
+// ---------------------------------------------------------------------------
 // Tab Navigation
 // ---------------------------------------------------------------------------
 
@@ -21,7 +56,8 @@ export type AdminTab =
   | "dashboard"
   | "pessoas"
   | "lookups"
-  | "solicitacoes";
+  | "solicitacoes"
+  | "auditoria";
 
 // ---------------------------------------------------------------------------
 // Per-tab loading state
@@ -38,7 +74,6 @@ export type DashboardStats = Readonly<{
   activeRoles: number;
   pendingRequests: number;
   recentAuditCount: number;
-  health?: "ok" | "partial";
 }>;
 
 // ---------------------------------------------------------------------------
@@ -82,12 +117,17 @@ export type AdminState = Readonly<{
   requestsError: string | null;
   requests: readonly LookupRequest[];
 
+  // Auditoria
+  auditStatus: AdminLoadingState;
+  auditError: string | null;
+  auditEntries: readonly AuditEntry[];
+
   // Toast notifications
   toasts: readonly Toast[];
 }>;
 
 // ---------------------------------------------------------------------------
-// Action — discriminated union
+// Action — discriminated union (24 variants)
 // ---------------------------------------------------------------------------
 
 export type AdminAction =
@@ -117,6 +157,10 @@ export type AdminAction =
   | Readonly<{ type: "LOAD_REQUESTS_FAILURE"; error: string }>
   | Readonly<{ type: "APPROVE_REQUEST_SUCCESS"; request: LookupRequest }>
   | Readonly<{ type: "REJECT_REQUEST_SUCCESS"; request: LookupRequest }>
+  // Audit
+  | Readonly<{ type: "LOAD_AUDIT_START" }>
+  | Readonly<{ type: "LOAD_AUDIT_SUCCESS"; entries: readonly AuditEntry[] }>
+  | Readonly<{ type: "LOAD_AUDIT_FAILURE"; error: string }>
   // Toast
   | Readonly<{ type: "SHOW_TOAST"; toast: Toast }>
   | Readonly<{ type: "DISMISS_TOAST"; toastId: string }>;
@@ -144,6 +188,10 @@ export const initialState: AdminState = {
   requestsStatus: "idle",
   requestsError: null,
   requests: [],
+
+  auditStatus: "idle",
+  auditError: null,
+  auditEntries: [],
 
   toasts: [],
 };

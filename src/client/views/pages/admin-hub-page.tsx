@@ -21,6 +21,7 @@ import { DashboardTab } from "../components/admin/dashboard-tab.tsx";
 import { PeopleList } from "../components/admin/people-list.tsx";
 import { LookupTab } from "../components/admin/lookup-tab.tsx";
 import { RequestsList } from "../components/admin/requests-list.tsx";
+import { AuditList } from "../components/admin/audit-list.tsx";
 import { LoadingState } from "../components/admin/loading-state.tsx";
 import { ErrorState } from "../components/admin/error-state.tsx";
 import { ToastContainer } from "../components/admin/toast-container.tsx";
@@ -30,6 +31,7 @@ const TABS = [
   { id: "pessoas" as AdminTab, label: S.tabPessoas },
   { id: "lookups" as AdminTab, label: S.tabLookups },
   { id: "solicitacoes" as AdminTab, label: S.tabSolicitacoes },
+  { id: "auditoria" as AdminTab, label: S.tabAuditoria },
 ] as const;
 
 const pageStyle = css`
@@ -84,6 +86,16 @@ const loadTab = async (
       );
       break;
     }
+    case "auditoria": {
+      dispatch({ type: "LOAD_AUDIT_START" });
+      const r = await adminSvc.listAudit();
+      dispatch(
+        r.ok
+          ? { type: "LOAD_AUDIT_SUCCESS", entries: r.value }
+          : { type: "LOAD_AUDIT_FAILURE", error: S.errorAudit },
+      );
+      break;
+    }
   }
 };
 
@@ -93,16 +105,6 @@ export const AdminHubPage: FC = () => {
   useEffect(() => {
     loadTab("dashboard", dispatch);
   }, []);
-
-  useEffect(() => {
-    if (state.toasts.length === 0) return;
-    const latest = state.toasts[state.toasts.length - 1];
-    if (!latest) return;
-    const timer = setTimeout(() => {
-      dispatch({ type: "DISMISS_TOAST", toastId: latest.id });
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [state.toasts.length]);
 
   const handleTabChange = (tab: AdminTab): void => {
     dispatch({ type: "SET_TAB", tab });
@@ -166,9 +168,7 @@ export const AdminHubPage: FC = () => {
   };
 
   const handleReject = async (requestId: string): Promise<void> => {
-    const reviewNote = globalThis.prompt("Motivo da rejeição:");
-    if (reviewNote === null) return;
-    const r = await lookupSvc.rejectRequest(requestId, reviewNote);
+    const r = await lookupSvc.rejectRequest(requestId, "");
     if (r.ok) {
       dispatch({ type: "REJECT_REQUEST_SUCCESS", request: r.value });
       dispatch({
@@ -200,6 +200,7 @@ export const AdminHubPage: FC = () => {
     pessoas: S.loadingPeople,
     lookups: S.loadingLookups,
     solicitacoes: S.loadingRequests,
+    auditoria: S.loadingAudit,
   };
 
   const errorMessage: Record<AdminTab, string> = {
@@ -207,6 +208,7 @@ export const AdminHubPage: FC = () => {
     pessoas: state.peopleError ?? S.errorPeople,
     lookups: state.lookupsError ?? S.errorLookups,
     solicitacoes: state.requestsError ?? S.errorRequests,
+    auditoria: state.auditError ?? S.errorAudit,
   };
 
   const status = getTabStatus(state, state.activeTab);
@@ -252,6 +254,10 @@ export const AdminHubPage: FC = () => {
           onApprove={handleApprove}
           onReject={handleReject}
         />
+      )}
+      {status !== "loading" && status !== "error" &&
+        state.activeTab === "auditoria" && (
+        <AuditList entries={state.auditEntries} />
       )}
       <ToastContainer
         toasts={state.toasts}

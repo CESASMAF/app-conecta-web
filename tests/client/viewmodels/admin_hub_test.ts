@@ -10,6 +10,7 @@ import { initialState } from "../../../src/client/viewmodels/admin-hub/types.ts"
 import type {
   AdminState,
   AdminTab,
+  AuditEntry,
   DashboardStats,
   LookupEntry,
   LookupRequest,
@@ -58,6 +59,19 @@ const makeLookupRequest = (overrides: Partial<LookupRequest> = {}): LookupReques
   ...overrides,
 });
 
+const makeAuditEntry = (overrides: Partial<AuditEntry> = {}): AuditEntry => ({
+  id: "ae-001",
+  timestamp: "2026-01-01T00:00:00Z",
+  actorId: "actor-001",
+  actorName: "Maria Silva",
+  action: "PERSON_CREATED",
+  targetId: "p-001",
+  details: undefined,
+  outcome: "SUCCESS",
+  errorMessage: undefined,
+  ...overrides,
+});
+
 const makeToast = (overrides: Partial<Toast> = {}): Toast => ({
   id: "toast-001",
   variant: "success",
@@ -81,8 +95,8 @@ describe("adminReducer — navigation", () => {
       stats: makeStats(),
       dashboardStatus: "loaded",
     };
-    const result = adminReducer(state, { type: "SET_TAB", tab: "solicitacoes" });
-    assertEquals(result.activeTab, "solicitacoes");
+    const result = adminReducer(state, { type: "SET_TAB", tab: "auditoria" });
+    assertEquals(result.activeTab, "auditoria");
     assertEquals(result.stats, makeStats());
     assertEquals(result.dashboardStatus, "loaded");
   });
@@ -93,7 +107,7 @@ describe("adminReducer — navigation", () => {
   });
 
   it("SET_TAB cycles through all tabs", () => {
-    const tabs: readonly AdminTab[] = ["dashboard", "pessoas", "lookups", "solicitacoes"];
+    const tabs: readonly AdminTab[] = ["dashboard", "pessoas", "lookups", "solicitacoes", "auditoria"];
     for (const tab of tabs) {
       const result = adminReducer(initialState, { type: "SET_TAB", tab });
       assertEquals(result.activeTab, tab);
@@ -377,6 +391,44 @@ describe("adminReducer — requests", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Audit
+// ---------------------------------------------------------------------------
+
+describe("adminReducer — audit", () => {
+  it("LOAD_AUDIT_START sets auditStatus to loading", () => {
+    const result = adminReducer(initialState, { type: "LOAD_AUDIT_START" });
+    assertEquals(result.auditStatus, "loading");
+  });
+
+  it("LOAD_AUDIT_START clears previous auditError", () => {
+    const state: AdminState = {
+      ...initialState,
+      auditStatus: "error",
+      auditError: "DB down",
+    };
+    const result = adminReducer(state, { type: "LOAD_AUDIT_START" });
+    assertEquals(result.auditStatus, "loading");
+    assertEquals(result.auditError, null);
+  });
+
+  it("LOAD_AUDIT_SUCCESS sets auditEntries and auditStatus to loaded", () => {
+    const entries = [makeAuditEntry(), makeAuditEntry({ id: "ae-002" })];
+    const state: AdminState = { ...initialState, auditStatus: "loading" };
+    const result = adminReducer(state, { type: "LOAD_AUDIT_SUCCESS", entries });
+    assertEquals(result.auditStatus, "loaded");
+    assertEquals(result.auditEntries.length, 2);
+    assertEquals(result.auditEntries[0]!.id, "ae-001");
+  });
+
+  it("LOAD_AUDIT_FAILURE sets auditError and auditStatus to error", () => {
+    const state: AdminState = { ...initialState, auditStatus: "loading" };
+    const result = adminReducer(state, { type: "LOAD_AUDIT_FAILURE", error: "Permission denied" });
+    assertEquals(result.auditStatus, "error");
+    assertEquals(result.auditError, "Permission denied");
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Toast
 // ---------------------------------------------------------------------------
 
@@ -437,6 +489,7 @@ describe("adminReducer — initialState", () => {
     assertEquals(initialState.peopleStatus, "idle");
     assertEquals(initialState.lookupsStatus, "idle");
     assertEquals(initialState.requestsStatus, "idle");
+    assertEquals(initialState.auditStatus, "idle");
   });
 
   it("initialState has all errors as null", () => {
@@ -444,12 +497,14 @@ describe("adminReducer — initialState", () => {
     assertEquals(initialState.peopleError, null);
     assertEquals(initialState.lookupsError, null);
     assertEquals(initialState.requestsError, null);
+    assertEquals(initialState.auditError, null);
   });
 
   it("initialState has all arrays empty", () => {
     assertEquals(initialState.people.length, 0);
     assertEquals(initialState.lookupEntries.length, 0);
     assertEquals(initialState.requests.length, 0);
+    assertEquals(initialState.auditEntries.length, 0);
     assertEquals(initialState.toasts.length, 0);
   });
 
@@ -481,6 +536,11 @@ describe("isActiveTabLoading", () => {
 
   it("returns true when solicitacoes tab is loading", () => {
     const state: AdminState = { ...initialState, activeTab: "solicitacoes", requestsStatus: "loading" };
+    assertEquals(isActiveTabLoading(state), true);
+  });
+
+  it("returns true when auditoria tab is loading", () => {
+    const state: AdminState = { ...initialState, activeTab: "auditoria", auditStatus: "loading" };
     assertEquals(isActiveTabLoading(state), true);
   });
 
@@ -527,6 +587,11 @@ describe("getTabStatus", () => {
   it("returns requestsStatus for solicitacoes tab", () => {
     const state: AdminState = { ...initialState, requestsStatus: "loaded" };
     assertEquals(getTabStatus(state, "solicitacoes"), "loaded");
+  });
+
+  it("returns auditStatus for auditoria tab", () => {
+    const state: AdminState = { ...initialState, auditStatus: "idle" };
+    assertEquals(getTabStatus(state, "auditoria"), "idle");
   });
 });
 

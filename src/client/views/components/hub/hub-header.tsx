@@ -16,11 +16,12 @@ const headerStyle = css`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: clamp(1rem, 0.5rem + 1.5vw, 2rem) clamp(1.25rem, 0.5rem + 3vw, 3rem) 0;
+  padding: 20px 20px 0;
   flex-wrap: wrap;
-  gap: clamp(0.5rem, 0.25rem + 1vw, 0.75rem);
-  animation: ${fadeInUp} 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  gap: 12px;
+  animation: ${fadeInUp} 500ms ease both;
   @media (min-width: ${breakpoint.mobile}px) {
+    padding: 32px 48px 0;
     flex-wrap: nowrap;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -31,34 +32,34 @@ const headerStyle = css`
 const brandStyle = css`
   display: flex;
   align-items: center;
-  gap: clamp(0.5rem, 0.25rem + 0.5vw, 0.625rem);
+  gap: 10px;
 `
 
 const logoCircleStyle = css`
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, ${color.primary}, ${color.primaryDark});
+  background: ${color.backgroundDark};
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: ${font.erode};
-  font-size: 16px;
+  font-family: ${font.satoshi};
+  font-size: 18px;
   font-weight: ${weight.bold};
-  color: #fff;
+  color: ${color.textOnDark};
 `
 
 const brandTextStyle = css`
-  font-family: ${font.erode};
-  font-size: clamp(1rem, 0.875rem + 0.5vw, 1.125rem);
-  font-weight: ${weight.semibold};
-  color: ${color.textSageSecondary};
+  font-family: ${font.satoshi};
+  font-size: 18px;
+  font-weight: ${weight.bold};
+  color: ${color.textPrimary};
 `
 
 const rightSectionStyle = css`
   display: flex;
   align-items: center;
-  gap: clamp(0.5rem, 0.25rem + 0.5vw, 0.75rem);
+  gap: 12px;
 `
 
 const userInfoStyle = css`
@@ -71,47 +72,47 @@ const userInfoStyle = css`
 
 const userNameStyle = css`
   font-family: ${font.satoshi};
-  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem);
+  font-size: 14px;
   font-weight: ${weight.medium};
-  color: ${color.textSagePrimary};
+  color: ${color.textPrimary};
   margin: 0;
 `
 
 const userRoleStyle = css`
   font-family: ${font.satoshi};
-  font-size: clamp(0.6875rem, 0.625rem + 0.25vw, 0.75rem);
-  color: ${color.textSageMuted};
+  font-size: 12px;
+  color: ${color.textMuted};
   margin: 0;
 `
 
 const avatarStyle = css`
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, ${color.bgSage}, ${color.bgSageDeep});
-  color: ${color.primaryDark};
+  background: ${color.backgroundDark};
+  color: ${color.textOnDark};
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: ${font.satoshi};
-  font-size: clamp(0.6875rem, 0.625rem + 0.25vw, 0.75rem);
+  font-size: 16px;
   font-weight: ${weight.semibold};
 `
 
 const logoutStyle = css`
   background: none;
-  border: 1px solid ${alpha(color.primary, 0.15)};
-  padding: clamp(0.375rem, 0.25rem + 0.5vw, 0.5rem) clamp(0.875rem, 0.5rem + 1vw, 1.125rem);
+  border: 1px solid ${color.inputLine};
+  padding: 8px 18px;
   border-radius: ${radius.pill};
   font-family: ${font.satoshi};
-  font-size: clamp(0.75rem, 0.6875rem + 0.25vw, 0.8125rem);
+  font-size: 13px;
   font-weight: ${weight.semibold};
-  color: ${color.textSageMuted};
+  color: ${alpha(color.textPrimary, 0.7)};
   cursor: pointer;
   transition: border-color 200ms ease, color 200ms ease;
   &:hover {
-    border-color: ${color.dangerAlt};
-    color: ${color.dangerAlt};
+    border-color: ${color.danger};
+    color: ${color.danger};
   }
   &:focus-visible {
     outline: 2px solid ${color.primary};
@@ -122,7 +123,7 @@ const logoutStyle = css`
 export const HubHeader: FC<HubHeaderProps> = ({ user, onLogout }) => (
   <header class={headerStyle}>
     <div class={brandStyle}>
-      <div class={logoCircleStyle} aria-hidden="true">A</div>
+      <div class={logoCircleStyle}>A</div>
       <span class={brandTextStyle}>ACDG</span>
     </div>
     <div class={rightSectionStyle}>

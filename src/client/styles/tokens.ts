@@ -10,35 +10,15 @@ export const color = {
   surfaceLight: "#FFFBF4",
   cardAlternate: "#C8BBA4",
 
-  // Sage Garden backgrounds
-  bgBase: "#F8F3EC",
-  bgWarm: "#F0E8DC",
-  bgSage: "#E2E8DF",
-  bgSageDeep: "#D4DDD0",
-
-  // Glass card
-  bgCard: "rgba(255,255,255,0.45)",
-  bgCardHover: "rgba(255,255,255,0.65)",
-  bgCardBorder: "rgba(255,255,255,0.6)",
-  bgCardBorderHover: "rgba(79,132,72,0.2)",
-
   // Text
   textPrimary: "#261D11",
   textOnDark: "#F2E2C4",
   textMuted: "rgba(38, 29, 17, 0.65)",
   antiFlash: "#EBEBEB",
 
-  // Sage Garden text
-  textSagePrimary: "#1E2B1A",
-  textSageSecondary: "#3D5235",
-  textSageMuted: "#6B7F65",
-  textSageSoft: "#8B9E85",
-
   // Semantic
   primary: "#4F8448",
-  primaryDark: "#3D6A37",
   danger: "#A6290D",
-  dangerAlt: "#C4422B",
   warning: "#C9960A",
 
   // Borders

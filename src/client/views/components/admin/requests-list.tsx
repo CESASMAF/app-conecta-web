@@ -125,10 +125,6 @@ const emptyStyle = css`
   padding: ${space[7]};
 `;
 
-const badgeSpacing = css`
-  margin-left: ${space[2]};
-`;
-
 const getBadgeClass = (status: LookupRequest["status"]): string => {
   switch (status) {
     case "pendente":
@@ -168,7 +164,8 @@ export const RequestsList: FC<RequestsListProps> = ({
             <p class={labelStyle}>
               {r.label}
               <span
-                class={cx(getBadgeClass(r.status), badgeSpacing)}
+                class={getBadgeClass(r.status)}
+                style={{ marginLeft: "8px" }}
               >
                 {getBadgeLabel(r.status)}
               </span>

@@ -1,7 +1,6 @@
 import type { FC } from "hono/jsx/dom"
 import { css, keyframes } from "hono/css"
-import { color, font, weight, radius } from "../../../styles/tokens.ts"
-import { reducedMotion } from "../../../styles/auth-hub.ts"
+import { color, font, radius } from "../../../styles/tokens.ts"
 
 interface LandingButtonProps {
   readonly onClick: () => void
@@ -13,35 +12,31 @@ const spin = keyframes`
 `
 
 const buttonStyle = css`
-  ${reducedMotion}
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(0.75rem, 0.625rem + 0.5vw, 1rem) clamp(2rem, 1.5rem + 2vw, 3rem);
+  padding: 16px 48px;
   border-radius: ${radius.pill};
   border: none;
-  background: linear-gradient(135deg, ${color.primary}, ${color.primaryDark});
-  color: #fff;
-  font-family: ${font.satoshi};
-  font-size: clamp(0.9375rem, 0.875rem + 0.25vw, 1.0625rem);
-  font-weight: ${weight.semibold};
+  background: ${color.background};
+  color: ${color.backgroundDark};
+  font-family: ${font.playfair};
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 400;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(79, 132, 72, 0.3),
-              0 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 2.5px 2.5px 5px 2px rgba(0, 0, 0, 0.12);
   transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 300ms ease;
-  letter-spacing: 0.01em;
-  min-height: 48px;
   &:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 8px 24px rgba(79, 132, 72, 0.35),
-                0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: scale(1.04);
+    box-shadow: 3px 3px 8px 3px rgba(0, 0, 0, 0.18);
   }
   &:active {
-    transform: translateY(0) scale(0.98);
+    transform: scale(0.98);
   }
   &:focus-visible {
-    outline: 2px solid ${color.primary};
+    outline: 2px solid ${color.background};
     outline-offset: 3px;
   }
   &:disabled {
@@ -49,13 +44,22 @@ const buttonStyle = css`
     cursor: not-allowed;
     transform: none;
   }
+  @media (max-width: 599px) {
+    padding: 14px 36px;
+    font-size: 16px;
+    white-space: nowrap;
+    min-height: 48px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 `
 
 const spinnerStyle = css`
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #fff;
+  border: 2px solid ${color.backgroundDark};
+  border-top-color: transparent;
   border-radius: 50%;
   animation: ${spin} 0.8s linear infinite;
 `

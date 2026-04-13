@@ -1,16 +1,16 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { font, color } from "../../../styles/tokens.ts"
+import { font, color, alpha } from "../../../styles/tokens.ts"
 
 const footerStyle = css`
   position: absolute;
-  bottom: clamp(1rem, 0.75rem + 1vw, 2rem);
+  bottom: 32px;
   left: 0;
   right: 0;
   text-align: center;
   font-family: ${font.satoshi};
-  font-size: clamp(0.6875rem, 0.625rem + 0.25vw, 0.8125rem);
-  color: ${color.textSageSoft};
+  font-size: 13px;
+  color: ${alpha(color.textOnDark, 0.6)};
   letter-spacing: 0.5px;
 `
 

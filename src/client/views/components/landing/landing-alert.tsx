@@ -1,7 +1,6 @@
 import type { FC } from "hono/jsx/dom"
 import { css, cx, keyframes } from "hono/css"
-import { font, weight, color } from "../../../styles/tokens.ts"
-import { reducedMotion } from "../../../styles/auth-hub.ts"
+import { font, weight } from "../../../styles/tokens.ts"
 
 export interface LandingAlertProps {
   readonly type: "error" | "warning"
@@ -10,50 +9,51 @@ export interface LandingAlertProps {
 }
 
 const alertFadeIn = keyframes`
-  from { opacity: 0; transform: translateY(1.5rem); }
+  from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 `
 
 const containerBase = css`
-  ${reducedMotion}
-  max-width: min(90%, 28rem);
-  width: 100%;
-  padding: clamp(0.75rem, 0.625rem + 0.5vw, 1.25rem) clamp(1rem, 0.75rem + 0.75vw, 1.5rem);
-  border-radius: 12px;
+  max-width: 440px;
+  width: 90%;
+  padding: 16px 20px;
+  border-radius: 10px;
   display: flex;
   align-items: flex-start;
   gap: 12px;
   animation: ${alertFadeIn} 500ms ease both;
-  background: ${color.bgCard};
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid ${color.bgCardBorder};
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `
 
 const errorContainer = css`
-  border-color: rgba(196, 66, 43, 0.2);
+  background: rgba(166, 41, 13, 0.15);
+  border: 1px solid rgba(166, 41, 13, 0.25);
 `
 
 const warningContainer = css`
-  border-color: rgba(201, 150, 10, 0.2);
+  background: rgba(201, 150, 10, 0.15);
+  border: 1px solid rgba(201, 150, 10, 0.25);
 `
 
-const errorTitle = css`color: ${color.dangerAlt};`
-const warningTitle = css`color: ${color.warning};`
+const errorTitle = css`color: #FF8A7A;`
+const warningTitle = css`color: #FFD066;`
 
 const titleStyle = css`
   font-family: ${font.satoshi};
-  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem);
+  font-size: 14px;
   font-weight: ${weight.semibold};
   margin: 0 0 4px;
   line-height: 1.3;
 `
 
 const descStyle = css`
-  font-family: ${font.satoshi};
-  font-size: clamp(0.75rem, 0.6875rem + 0.25vw, 0.8125rem);
-  font-weight: ${weight.regular};
-  color: ${color.textSageMuted};
+  font-family: ${font.playfair};
+  font-size: 13px;
+  font-style: italic;
+  font-weight: ${weight.light};
+  color: rgba(242, 226, 196, 0.8);
   line-height: 1.5;
   margin: 0;
 `
@@ -80,7 +80,7 @@ const ClockIcon: FC<{ readonly color: string }> = ({ color: c }) => (
 
 export const LandingAlert: FC<LandingAlertProps> = ({ type, title, description }) => {
   const isError = type === "error"
-  const accentColor = isError ? color.dangerAlt : color.warning
+  const accentColor = isError ? "#FF8A7A" : "#FFD066"
 
   return (
     <div
