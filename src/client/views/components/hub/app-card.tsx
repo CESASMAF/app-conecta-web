@@ -1,6 +1,6 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { color, font, weight, alpha, radius, space } from "../../../styles/tokens.ts"
+import { color, font, weight, alpha, radius } from "../../../styles/tokens.ts"
 import { fadeInUp } from "../../../styles/auth-hub.ts"
 
 interface AppCardProps {
@@ -16,32 +16,30 @@ interface AppCardProps {
 
 const cardStyle = css`
   position: relative;
-  background: ${color.surface};
-  border-radius: ${radius.card};
-  padding: ${space[4]};
-  border: 1px solid transparent;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: ${color.bgCard};
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: clamp(1.125rem, 0.875rem + 1vw, 1.5rem);
+  border: 1px solid ${color.bgCardBorder};
   cursor: pointer;
   overflow: hidden;
-  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 300ms ease,
-    border-color 300ms ease;
+  transition: background 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 300ms ease;
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
-    border-color: ${color.inputLine};
-  }
-  &:hover [data-accent] {
-    opacity: 1;
+    background: ${color.bgCardHover};
+    border-color: ${color.bgCardBorderHover};
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(79,132,72,0.06);
   }
   &:focus-visible {
     outline: 2px solid ${color.primary};
     outline-offset: 2px;
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
-  }
-  &:focus-visible [data-accent] {
-    opacity: 1;
+    background: ${color.bgCardHover};
+    border-color: ${color.bgCardBorderHover};
+    transform: translateY(-2px);
   }
   @media (prefers-reduced-motion: reduce) {
     transition: none;
@@ -55,23 +53,22 @@ const iconStyle = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: ${space[3]};
+  margin-bottom: clamp(0.75rem, 0.5rem + 0.5vw, 1rem);
 `
 
 const nameStyle = css`
-  font-family: ${font.satoshi};
-  font-size: 15px;
-  font-weight: ${weight.bold};
-  color: ${color.textPrimary};
+  font-family: ${font.erode};
+  font-size: clamp(0.875rem, 0.8125rem + 0.25vw, 0.9375rem);
+  font-weight: ${weight.semibold};
+  color: ${color.textSagePrimary};
   margin: 0 0 6px;
 `
 
 const descStyle = css`
-  font-family: ${font.playfair};
-  font-size: 13px;
-  font-style: italic;
-  font-weight: ${weight.light};
-  color: ${color.textMuted};
+  font-family: ${font.satoshi};
+  font-size: clamp(0.75rem, 0.6875rem + 0.25vw, 0.8125rem);
+  font-weight: ${weight.regular};
+  color: ${color.textSageMuted};
   margin: 0;
   line-height: 1.5;
 `
@@ -88,7 +85,7 @@ export const AppCard: FC<AppCardProps> = ({ app, index, onClick }) => {
   return (
     <article
       class={cardStyle}
-      style={{ animation: `${fadeInUp} 500ms ease ${delay}ms both` }}
+      style={{ animation: `${fadeInUp} 500ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms both` }}
       role="button"
       tabindex={0}
       aria-label={`Abrir ${app.name}`}
@@ -97,7 +94,7 @@ export const AppCard: FC<AppCardProps> = ({ app, index, onClick }) => {
     >
       <div
         class={iconStyle}
-        style={{ background: alpha(app.color, 0.12) }}
+        style={{ background: alpha(app.color, 0.1) }}
         aria-hidden="true"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -106,21 +103,6 @@ export const AppCard: FC<AppCardProps> = ({ app, index, onClick }) => {
       </div>
       <h3 class={nameStyle}>{app.name}</h3>
       <p class={descStyle}>{app.description}</p>
-      <div
-        data-accent
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: app.color,
-          opacity: 0.5,
-          transition: "opacity 200ms ease",
-          borderRadius: `${radius.card} ${radius.card} 0 0`,
-        }}
-        aria-hidden="true"
-      />
     </article>
   )
 }

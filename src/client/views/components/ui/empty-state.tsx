@@ -1,10 +1,11 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { color, font, weight, space } from "../../../styles/tokens.ts"
+import { color, font, weight } from "../../../styles/tokens.ts"
 
 interface EmptyStateProps {
-  readonly message: string
-  readonly icon?: string
+  readonly icon: string
+  readonly title: string
+  readonly description: string
 }
 
 const containerStyle = css`
@@ -12,28 +13,37 @@ const containerStyle = css`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: ${space[7]} ${space[4]};
-  gap: ${space[3]};
-`
-
-const iconStyle = css`
-  font-size: 40px;
-  opacity: 0.4;
-  color: ${color.textMuted};
-`
-
-const messageStyle = css`
-  font-family: ${font.playfair};
-  font-style: italic;
-  font-weight: ${weight.light};
-  font-size: 18px;
-  color: ${color.textMuted};
+  padding: clamp(3rem, 2rem + 4vw, 5rem) clamp(1rem, 0.5rem + 2vw, 1.5rem);
   text-align: center;
 `
 
-export const EmptyState: FC<EmptyStateProps> = ({ message, icon }) => (
+const iconStyle = css`
+  font-size: 48px;
+  color: ${color.textSageSoft};
+  margin-bottom: clamp(0.75rem, 0.5rem + 1vw, 1.5rem);
+  opacity: 0.4;
+`
+
+const titleStyle = css`
+  font-family: ${font.erode};
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
+  font-weight: ${weight.bold};
+  color: ${color.textSageSecondary};
+  margin-bottom: 0.5rem;
+`
+
+const descriptionStyle = css`
+  font-family: ${font.satoshi};
+  font-style: italic;
+  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem);
+  color: ${color.textSageMuted};
+  max-width: 17.5rem;
+`
+
+export const EmptyState: FC<EmptyStateProps> = ({ icon, title, description }) => (
   <div class={containerStyle}>
-    {icon && <span class={iconStyle}>{icon}</span>}
-    <p class={messageStyle}>{message}</p>
+    <span class={iconStyle}>{icon}</span>
+    <div class={titleStyle}>{title}</div>
+    <div class={descriptionStyle}>{description}</div>
   </div>
 )

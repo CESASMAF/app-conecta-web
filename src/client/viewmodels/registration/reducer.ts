@@ -75,6 +75,13 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
       return { ...state, diagnoses: updated }
     }
 
+    case "UPDATE_DIAGNOSIS_FIELD": {
+      const updatedDiag = state.diagnoses.map((d, i) =>
+        i === action.index ? { ...d, [action.field]: action.value } : d
+      )
+      return { ...state, diagnoses: updatedDiag }
+    }
+
     case "ADD_FAMILY_MEMBER":
       return {
         ...state,

@@ -20,7 +20,6 @@ import { createApiRoutes } from "./routes/api.ts";
 import { createAdminApiRoutes } from "./routes/api_admin.ts";
 import { pageRoutes } from "./routes/pages.tsx";
 import { meRoutes } from "./routes/me.ts";
-import { createAuditStore } from "./adapters/admin/audit_store.ts";
 
 // ---------------------------------------------------------------------------
 // Bootstrap
@@ -28,7 +27,6 @@ import { createAuditStore } from "./adapters/admin/audit_store.ts";
 
 const config = loadConfig();
 const sessionStore = createSessionStore();
-const auditStore = createAuditStore();
 const authService = createBFFAuthService(config, sessionStore);
 const remoteClient = createRemoteClient(config);
 
@@ -51,6 +49,7 @@ app.use("*", async (c, next) => {
 // ---------------------------------------------------------------------------
 
 app.use("*", securityHeaders());
+app.use("/prototypes/*", serveStatic({ root: "./" }));
 app.use("/static/*", serveStatic({ root: "./" }));
 app.use("*", csrf());
 app.use("*", sessionMiddleware());
@@ -67,7 +66,7 @@ app.route("/", healthRoutes);
 app.route("/", createAuthRoutes(authService));
 app.route("/", meRoutes);
 app.route("/", createApiRoutes(remoteClient));
-app.route("/api/admin", createAdminApiRoutes({ remoteClient, auditStore }));
+app.route("/api/admin", createAdminApiRoutes({ remoteClient }));
 app.route("/", pageRoutes);
 
 // ---------------------------------------------------------------------------

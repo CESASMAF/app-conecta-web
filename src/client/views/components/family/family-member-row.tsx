@@ -1,118 +1,289 @@
 import type { FC } from "hono/jsx/dom"
-import { css } from "hono/css"
-import { color, font, weight, alpha } from "../../../styles/tokens.ts"
+import { useState } from "hono/jsx/dom"
+import { css, keyframes } from "hono/css"
+import { color, font, weight, radius, alpha } from "../../../styles/tokens.ts"
 import type { FamilyMemberModel } from "../../../viewmodels/family-composition/types.ts"
 import { calculateAge } from "../../../viewmodels/family-composition/reducer.ts"
 
 interface FamilyMemberRowProps {
   readonly member: FamilyMemberModel
+  readonly index: number
   readonly onEdit: () => void
   readonly onRemove: () => void
   readonly onSetCaregiver: () => void
 }
 
-const rowBase = css`
-  display: table-row;
+const rowFadeIn = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+`
+
+const rowStyle = css`
+  display: grid;
+  grid-template-columns: 32px 1fr 110px 90px 80px 36px;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid ${alpha(color.primary, 0.08)};
+  transition: all 150ms ease;
+  animation: ${rowFadeIn} 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  &:last-child { border-bottom: none; }
+  &:hover {
+    background: rgba(255,255,255,0.3);
+    border-radius: 12px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+    border-bottom: none;
+  }
+`
+
+const indexStyle = css`
   font-family: ${font.satoshi};
-  font-size: 13px;
-  font-weight: ${weight.medium};
-  color: ${color.textPrimary};
+  font-size: 0.75rem;
+  color: ${color.textSageSoft};
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+
+  @media (max-width: 768px) { display: none; }
 `
 
-const rowPR = css`
-  background: ${alpha(color.primary, 0.05)};
+const nameStyle = css`
+  font-family: ${font.erode};
+  font-size: 0.9375rem;
+  font-weight: ${weight.semibold};
+  color: ${color.textSagePrimary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
-const rowCaregiver = css`
-  background: ${alpha(color.backgroundDark, 0.04)};
+const relationshipStyle = css`
+  font-family: ${font.satoshi};
+  font-size: 0.75rem;
+  color: ${color.textSageMuted};
+  margin-top: 1px;
 `
 
-const cellStyle = css`
-  padding: 12px 8px;
-  vertical-align: middle;
-  border-bottom: 1px solid ${color.inputLine};
+const ageStyle = css`
+  font-family: ${font.satoshi};
+  font-size: 0.8125rem;
+  color: ${color.textSageSecondary};
+  font-variant-numeric: tabular-nums;
 `
 
-const badgeBase = css`
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 100px;
+const sexStyle = css`
+  font-family: ${font.satoshi};
+  font-size: 0.75rem;
+  color: ${color.textSageMuted};
+`
+
+const tagsWrap = css`
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+`
+
+const tagBase = css`
+  font-family: ${font.satoshi};
   font-size: 11px;
-  font-weight: ${weight.bold};
-  letter-spacing: 0.3px;
+  font-weight: ${weight.semibold};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: ${radius.pill};
+  white-space: nowrap;
 `
 
-const badgePR = css`
-  ${badgeBase}
+const tagPR = css`
+  ${tagBase}
   background: ${alpha(color.primary, 0.12)};
   color: ${color.primary};
 `
 
-const badgeCaregiver = css`
-  ${badgeBase}
-  background: ${alpha(color.backgroundDark, 0.1)};
-  color: ${color.backgroundDark};
+const tagCaregiver = css`
+  ${tagBase}
+  background: ${alpha(color.primary, 0.12)};
+  color: ${color.primaryDark};
+`
+
+const tagDisability = css`
+  ${tagBase}
+  background: ${alpha(color.dangerAlt, 0.08)};
+  color: ${color.dangerAlt};
+`
+
+const tagResides = css`
+  ${tagBase}
+  background: ${alpha(color.primary, 0.08)};
+  color: ${color.textSageSecondary};
+`
+
+const actionMenu = css`
+  position: relative;
 `
 
 const actionBtn = css`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px 6px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid ${alpha(color.primary, 0.12)};
+  background: transparent;
+  color: ${color.textSageSoft};
   font-size: 16px;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-  &:hover { opacity: 1; }
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms ease;
+  font-family: ${font.satoshi};
+
+  &:hover {
+    border-color: ${color.primary};
+    color: ${color.primary};
+    background: ${alpha(color.primary, 0.08)};
+  }
+
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
 `
 
-const lockIcon = css`
-  padding: 4px 6px;
-  font-size: 16px;
-  opacity: 0.4;
-  cursor: default;
+const dropdownIn = keyframes`
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+`
+
+const dropdown = css`
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid ${color.bgCardBorder};
+  border-radius: 12px;
+  padding: 4px;
+  min-width: 150px;
+  z-index: 20;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  animation: ${dropdownIn} 150ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`
+
+const dropdownItem = css`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-family: ${font.satoshi};
+  font-size: 0.8125rem;
+  color: ${color.textSageSecondary};
+  cursor: pointer;
+  transition: all 150ms ease;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+
+  &:hover {
+    background: ${alpha(color.primary, 0.08)};
+    color: ${color.primary};
+  }
+`
+
+const dropdownDanger = css`
+  ${dropdownItem}
+  color: ${color.dangerAlt};
+  &:hover {
+    background: ${alpha(color.dangerAlt, 0.08)};
+    color: ${color.dangerAlt};
+  }
+`
+
+const dropdownIcon = css`
+  width: 16px;
+  text-align: center;
+  font-size: 12px;
 `
 
 export const FamilyMemberRow: FC<FamilyMemberRowProps> = ({
   member,
+  index,
   onEdit,
   onRemove,
   onSetCaregiver,
 }) => {
+  const [menuOpen, setMenuOpen] = useState(false)
   const age = calculateAge(member.birthDate, new Date())
-  const rowClass = member.isPR ? rowPR : member.isPrimaryCaregiver ? rowCaregiver : rowBase
+
+  const tags: readonly { label: string; style: string }[] = [
+    ...(member.isPR ? [{ label: "PR", style: tagPR }] : []),
+    ...(member.isPrimaryCaregiver ? [{ label: "Cuidador", style: tagCaregiver }] : []),
+    ...(member.hasDisability ? [{ label: "PcD", style: tagDisability }] : []),
+    ...(member.residesWithPatient && !member.isPR ? [{ label: "Reside", style: tagResides }] : []),
+  ]
 
   return (
-    <tr class={rowClass}>
-      <td class={cellStyle}>
-        {member.name}
-        {member.isPR && <span class={badgePR}> Referencia</span>}
-        {member.isPrimaryCaregiver && !member.isPR && (
-          <span class={badgeCaregiver}> Cuidador</span>
+    <div class={rowStyle} style={`animation-delay: ${index * 60}ms`}>
+      <span class={indexStyle}>{String(index + 1).padStart(2, "0")}</span>
+      <div>
+        <div class={nameStyle}>{member.name}</div>
+        <div class={relationshipStyle}>
+          {member.relationshipLabel}
+          {member.requiredDocuments.length > 0 ? ` \u00B7 ${member.requiredDocuments.join(", ")}` : ""}
+        </div>
+      </div>
+      <span class={ageStyle}>{age} anos</span>
+      <span class={sexStyle}>{member.sex}</span>
+      <div class={tagsWrap}>
+        {tags.map((t) => <span key={t.label} class={t.style}>{t.label}</span>)}
+      </div>
+      <div class={actionMenu}>
+        <button
+          class={actionBtn}
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={`Acoes para ${member.name}`}
+          aria-expanded={menuOpen}
+        >&#8942;</button>
+        {menuOpen && (
+          <div class={dropdown}>
+            {!member.isPrimaryCaregiver && (
+              <button class={dropdownItem} onClick={() => { onSetCaregiver(); setMenuOpen(false) }}>
+                <span class={dropdownIcon} aria-hidden="true">&#9733;</span> Tornar cuidador
+              </button>
+            )}
+            <button class={dropdownItem} onClick={() => { onEdit(); setMenuOpen(false) }}>
+              <span class={dropdownIcon} aria-hidden="true">&#9998;</span> Editar
+            </button>
+            {!member.isPR && (
+              <button class={dropdownDanger} onClick={() => { onRemove(); setMenuOpen(false) }}>
+                <span class={dropdownIcon} aria-hidden="true">&#10005;</span> Remover
+              </button>
+            )}
+          </div>
         )}
-      </td>
-      <td class={cellStyle}>{age}</td>
-      <td class={cellStyle}>{member.sex}</td>
-      <td class={cellStyle}>{member.relationshipLabel}</td>
-      <td class={cellStyle}>{member.residesWithPatient ? "Sim" : "Nao"}</td>
-      <td class={cellStyle}>{member.hasDisability ? "Sim" : "Nao"}</td>
-      <td class={cellStyle}>{member.requiredDocuments.join(", ") || "-"}</td>
-      <td class={cellStyle}>
-        <button class={actionBtn} onClick={onSetCaregiver} title="Definir cuidador">
-          &#9733;
-        </button>
-        <button class={actionBtn} onClick={onEdit} title="Editar">
-          &#9998;
-        </button>
-        {member.isPR ? (
-          <span class={lockIcon} title="Pessoa de referencia nao pode ser removida">
-            &#128274;
-          </span>
-        ) : (
-          <button class={actionBtn} onClick={onRemove} title="Remover">
-            &#128465;
-          </button>
-        )}
-      </td>
-    </tr>
+      </div>
+    </div>
   )
 }
