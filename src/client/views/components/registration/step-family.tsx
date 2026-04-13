@@ -5,7 +5,15 @@ import { color, font, weight, alpha } from "../../../styles/tokens.ts"
 import { UnderlineInput } from "../ui/underline-input.tsx"
 import type { FamilyMemberSnapshot } from "../../../viewmodels/registration/types.ts"
 
+interface ReferencePersonInfo {
+  readonly firstName: string
+  readonly lastName: string
+  readonly birthDate: string
+  readonly gender: string
+}
+
 interface StepFamilyProps {
+  readonly referencePerson: ReferencePersonInfo
   readonly familyMembers: readonly FamilyMemberSnapshot[]
   readonly onAddMember: (member: FamilyMemberSnapshot) => void
   readonly onRemoveMember: (index: number) => void
@@ -227,20 +235,49 @@ const addBtnStyle = css`
   }
 `
 
+const pinnedBadgeStyle = css`
+  display: inline-block;
+  font-family: ${font.satoshi};
+  font-size: clamp(0.625rem, 0.6rem + 0.1vw, 0.6875rem);
+  font-weight: ${weight.semibold};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: ${color.primary};
+  background: ${alpha(color.primary, 0.08)};
+  padding: 0.125rem 0.5rem;
+  border-radius: 100px;
+`
+
+const pinnedRowStyle = css`
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(0.75rem, 0.625rem + 0.5vw, 1.5rem);
+  padding: 0.75rem 0;
+  border-bottom: 1.5px solid ${alpha(color.primary, 0.12)};
+`
+
+const formatDate = (raw: string): string => {
+  const digits = raw.replace(/\D/g, "").slice(0, 8)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+}
+
 const RELATIONSHIP_OPTIONS = [
-  { value: "CONJUGE", label: "Conjuge / Companheiro(a)" },
+  { value: "CONJUGE", label: "Cônjuge / Companheiro(a)" },
   { value: "FILHO", label: "Filho(a)" },
   { value: "ENTEADO", label: "Enteado(a)" },
   { value: "PAI", label: "Pai" },
-  { value: "MAE", label: "Mae" },
-  { value: "AVO", label: "Avo / Avo" },
+  { value: "MAE", label: "Mãe" },
+  { value: "AVO", label: "Avô / Avó" },
   { value: "NETO", label: "Neto(a)" },
-  { value: "IRMAO", label: "Irmao / Irma" },
+  { value: "IRMAO", label: "Irmão / Irmã" },
   { value: "TIO", label: "Tio(a)" },
   { value: "SOBRINHO", label: "Sobrinho(a)" },
   { value: "PRIMO", label: "Primo(a)" },
   { value: "OUTRO_PARENTE", label: "Outro Parente" },
-  { value: "NAO_PARENTE", label: "Nao Parente" },
+  { value: "NAO_PARENTE", label: "Não Parente" },
 ] as const
 
 const GENDER_OPTIONS = ["Masculino", "Feminino", "Outro"] as const
@@ -254,7 +291,7 @@ const EMPTY_MEMBER: FamilyMemberSnapshot = {
   isDisabled: false,
 }
 
-export const StepFamily: FC<StepFamilyProps> = ({ familyMembers, onAddMember, onRemoveMember }) => {
+export const StepFamily: FC<StepFamilyProps> = ({ referencePerson, familyMembers, onAddMember, onRemoveMember }) => {
   const [showForm, setShowForm] = useState(false)
   const [draft, setDraft] = useState<FamilyMemberSnapshot>(EMPTY_MEMBER)
 
@@ -271,18 +308,28 @@ export const StepFamily: FC<StepFamilyProps> = ({ familyMembers, onAddMember, on
     setShowForm(false)
   }
 
+  const refFullName = `${referencePerson.firstName} ${referencePerson.lastName}`.trim()
+  const refBirthFormatted = referencePerson.birthDate ? formatDate(referencePerson.birthDate) : ""
+
   return (
     <div class={containerStyle}>
-      {familyMembers.length === 0 && !showForm && (
-        <p class={emptyStyle}>Nenhum membro familiar adicionado. Este passo e opcional.</p>
-      )}
+      <div class={pinnedRowStyle}>
+        <span class={memberIndex}>01</span>
+        <div>
+          <span class={memberNameStyle}>{refFullName}</span>
+          <span class={memberMetaStyle}>
+            {" "}Pessoa de referência | {referencePerson.gender} {refBirthFormatted ? `| ${refBirthFormatted}` : ""}
+          </span>
+        </div>
+        <span class={pinnedBadgeStyle}>Referência</span>
+      </div>
 
       {familyMembers.map((member, i) => (
-        <div class={memberRowStyle} style={`animation-delay: ${i * 60}ms`}>
-          <span class={memberIndex}>{String(i + 1).padStart(2, "0")}</span>
+        <div class={memberRowStyle} style={`animation-delay: ${(i + 1) * 60}ms`}>
+          <span class={memberIndex}>{String(i + 2).padStart(2, "0")}</span>
           <span class={memberNameStyle}>{member.name}</span>
           <span class={memberMetaStyle}>
-            {member.relationship} | {member.gender} | {member.livesWithPatient ? "Reside" : "Nao reside"}
+            {member.relationship} | {member.gender} | {member.livesWithPatient ? "Reside" : "Não reside"}
           </span>
           <button
             class={removeBtnStyle}
@@ -357,7 +404,7 @@ export const StepFamily: FC<StepFamilyProps> = ({ familyMembers, onAddMember, on
                   checked={draft.isDisabled}
                   onChange={() => setDraft({ ...draft, isDisabled: !draft.isDisabled })}
                 />
-                Pessoa com deficiencia
+                Pessoa com deficiência
               </label>
             </div>
           </div>

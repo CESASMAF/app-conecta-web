@@ -46,6 +46,30 @@ const globalErrorStyle = css`
   line-height: 1.4;
 `
 
+const formatNis = (raw: string): string => {
+  const digits = raw.replace(/\D/g, "").slice(0, 11)
+  if (digits.length <= 3) return digits
+  if (digits.length <= 8) return `${digits.slice(0, 3)}.${digits.slice(3)}`
+  if (digits.length <= 10) return `${digits.slice(0, 3)}.${digits.slice(3, 8)}.${digits.slice(8)}`
+  return `${digits.slice(0, 3)}.${digits.slice(3, 8)}.${digits.slice(8, 10)}-${digits.slice(10)}`
+}
+
+const formatCns = (raw: string): string => {
+  const digits = raw.replace(/\D/g, "").slice(0, 15)
+  if (digits.length <= 3) return digits
+  if (digits.length <= 7) return `${digits.slice(0, 3)} ${digits.slice(3)}`
+  if (digits.length <= 11) return `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7)}`
+  return `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7, 11)} ${digits.slice(11)}`
+}
+
+const formatRg = (raw: string): string => {
+  const digits = raw.replace(/\D/g, "").slice(0, 9)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`
+  if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}-${digits.slice(8)}`
+}
+
 const formatCpf = (raw: string): string => {
   const digits = raw.replace(/\D/g, "").slice(0, 11)
   if (digits.length <= 3) return digits
@@ -80,16 +104,16 @@ export const StepDocuments: FC<StepDocumentsProps> = ({ documents, errors, onUpd
       <div>
         <UnderlineInput
           label="NIS"
-          value={documents.nis}
-          onChange={(v) => onUpdate("nis", v)}
+          value={formatNis(documents.nis)}
+          onChange={(v) => onUpdate("nis", unformat(v))}
           error={errors.get("nis")}
         />
       </div>
       <div>
         <UnderlineInput
           label="CNS"
-          value={documents.cnsNumber}
-          onChange={(v) => onUpdate("cnsNumber", v)}
+          value={formatCns(documents.cnsNumber)}
+          onChange={(v) => onUpdate("cnsNumber", unformat(v))}
           error={errors.get("cnsNumber")}
         />
       </div>
@@ -99,39 +123,6 @@ export const StepDocuments: FC<StepDocumentsProps> = ({ documents, errors, onUpd
           value={formatDate(documents.birthDate)}
           onChange={(v) => onUpdate("birthDate", unformat(v))}
           error={errors.get("birthDate")}
-        />
-      </div>
-      <div class={sectionTitleStyle}>RG (preencha todos ou nenhum)</div>
-      <div>
-        <UnderlineInput
-          label="Numero do RG"
-          value={documents.rgNumber}
-          onChange={(v) => onUpdate("rgNumber", v)}
-          error={errors.get("rgNumber")}
-        />
-      </div>
-      <div>
-        <UnderlineInput
-          label="UF"
-          value={documents.rgUf}
-          onChange={(v) => onUpdate("rgUf", v)}
-          error={errors.get("rgUf")}
-        />
-      </div>
-      <div>
-        <UnderlineInput
-          label="Orgao Emissor"
-          value={documents.rgAgency}
-          onChange={(v) => onUpdate("rgAgency", v)}
-          error={errors.get("rgAgency")}
-        />
-      </div>
-      <div>
-        <UnderlineInput
-          label="Data de Emissao"
-          value={formatDate(documents.rgDate)}
-          onChange={(v) => onUpdate("rgDate", unformat(v))}
-          error={errors.get("rgDate")}
         />
       </div>
     </div>

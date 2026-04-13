@@ -16,6 +16,6 @@ const footerStyle = css`
 
 export const LandingFooter: FC = () => (
   <footer class={footerStyle}>
-    ACDG — Assist\u00eancia e Cuidado em Desenvolvimento e Gest\u00e3o
+    ACDG — Assistência e Cuidado em Desenvolvimento e Gestão
   </footer>
 )

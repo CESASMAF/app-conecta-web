@@ -173,16 +173,16 @@ const UF_OPTIONS = [
 
 const HOUSING_OPTIONS = [
   { value: "", label: "Selecione..." },
-  { value: "Propria", label: "Propria" },
+  { value: "Propria", label: "Própria" },
   { value: "Alugada", label: "Alugada" },
   { value: "Cedida", label: "Cedida" },
   { value: "Outros", label: "Outros" },
 ] as const
 
 const LOCATION_TYPES = [
-  { value: "URBANO", icon: "\u{1F3D7}", label: "Urbano", desc: "Residencia em area urbana" },
-  { value: "RURAL", icon: "\u{1F33E}", label: "Rural", desc: "Residencia em area rural" },
-  { value: "RUA", icon: "\u{1F6CC}", label: "Situacao de Rua", desc: "Pessoa sem moradia fixa" },
+  { value: "URBANO", icon: "\u{1F3D7}", label: "Urbano", desc: "Residência em área urbana" },
+  { value: "RURAL", icon: "\u{1F33E}", label: "Rural", desc: "Residência em área rural" },
+  { value: "RUA", icon: "\u{1F6CC}", label: "Situação de Rua", desc: "Pessoa sem moradia fixa" },
 ] as const
 
 const formatCep = (raw: string): string => {
@@ -300,7 +300,7 @@ export const StepAddress: FC<StepAddressProps> = ({ address, errors, onUpdate })
 
           <div class={isHomeless ? disabledField : undefined}>
             <UnderlineInput
-              label="Numero"
+              label="Número"
               value={address.number}
               onChange={(v) => onUpdate("number", v)}
               error={errors.get("number")}

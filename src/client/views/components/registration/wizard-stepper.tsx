@@ -7,7 +7,7 @@ interface WizardStepperProps {
   readonly totalSteps?: number
 }
 
-const STEP_LABELS = ["Pessoais", "Docs", "Endereco", "Diag.", "Familia", "Espec.", "Ingresso"] as const
+const STEP_LABELS = ["Pessoais", "Docs", "Endereço", "Diag.", "Família", "Espec.", "Ingresso"] as const
 const TOTAL = 7
 
 const stepperStyle = css`

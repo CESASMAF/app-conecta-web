@@ -124,7 +124,7 @@ export const ConfirmDialog: FC<ConfirmDialogProps> = ({
       <div class={iconStyle} aria-hidden="true">&#9888;</div>
       <div class={titleStyle}>Remover membro?</div>
       <div class={descStyle}>
-        Tem certeza que deseja remover <strong>{name}</strong> da composi\u00e7\u00e3o familiar? Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita.
+        Tem certeza que deseja remover <strong>{name}</strong> da composição familiar? Esta ação não pode ser desfeita.
       </div>
       <div class={actionsStyle}>
         <button type="button" class={cancelBtn} onClick={onCancel} aria-label="Cancelar">Cancelar</button>

@@ -23,7 +23,7 @@ const backLink = css`
 `
 
 export const FamilyNavBar: FC<FamilyNavBarProps> = () => (
-  <a href="/social-care" class={backLink} aria-label="Voltar para lista de fam\u00edlias">
-    &#8592; Voltar para Fam\u00edlias
+  <a href="/social-care" class={backLink} aria-label="Voltar para lista de famílias">
+    &#8592; Voltar para Famílias
   </a>
 )

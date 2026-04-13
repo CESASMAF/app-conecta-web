@@ -24,12 +24,12 @@ import { SuccessOverlay } from "../components/registration/success-overlay.tsx"
 const TOTAL_STEPS = 7
 
 const STEPS = [
-  { number: "Etapa 01", title: "Dados Pessoais", desc: "Informacoes basicas da pessoa de referencia." },
-  { number: "Etapa 02", title: "Documentos", desc: "CPF, NIS, CNS e documentos de identificacao." },
-  { number: "Etapa 03", title: "Endereco", desc: "Situacao de moradia e localizacao." },
-  { number: "Etapa 04", title: "Diagnosticos", desc: "Pelo menos um diagnostico e obrigatorio." },
-  { number: "Etapa 05", title: "Composicao Familiar", desc: "Membros da familia (opcional)." },
-  { number: "Etapa 06", title: "Especificidades (opcional)", desc: "Identidade social, etnica ou cultural." },
+  { number: "Etapa 01", title: "Dados Pessoais", desc: "Informações básicas da pessoa de referência." },
+  { number: "Etapa 02", title: "Documentos", desc: "CPF, NIS, CNS e documentos de identificação." },
+  { number: "Etapa 03", title: "Endereço", desc: "Situação de moradia e localização." },
+  { number: "Etapa 04", title: "Diagnósticos", desc: "Pelo menos um diagnóstico é obrigatório." },
+  { number: "Etapa 05", title: "Composição Familiar", desc: "Membros da família (opcional)." },
+  { number: "Etapa 06", title: "Especificidades (opcional)", desc: "Identidade social, étnica ou cultural." },
   { number: "Etapa 07", title: "Ingresso", desc: "Tipo de ingresso e motivo do atendimento." },
 ] as const
 
@@ -177,10 +177,7 @@ export const RegistrationPage: FC = () => {
                 diagnoses={state.diagnoses}
                 errors={errors}
                 onUpdateEntry={(index, field, value) => {
-                  const diag = state.diagnoses[index]
-                  if (!diag) return
-                  const updated = { ...diag, [field]: value }
-                  dispatch({ type: "APPLY_QUICK_CID", index, code: updated.code, description: updated.description })
+                  dispatch({ type: "UPDATE_DIAGNOSIS_FIELD", index, field, value })
                 }}
                 onAddDiagnosis={() => dispatch({ type: "ADD_DIAGNOSIS" })}
                 onRemoveDiagnosis={(i) => dispatch({ type: "REMOVE_DIAGNOSIS", index: i })}
@@ -189,6 +186,12 @@ export const RegistrationPage: FC = () => {
             )}
             {state.currentStep === 4 && (
               <StepFamily
+                referencePerson={{
+                  firstName: state.fields.firstName,
+                  lastName: state.fields.lastName,
+                  birthDate: state.documents.birthDate,
+                  gender: state.fields.gender,
+                }}
                 familyMembers={state.familyMembers}
                 onAddMember={(m) => dispatch({ type: "ADD_FAMILY_MEMBER", member: m })}
                 onRemoveMember={(i) => dispatch({ type: "REMOVE_FAMILY_MEMBER", index: i })}

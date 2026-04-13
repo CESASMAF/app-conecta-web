@@ -83,6 +83,15 @@ const errorTextStyle = css`
   margin-top: 0.25rem;
 `
 
+const formatPhone = (raw: string): string => {
+  const digits = raw.replace(/\D/g, "").slice(0, 11)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
+
+const unformatPhone = (value: string): string => value.replace(/\D/g, "")
+
 const GENDER_OPTIONS = [
   { value: "MASCULINO", label: "Masculino" },
   { value: "FEMININO", label: "Feminino" },
@@ -142,7 +151,7 @@ export const StepPersonalData: FC<StepPersonalDataProps> = ({ fields, errors, on
     </div>
     <div>
       <UnderlineInput
-        label="Nome da Mae"
+        label="Nome da Mãe"
         value={fields.motherName}
         onChange={(v) => onUpdate("motherName", v)}
         error={errors.get("motherName")}
@@ -187,8 +196,8 @@ export const StepPersonalData: FC<StepPersonalDataProps> = ({ fields, errors, on
     <div>
       <UnderlineInput
         label="Telefone"
-        value={fields.phoneNumber}
-        onChange={(v) => onUpdate("phoneNumber", v)}
+        value={formatPhone(fields.phoneNumber)}
+        onChange={(v) => onUpdate("phoneNumber", unformatPhone(v))}
       />
     </div>
   </div>

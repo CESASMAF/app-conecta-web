@@ -734,7 +734,7 @@ var Dr=Object.defineProperty;var Tr=(e,t)=>{for(var r in t)Dr(e,r,{get:t[r],enum
     border-color: ${a.dangerAlt};
     background: ${x(a.dangerAlt,.08)};
   }
-`,gr=({name:e,onConfirm:t,onCancel:r})=>i("div",{class:Rn,onClick:r,role:"dialog","aria-modal":"true","aria-label":"Confirmar remocao",children:i("div",{class:Tn,onClick:o=>o.stopPropagation(),children:[i("div",{class:Pn,"aria-hidden":"true",children:"\u26A0"}),i("div",{class:In,children:"Remover membro?"}),i("div",{class:Mn,children:["Tem certeza que deseja remover ",i("strong",{children:e})," da composi\\u00e7\\u00e3o familiar? Esta a\\u00e7\\u00e3o n\\u00e3o pode ser desfeita."]}),i("div",{class:jn,children:[i("button",{type:"button",class:_n,onClick:r,"aria-label":"Cancelar",children:"Cancelar"}),i("button",{type:"button",class:On,onClick:t,"aria-label":"Remover membro",children:"Remover"})]})]})});var Ln=T`
+`,gr=({name:e,onConfirm:t,onCancel:r})=>i("div",{class:Rn,onClick:r,role:"dialog","aria-modal":"true","aria-label":"Confirmar remocao",children:i("div",{class:Tn,onClick:o=>o.stopPropagation(),children:[i("div",{class:Pn,"aria-hidden":"true",children:"\u26A0"}),i("div",{class:In,children:"Remover membro?"}),i("div",{class:Mn,children:["Tem certeza que deseja remover ",i("strong",{children:e})," da composi\xE7\xE3o familiar? Esta a\xE7\xE3o n\xE3o pode ser desfeita."]}),i("div",{class:jn,children:[i("button",{type:"button",class:_n,onClick:r,"aria-label":"Cancelar",children:"Cancelar"}),i("button",{type:"button",class:On,onClick:t,"aria-label":"Remover membro",children:"Remover"})]})]})});var Ln=T`
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 `,zn=c`
@@ -952,7 +952,7 @@ var Dr=Object.defineProperty;var Tr=(e,t)=>{for(var r in t)Dr(e,r,{get:t[r],enum
     color: ${a.textSageSecondary};
     text-decoration: underline;
   }
-`,Sr=()=>i("a",{href:"/social-care",class:ai,"aria-label":"Voltar para lista de fam\\u00edlias",children:"\u2190 Voltar para Fam\\u00edlias"});var li=T`
+`,Sr=()=>i("a",{href:"/social-care",class:ai,"aria-label":"Voltar para lista de fam\xEDlias",children:"\u2190 Voltar para Fam\xEDlias"});var li=T`
   0% { background-position: -400px 0; }
   100% { background-position: 400px 0; }
 `,ci=c`

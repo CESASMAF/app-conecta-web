@@ -85,6 +85,7 @@ export type WizardAction =
   | Readonly<{ type: "ADD_DIAGNOSIS" }>
   | Readonly<{ type: "REMOVE_DIAGNOSIS"; index: number }>
   | Readonly<{ type: "APPLY_QUICK_CID"; index: number; code: string; description: string }>
+  | Readonly<{ type: "UPDATE_DIAGNOSIS_FIELD"; index: number; field: keyof DiagnosisEntry; value: string }>
   | Readonly<{ type: "ADD_FAMILY_MEMBER"; member: FamilyMemberSnapshot }>
   | Readonly<{ type: "UPDATE_FAMILY_MEMBER"; index: number; member: FamilyMemberSnapshot }>
   | Readonly<{ type: "REMOVE_FAMILY_MEMBER"; index: number }>

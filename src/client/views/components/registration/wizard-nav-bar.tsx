@@ -48,8 +48,8 @@ const draftHintStyle = css`
 
 export const WizardNavBar: FC = () => (
   <div class={topBarStyle}>
-    <a href="/social-care" class={backLinkStyle} aria-label="Voltar para Familias">
-      &#8592; Voltar para Familias
+    <a href="/social-care" class={backLinkStyle} aria-label="Voltar para Famílias">
+      &#8592; Voltar para Famílias
     </a>
     <span class={draftHintStyle}>Rascunho salvo automaticamente</span>
   </div>

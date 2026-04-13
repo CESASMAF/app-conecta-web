@@ -4,6 +4,15 @@ import { color, font, weight, alpha } from "../../../styles/tokens.ts"
 import { UnderlineInput } from "../ui/underline-input.tsx"
 import type { DiagnosisEntry } from "../../../viewmodels/registration/types.ts"
 
+const formatDate = (raw: string): string => {
+  const digits = raw.replace(/\D/g, "").slice(0, 8)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+}
+
+const unformat = (value: string): string => value.replace(/\D/g, "")
+
 interface StepDiagnosesProps {
   readonly diagnoses: readonly DiagnosisEntry[]
   readonly errors: ReadonlyMap<string, string>
@@ -196,9 +205,9 @@ const emptyStyle = css`
 
 const QUICK_CIDS = [
   { code: "G80", desc: "Paralisia cerebral" },
-  { code: "Q90", desc: "Sindrome de Down" },
+  { code: "Q90", desc: "Síndrome de Down" },
   { code: "F84.0", desc: "Autismo" },
-  { code: "E70", desc: "Fenilcetonuria" },
+  { code: "E70", desc: "Fenilcetonúria" },
   { code: "G71.0", desc: "Distrofia muscular" },
   { code: "R69", desc: "Morbidade n/e" },
   { code: "Z03", desc: "Obs. por suspeita" },
@@ -245,7 +254,7 @@ export const StepDiagnoses: FC<StepDiagnosesProps> = ({
             <div class={diagGrid}>
               <div>
                 <UnderlineInput
-                  label="Codigo CID"
+                  label="Código CID"
                   value={diag.code}
                   onChange={(v) => onUpdateEntry(index, "code", v)}
                   error={errors.get(`diagnosis_${index}_code`)}
@@ -254,14 +263,14 @@ export const StepDiagnoses: FC<StepDiagnosesProps> = ({
               <div>
                 <UnderlineInput
                   label="Data"
-                  value={diag.date}
-                  onChange={(v) => onUpdateEntry(index, "date", v)}
+                  value={formatDate(diag.date)}
+                  onChange={(v) => onUpdateEntry(index, "date", unformat(v))}
                   error={errors.get(`diagnosis_${index}_date`)}
                 />
               </div>
               <div class={fullCol}>
                 <UnderlineInput
-                  label="Descricao"
+                  label="Descrição"
                   value={diag.description}
                   onChange={(v) => onUpdateEntry(index, "description", v)}
                   error={errors.get(`diagnosis_${index}_description`)}

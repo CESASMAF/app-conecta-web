@@ -177,16 +177,16 @@ const programLabelSelected = css`
 
 const INGRESS_OPTIONS = [
   { value: "", label: "Selecione..." },
-  { value: "DEMANDA_ESPONTANEA", label: "Demanda espontanea" },
+  { value: "DEMANDA_ESPONTANEA", label: "Demanda espontânea" },
   { value: "BUSCA_ATIVA", label: "Busca ativa" },
   { value: "ENCAMINHAMENTO", label: "Encaminhamento" },
-  { value: "REINCIDENCIA", label: "Reincidencia" },
+  { value: "REINCIDENCIA", label: "Reincidência" },
 ] as const
 
 const SOCIAL_PROGRAMS = [
-  { id: "BPC", label: "BPC (Beneficio de Prestacao Continuada)" },
-  { id: "BOLSA_FAMILIA", label: "Bolsa Familia" },
-  { id: "AUXILIO_BRASIL", label: "Auxilio Brasil" },
+  { id: "BPC", label: "BPC (Benefício de Prestação Continuada)" },
+  { id: "BOLSA_FAMILIA", label: "Bolsa Família" },
+  { id: "AUXILIO_BRASIL", label: "Auxílio Brasil" },
   { id: "PETI", label: "PETI" },
   { id: "OUTROS", label: "Outros programas" },
 ] as const
@@ -262,13 +262,13 @@ export const StepIntake: FC<StepIntakeProps> = ({ intake, errors, onUpdate, onTo
     </div>
 
     <div class={fullCol}>
-      <label class={fieldLabelStyle}>Observacao</label>
+      <label class={fieldLabelStyle}>Observação</label>
       <textarea
         class={textareaStyle}
         value={intake.observation}
         onInput={(e) => onUpdate("observation", (e.target as HTMLTextAreaElement).value)}
-        placeholder="Anotacoes gerais sobre o ingresso..."
-        aria-label="Observacao de ingresso"
+        placeholder="Anotações gerais sobre o ingresso..."
+        aria-label="Observação de ingresso"
       />
     </div>
   </div>

@@ -106,18 +106,18 @@ export const StepSpecificities: FC<StepSpecificitiesProps> = ({ specificity, err
     </div>
     <div>
       <UnderlineInput
-        label="Descricao"
+        label="Descrição"
         value={specificity.description}
         onChange={(v) => onUpdate("description", v)}
         error={errors.get("description")}
       />
     </div>
     <div class={fullCol}>
-      <label class={fieldLabelStyle}>Observa\u00e7\u00f5es</label>
+      <label class={fieldLabelStyle}>Observações</label>
       <textarea
         class={textareaStyle}
-        placeholder="Informa\u00e7\u00f5es complementares sobre especificidades..."
-        aria-label="Observa\u00e7\u00f5es sobre especificidades"
+        placeholder="Informações complementares sobre especificidades..."
+        aria-label="Observações sobre especificidades"
         value={specificity.observations}
         onInput={(e) => onUpdate("observations", (e.target as HTMLTextAreaElement).value)}
       />

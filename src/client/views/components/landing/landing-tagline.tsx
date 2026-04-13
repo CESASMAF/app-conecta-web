@@ -16,7 +16,7 @@ const taglineStyle = css`
 
 export const LandingTagline: FC = () => (
   <p class={taglineStyle}>
-    Plataforma integrada de assist\u00eancia e cuidado social para gest\u00e3o de
-    fam\u00edlias e acompanhamento comunit\u00e1rio
+    Plataforma integrada de assistência e cuidado social para gestão de
+    famílias e acompanhamento comunitário
   </p>
 )
