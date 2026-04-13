@@ -1,35 +1,29 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { color, font, weight } from "../../../styles/tokens.ts"
+import { color, font } from "../../../styles/tokens.ts"
 
-interface FamilyNavBarProps {
-  readonly lastName: string
-}
+type FamilyNavBarProps = Record<string, never>
 
-const navStyle = css`
-  display: flex;
+const backLink = css`
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.375rem;
   font-family: ${font.satoshi};
-  font-size: 14px;
-  font-weight: ${weight.bold};
-  color: ${color.textMuted};
+  font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
+  color: ${color.textSageMuted};
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 150ms ease;
+  margin-bottom: 1.5rem;
+
+  &:hover {
+    color: ${color.textSageSecondary};
+    text-decoration: underline;
+  }
 `
 
-const separatorStyle = css`
-  color: ${color.textMuted};
-`
-
-const activeStyle = css`
-  color: ${color.textPrimary};
-`
-
-export const FamilyNavBar: FC<FamilyNavBarProps> = ({ lastName }) => (
-  <nav class={navStyle}>
-    <span>Familias</span>
-    <span class={separatorStyle}>/</span>
-    <span>{lastName}</span>
-    <span class={separatorStyle}>/</span>
-    <span class={activeStyle}>Composicao Familiar</span>
-  </nav>
+export const FamilyNavBar: FC<FamilyNavBarProps> = () => (
+  <a href="/social-care" class={backLink} aria-label="Voltar para lista de famílias">
+    &#8592; Voltar para Famílias
+  </a>
 )

@@ -1,6 +1,6 @@
 import type { FC } from "hono/jsx/dom"
 import { css } from "hono/css"
-import { color, font, weight, space } from "../../../styles/tokens.ts"
+import { color, font, weight, alpha } from "../../../styles/tokens.ts"
 import { UnderlineInput } from "../ui/underline-input.tsx"
 import type { WizardState } from "../../../viewmodels/registration/types.ts"
 
@@ -10,89 +10,117 @@ interface StepSpecificitiesProps {
   readonly onUpdate: (field: string, value: string) => void
 }
 
-const containerStyle = css`
-  display: flex;
-  flex-direction: column;
-  gap: ${space[4]};
+const gridStyle = css`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1rem, 0.75rem + 1vw, 1.5rem) clamp(1.25rem, 1rem + 1vw, 1.75rem);
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 `
 
-const infoText = css`
+const selectStyle = css`
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid ${alpha(color.primary, 0.15)};
+  padding: clamp(0.5rem, 0.4rem + 0.4vw, 0.625rem) 0;
   font-family: ${font.satoshi};
-  font-size: 14px;
-  color: ${color.textMuted};
-`
-
-const optionsGrid = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${space[3]};
-`
-
-const optionLabel = css`
-  display: flex;
-  align-items: center;
-  gap: ${space[2]};
-  font-family: ${font.satoshi};
-  font-size: 15px;
-  color: ${color.textPrimary};
+  font-size: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem);
+  color: ${color.textSagePrimary};
+  outline: none;
   cursor: pointer;
-  padding: ${space[2]} ${space[3]};
-  border: 1px solid ${color.inputLine};
-  border-radius: 100px;
-  transition: border-color 0.15s, background 0.15s;
-  &:hover { background: ${color.surface}; }
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+
+  &:focus {
+    border-color: ${color.primary};
+  }
 `
 
-const optionLabelSelected = css`
-  ${optionLabel}
-  border-color: ${color.primary};
-  background: rgba(79, 132, 72, 0.06);
+const fieldLabelStyle = css`
+  font-family: ${font.satoshi};
+  font-size: clamp(0.6875rem, 0.65rem + 0.2vw, 0.75rem);
+  font-weight: ${weight.semibold};
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: ${color.textSageSoft};
 `
 
-const descriptionWrapper = css`
-  max-width: 480px;
+const textareaStyle = css`
+  background: rgba(255, 255, 255, 0.25);
+  border: 1.5px solid ${alpha(color.primary, 0.12)};
+  border-radius: 12px;
+  padding: 0.75rem;
+  font-family: ${font.satoshi};
+  font-size: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem);
+  color: ${color.textSagePrimary};
+  outline: none;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+
+  &:focus {
+    border-color: ${color.primary};
+  }
+
+  &::placeholder {
+    color: ${color.textSageSoft};
+    font-style: italic;
+  }
+`
+
+const fullCol = css`
+  grid-column: 1 / -1;
 `
 
 const IDENTITY_OPTIONS = [
-  { value: "INDIGENA", label: "Indigena" },
-  { value: "QUILOMBOLA", label: "Quilombola" },
-  { value: "CIGANO", label: "Cigano(a)" },
-  { value: "RIBEIRINHO", label: "Ribeirinho(a)" },
-  { value: "EXTRATIVISTA", label: "Extrativista" },
-  { value: "OUTRO", label: "Outro" },
+  "Quilombola",
+  "Indigena",
+  "Ribeirinho",
+  "Cigano",
+  "Extrativista",
+  "Pescador artesanal",
+  "Pertencente a comunidade de terreiro",
+  "Nenhuma das anteriores",
 ] as const
 
 export const StepSpecificities: FC<StepSpecificitiesProps> = ({ specificity, errors, onUpdate }) => (
-  <div class={containerStyle}>
-    <p class={infoText}>
-      Este passo e opcional. Selecione uma identidade social caso aplicavel.
-    </p>
-
-    <div class={optionsGrid}>
-      {IDENTITY_OPTIONS.map((opt) => (
-        <label class={specificity.selectedIdentity === opt.value ? optionLabelSelected : optionLabel}>
-          <input
-            type="radio"
-            name="selectedIdentity"
-            value={opt.value}
-            checked={specificity.selectedIdentity === opt.value}
-            onChange={() => onUpdate("selectedIdentity", opt.value)}
-            style="display:none"
-          />
-          {opt.label}
-        </label>
-      ))}
+  <div class={gridStyle}>
+    <div>
+      <label class={fieldLabelStyle}>Identidade Social</label>
+      <select
+        class={selectStyle}
+        value={specificity.selectedIdentity}
+        onChange={(e) => onUpdate("selectedIdentity", (e.target as HTMLSelectElement).value)}
+        aria-label="Identidade social"
+      >
+        <option value="">Selecione...</option>
+        {IDENTITY_OPTIONS.map((opt) => (
+          <option value={opt}>{opt}</option>
+        ))}
+      </select>
     </div>
-
-    {specificity.selectedIdentity && (
-      <div class={descriptionWrapper}>
-        <UnderlineInput
-          label="Descricao adicional"
-          value={specificity.description}
-          onChange={(v) => onUpdate("description", v)}
-          error={errors.get("description")}
-        />
-      </div>
-    )}
+    <div>
+      <UnderlineInput
+        label="Descrição"
+        value={specificity.description}
+        onChange={(v) => onUpdate("description", v)}
+        error={errors.get("description")}
+      />
+    </div>
+    <div class={fullCol}>
+      <label class={fieldLabelStyle}>Observações</label>
+      <textarea
+        class={textareaStyle}
+        placeholder="Informações complementares sobre especificidades..."
+        aria-label="Observações sobre especificidades"
+        value={specificity.observations}
+        onInput={(e) => onUpdate("observations", (e.target as HTMLTextAreaElement).value)}
+      />
+    </div>
   </div>
 )
