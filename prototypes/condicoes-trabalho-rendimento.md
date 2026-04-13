@@ -90,7 +90,7 @@
 | Card hover | rgba(255,255,255,0.65) | sage.bgCardHover |
 | Texto principal | #1E2B1A | sage.textPrimary |
 | Texto secundario | #3D5235 | sage.textSecondary |
-| Texto muted | #6B7F65 | sage.textMuted |
+| Texto muted | #5A7154 | sage.textMuted |
 | Texto soft | #4A5E44 | sage.textSoft |
 | Verde primario | #4F8448 | sage.greenPrimary |
 | Verde dark | #3D6A37 | sage.greenDark |
