@@ -1,0 +1,16 @@
+# Bun config — supply-chain hardening (ADR-0003)
+[install]
+# Isolated installs (estilo pnpm) + global virtual store: node_modules vira árvore
+# fina de symlinks; runtime de produção roda sem node_modules (.output do Nitro).
+linker = "isolated"
+globalStore = true
+
+# Lifecycle scripts bloqueados por padrão; allowlist em package.json (trustedDependencies).
+# Scanner de segurança (configurar quando houver um):
+# [install.security]
+# scanner = "@acme/bun-security-scanner"
+
+[test]
+# Só envs dummy globalmente. happy-dom NÃO é global (poluía Request/Response/Headers/crypto e
+# quebrava os testes de contrato do BFF) — é registrado só nos testes de DOM (page/component/binding).
+preload = ["./tests/setup/env.ts"]

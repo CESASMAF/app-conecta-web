@@ -1,0 +1,15 @@
+# Build multi-stage (ADR-0003 item 7): node_modules só no estágio de build; runtime = .output/
+node_modules/
+.output/
+.vinxi/
+.nitro/
+.git/
+*.log
+.env
+.env.*
+!.env.example
+.secrets/
+coverage/
+.DS_Store
+specs/
+handbook/

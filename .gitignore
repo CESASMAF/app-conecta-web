@@ -1,0 +1,27 @@
+# Dependências (Bun) — ver ADR-0003: em dev a pasta existe, mas NÃO se versiona
+node_modules/
+.bun/
+
+# Build / output (runtime node_modules-free — ver ADR-0003 item 7)
+.output/
+.vinxi/
+.nitro/
+dist/
+*.tsbuildinfo
+
+# Ambiente / segredos (nunca commitar)
+.env
+.env.*
+!.env.example
+.secrets/
+
+# Logs e caches
+*.log
+.cache/
+coverage/
+
+# Editor / OS
+.DS_Store
+
+# Claude — settings locais podem conter segredos (skills/commands do spec-kit ficam versionados)
+.claude/settings.local.json

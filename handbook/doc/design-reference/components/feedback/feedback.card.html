@@ -1,0 +1,85 @@
+<!-- @dsCard group="Components" viewport="700x680" name="Feedback — badges, status, banners, empty states" subtitle="M3Badge · M3ActiveBadge · M3LoginIndicator · M3RoleBadge · IdpRetryBanner · SuppressionBanner · M3EmptyState" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..40,400,0,0" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; padding: 24px; background: var(--color-bg-primary); }
+  .wrap { display: flex; flex-direction: column; gap: 22px; max-width: 640px; }
+  .lbl { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 10px; }
+  .rowflex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .card { background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+</style>
+</head>
+<body>
+  <div id="root" class="wrap"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script type="text/babel">
+    const { M3Badge, SuppressionBanner, M3EmptyState, M3ActiveBadge, M3LoginIndicator, M3RoleBadge, IdpRetryBanner } = window.RAROSWeb02DesignSystem_9e80fa;
+    function Demo() {
+      return (
+        <React.Fragment>
+          <div>
+            <div className="lbl">M3Badge</div>
+            <div className="rowflex">
+              <M3Badge variant="success" dot>Publicado</M3Badge>
+              <M3Badge variant="warning" icon="schedule">429 — aguarde</M3Badge>
+              <M3Badge variant="danger" icon="error">Indisponível</M3Badge>
+              <M3Badge variant="info">Referência 2024</M3Badge>
+              <M3Badge variant="neutral">Rascunho</M3Badge>
+              <M3Badge variant="primary" solid>3</M3Badge>
+            </div>
+          </div>
+          <div>
+            <div className="lbl">M3ActiveBadge · M3LoginIndicator (People)</div>
+            <div className="rowflex">
+              <M3ActiveBadge active={true} />
+              <M3ActiveBadge active={false} />
+              <M3ActiveBadge active={true} size="sm" labels={{on:"Ativo",off:"Inativo"}} />
+              <M3LoginIndicator state="linked" />
+              <M3LoginIndicator state="none" />
+              <M3LoginIndicator state="failed" />
+            </div>
+          </div>
+          <div>
+            <div className="lbl">M3RoleBadge (system:role)</div>
+            <div className="rowflex">
+              <M3RoleBadge system="social-care" role="patient" active />
+              <M3RoleBadge system="timesheet" role="employee" active={false} />
+              <M3RoleBadge system="therapies" role="therapist" active />
+              <M3RoleBadge system="billing" role="auditor" active />
+            </div>
+          </div>
+          <div>
+            <div className="lbl">IdpRetryBanner (207 Multi-Status)</div>
+            <IdpRetryBanner onRetry={()=>{}} error="IDP-001" />
+          </div>
+          <div>
+            <div className="lbl">SuppressionBanner</div>
+            <div className="stack">
+              <SuppressionBanner suppressedGroups={3} kThreshold={5} onLearnMore={()=>{}} />
+              <SuppressionBanner suppressedGroups={1} compact />
+            </div>
+          </div>
+          <div>
+            <div className="lbl">M3EmptyState</div>
+            <div className="card">
+              <M3EmptyState variant="privacy" title="Dados omitidos por privacidade"
+                description="Todos os grupos do recorte têm menos de 5 pessoas (K=5)."
+                action={{ label: "Ampliar período", onPress: ()=>{}, icon: "date_range" }} />
+            </div>
+          </div>
+        </React.Fragment>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+  </script>
+</body>
+</html>

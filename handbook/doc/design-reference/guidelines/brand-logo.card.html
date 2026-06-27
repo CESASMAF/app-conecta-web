@@ -1,0 +1,27 @@
+<!-- @dsCard group="Brand" viewport="700x170" name="Logo — RAROS Boa Vista" subtitle="heart wordmark · place on warm-gray or white, never recolor" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 0; background: var(--color-bg-elevated); display: grid; grid-template-columns: 1fr 1fr; height: 170px; }
+  .panel { display: flex; align-items: center; justify-content: center; gap: var(--space-3); flex-direction: column; }
+  .light { background: var(--color-bg-primary); }
+  .dark { background: var(--warmgray-900); }
+  img { width: 168px; height: auto; image-rendering: auto; }
+  .cap { font-size: var(--text-xs); color: var(--color-text-secondary); }
+  .dark .cap { color: var(--warmgray-300); }
+</style>
+</head>
+<body>
+  <div class="panel light">
+    <img src="../assets/logo-raros.webp" alt="RAROS Boa Vista" />
+    <span class="cap">on warm-gray surface</span>
+  </div>
+  <div class="panel dark">
+    <img src="../assets/logo-raros.webp" alt="RAROS Boa Vista" />
+    <span class="cap">on dark neutral</span>
+  </div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!-- @dsCard group="Type" viewport="700x280" name="Type scale — Atkinson Hyperlegible Next" subtitle="xs → 4xl · sentence case, tight tracking on headings" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 22px 24px; background: var(--color-bg-elevated); }
+  .line { display: flex; align-items: baseline; gap: var(--space-4); margin-bottom: var(--space-4); }
+  .tag { font-family: var(--font-mono); font-size: 10px; color: var(--color-text-secondary); width: 84px; flex: none; }
+  .txt { flex: 1; }
+  .s4 { font-size: var(--text-4xl); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
+  .s2 { font-size: var(--text-2xl); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
+  .sxl { font-size: var(--text-xl); font-weight: var(--weight-semibold); }
+  .sbase { font-size: var(--text-base); }
+  .ssm { font-size: var(--text-sm); color: var(--color-text-secondary); }
+</style>
+</head>
+<body>
+  <div class="line"><span class="tag">4xl · 36 bold</span><span class="txt s4">Indicadores</span></div>
+  <div class="line"><span class="tag">2xl · 24 bold</span><span class="txt s2">Dashboard demográfico</span></div>
+  <div class="line"><span class="tag">xl · 20 semi</span><span class="txt sxl">Pirâmide etária</span></div>
+  <div class="line"><span class="tag">base · 16</span><span class="txt sbase">Dados agregados e anônimos, por faixa etária.</span></div>
+  <div class="line"><span class="tag">sm · 14</span><span class="txt ssm">Sem dados no período — amplie o intervalo.</span></div>
+</body>
+</html>

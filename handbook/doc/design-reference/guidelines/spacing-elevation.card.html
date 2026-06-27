@@ -1,0 +1,21 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Elevation — warm soft shadows" subtitle="xs → lg · low elevation, this is a reading surface" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 26px 24px; background: var(--color-bg-primary); }
+  .row { display: flex; gap: var(--space-6); }
+  .card { flex: 1; height: 76px; background: var(--color-bg-elevated); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 11px; color: var(--color-text-secondary); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="card" style="box-shadow:var(--shadow-xs)">xs</div>
+    <div class="card" style="box-shadow:var(--shadow-sm)">sm · cards</div>
+    <div class="card" style="box-shadow:var(--shadow-md)">md · menus</div>
+    <div class="card" style="box-shadow:var(--shadow-lg)">lg · dialogs</div>
+  </div>
+</body>
+</html>

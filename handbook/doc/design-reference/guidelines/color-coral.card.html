@@ -1,0 +1,37 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Coral — primary action" subtitle="oklch(62% 0.21 25) anchor · the single brand accent" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 20px; background: var(--color-bg-elevated); }
+  .row { display: flex; gap: 0; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .sw { flex: 1; height: 64px; display: flex; align-items: flex-end; }
+  .sw span { font-size: 10px; font-family: var(--font-mono); padding: 3px 5px; color: #fff; opacity: .92; }
+  .sw.dark span { color: var(--warmgray-900); }
+  .legend { display: flex; gap: var(--space-2); margin-top: var(--space-4); font-size: var(--text-sm); color: var(--color-text-secondary); }
+  .legend b { color: var(--color-text-primary); font-weight: var(--weight-semibold); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw dark" style="background:var(--coral-50)"><span>50</span></div>
+    <div class="sw dark" style="background:var(--coral-100)"><span>100</span></div>
+    <div class="sw dark" style="background:var(--coral-200)"><span>200</span></div>
+    <div class="sw dark" style="background:var(--coral-300)"><span>300</span></div>
+    <div class="sw" style="background:var(--coral-400)"><span>400</span></div>
+    <div class="sw" style="background:var(--coral-500)"><span>500</span></div>
+    <div class="sw" style="background:var(--coral-600)"><span>600</span></div>
+    <div class="sw" style="background:var(--coral-700)"><span>700</span></div>
+    <div class="sw" style="background:var(--coral-800)"><span>800</span></div>
+    <div class="sw" style="background:var(--coral-900)"><span>900</span></div>
+  </div>
+  <div class="legend">
+    <span><b>500</b> action</span><span>·</span>
+    <span><b>600</b> hover</span><span>·</span>
+    <span><b>700</b> active / on-tint</span><span>·</span>
+    <span><b>50</b> tonal bg</span>
+  </div>
+</body>
+</html>

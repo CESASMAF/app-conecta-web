@@ -1,0 +1,119 @@
+<!-- @template name="Dashboard de indicadores" description="Indicator dashboard page: shell + sticky filter bar + KPI strip + chart card, on the RAROS web_02 design system." -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard de indicadores — web_02</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..40,400,0,0" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="./ds-base.js"></script>
+<style>
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--color-bg-primary); }
+  .shell { display: flex; height: 100vh; overflow: hidden; }
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .content { flex: 1; overflow: auto; }
+  .filterbar { position: sticky; top: 0; z-index: var(--z-sticky); background: var(--color-bg-elevated);
+    border-bottom: 1px solid var(--color-border-default); }
+  .filterbar__inner { max-width: var(--layout-content-max); margin: 0 auto; padding: 16px 24px;
+    display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+  .page { max-width: var(--layout-content-max); margin: 0 auto; padding: 24px 24px 56px; }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  .chartcard { background: var(--color-bg-elevated); border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 20px; }
+  .banner-wrap { margin-bottom: 16px; }
+  @media (max-width: 920px) { .kpis { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    function start() {
+      const NS = window.RAROSWeb02DesignSystem_9e80fa;
+      if (!NS) return setTimeout(start, 30);
+
+      const {
+        M3NavRail, M3TopAppBar, M3Button, M3Badge, M3ChoiceChip, M3DropdownField,
+        M3TextField, M3KpiCard, M3SectionHeader, SuppressionBanner, TopNBarChart,
+      } = NS;
+
+      // --- replace this block with your real data / view-model ----------------
+      const KPIS = [
+        { label: "Casos novos", value: 37, unit: "casos", icon: "coronavirus" },
+        { label: "Beneficiários", value: 412, unit: "pessoas", icon: "savings" },
+        { label: "Completude", value: 0.72, format: "percent", icon: "fact_check" },
+      ];
+      const TOP = [
+        { code: "E75.2", label: "Gangliosidose GM2", value: 37 },
+        { code: "Q87.4", label: "Síndrome de Marfan", value: 21 },
+        { code: "E70.0", label: "Fenilcetonúria clássica", value: 18 },
+        { code: "G71.0", label: "Distrofia muscular", value: 14 },
+      ];
+      // ------------------------------------------------------------------------
+
+      function App() {
+        const [gran, setGran] = React.useState("monthly");
+        const [region, setRegion] = React.useState("");
+        return (
+          <div className="shell">
+            <M3NavRail activeId="indicators"
+              items={[
+                { id: "social-care", label: "Prontuário", icon: "folder_shared" },
+                { id: "people", label: "Pessoas", icon: "group" },
+                { id: "indicators", label: "Indicadores", icon: "monitoring" },
+              ]} />
+            <div className="main">
+              <M3TopAppBar title="Dashboard epidemiológico" onBack={() => {}}
+                statusSlot={<M3Badge variant="info">K=5</M3Badge>}
+                actions={<M3Button variant="filled" size="sm" icon="download">Exportar este eixo</M3Button>} />
+              <div className="content">
+                <form className="filterbar" role="search" aria-label="Filtros">
+                  <div className="filterbar__inner">
+                    <M3TextField label="Período início" mono value="2025-01" onChange={() => {}} />
+                    <M3TextField label="Fim" mono value="2025-12" onChange={() => {}} />
+                    <div>
+                      <div style={{ fontSize: "var(--text-sm)", fontWeight: 600, marginBottom: 6 }}>Granularidade</div>
+                      <M3ChoiceChip ariaLabel="Granularidade" value={gran} onChange={setGran}
+                        options={[{ value: "monthly", label: "Mensal" }, { value: "quarterly", label: "Trimestral" }, { value: "yearly", label: "Anual" }]} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 180 }}>
+                      <M3DropdownField label="Mesorregião" value={region} onChange={setRegion}
+                        options={[{ value: "", label: "Todas" }, { value: "1401", label: "Norte de Roraima" }, { value: "1402", label: "Sul de Roraima" }]} />
+                    </div>
+                    <M3Button variant="tonal" icon="filter_alt">Aplicar</M3Button>
+                  </div>
+                </form>
+                <div className="page">
+                  <div className="banner-wrap">
+                    <SuppressionBanner suppressedGroups={2} kThreshold={5} />
+                  </div>
+                  <div className="kpis">
+                    {KPIS.map((k) => (
+                      <M3KpiCard key={k.label} label={k.label} value={k.value} format={k.format}
+                        unitLabel={k.unit} period="2025-12" icon={k.icon} />
+                    ))}
+                  </div>
+                  <div className="chartcard">
+                    <M3SectionHeader title="Top diagnósticos (CID-10)"
+                      description="Ranking por número de casos no período filtrado" />
+                    <div style={{ marginTop: 14 }}>
+                      <TopNBarChart items={TOP} unitLabel="casos" caption="Top diagnósticos CID-10" suppressedGroups={2} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    }
+    start();
+  </script>
+</body>
+</html>

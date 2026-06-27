@@ -1,0 +1,35 @@
+/* ============================================================================
+   ELEVATION — M3 state layers + warm-tinted shadows + z-index
+   State layers are opacity values painted as a coral/neutral overlay on
+   hover / focus / pressed. Shadows are warm (neutral-900 tint), low and soft —
+   this is a calm administrative surface, not a flashy marketing one.
+   ============================================================================ */
+:root {
+  /* State-layer opacities (M3) */
+  --state-hover:   0.08; /* @kind other */
+  --state-focus:   0.12; /* @kind other */
+  --state-pressed: 0.16; /* @kind other */
+
+  /* Shadows — warm gray tint */
+  --shadow-xs: 0 1px 2px oklch(24% 0.008 70 / 0.06);
+  --shadow-sm: 0 1px 2px oklch(24% 0.008 70 / 0.08),
+               0 1px 3px oklch(24% 0.008 70 / 0.06);
+  --shadow-md: 0 2px 4px oklch(24% 0.008 70 / 0.07),
+               0 6px 16px oklch(24% 0.008 70 / 0.09);
+  --shadow-lg: 0 8px 24px oklch(24% 0.008 70 / 0.12),
+               0 2px 6px oklch(24% 0.008 70 / 0.08);
+
+  /* z-index ladder */
+  --z-base:     0; /* @kind other */
+  --z-dropdown: 1000; /* @kind other */
+  --z-sticky:   1100; /* @kind other */
+  --z-tooltip:  1200; /* @kind other */
+  --z-modal:    1300; /* @kind other */
+
+  /* Motion — calm, accessible. Honor prefers-reduced-motion everywhere. */
+  --ease-standard:   cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --duration-fast:   120ms; /* @kind other */
+  --duration-normal: 200ms; /* @kind other */
+  --duration-slow:   320ms; /* @kind other */
+}

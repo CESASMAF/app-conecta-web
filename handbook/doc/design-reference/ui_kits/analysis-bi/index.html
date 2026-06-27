@@ -1,0 +1,90 @@
+<!-- @dsCard group="Analysis BI" viewport="1280x820" name="Analysis BI — web_02 product" subtitle="Indicators home → demographic dashboard → export center, in the shared shell" -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>web_02 · Indicadores e BI — RAROS Boa Vista</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..40,400,0,0" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--color-bg-primary); }
+  .kit-shell { display: flex; height: 100vh; overflow: hidden; }
+  .kit-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .kit-content { flex: 1; overflow: auto; }
+  .kit-page { max-width: var(--layout-content-max); margin: 0 auto; padding: 28px 24px 64px; }
+  .kit-page--narrow { max-width: var(--layout-export-max); }
+
+  .kit-pagehead { margin-bottom: 22px; }
+  .kit-pagehead h1 { font-size: var(--text-3xl); }
+  .kit-pagehead p { color: var(--color-text-secondary); font-size: var(--text-base); margin-top: 6px; max-width: 64ch; }
+
+  .kit-home-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .kit-home-grid > :last-child { grid-column: span 1; }
+
+  .kit-filterbar { position: sticky; top: 0; z-index: var(--z-sticky);
+    background: var(--color-bg-elevated); border-bottom: 1px solid var(--color-border-default); }
+  .kit-filterbar__inner { max-width: var(--layout-content-max); margin: 0 auto; padding: 16px 24px;
+    display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+  .kit-filterbar__grow { flex: 1; }
+  .kit-filterbar__actions { display: flex; gap: 8px; }
+
+  .kit-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  .kit-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .kit-charts > .kit-chartcard--wide { grid-column: 1 / -1; }
+  .kit-chartcard { background: var(--color-bg-elevated); border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 20px; }
+  .kit-chartcard__body { margin-top: 14px; }
+
+  .kit-breakdown { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  .kit-breakdown th, .kit-breakdown td { padding: 10px 8px; border-bottom: 1px solid var(--color-border-default); text-align: left; }
+  .kit-breakdown td.num { font-family: var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+  .kit-bar { height: 10px; border-radius: var(--radius-full); background: var(--chart-seq-3); }
+  .kit-bar-wrap { background: var(--color-bg-secondary); border-radius: var(--radius-full); width: 160px; }
+
+  .kit-formats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .kit-fmt { text-align: left; background: var(--color-bg-elevated); border: 1.5px solid var(--color-border-default);
+    border-radius: var(--radius-md); padding: 14px 16px; cursor: pointer; font: inherit; display: flex; gap: 12px;
+    align-items: flex-start; position: relative; isolation: isolate; transition: border-color var(--duration-fast); }
+  .kit-fmt:hover { border-color: var(--color-border-strong); }
+  .kit-fmt[aria-checked="true"] { border-color: var(--color-action-primary); background: var(--color-action-primary-tint); }
+  .kit-fmt:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: 2px; }
+  .kit-fmt__icon { font-family: 'Material Symbols Rounded'; font-size: 26px; color: var(--color-action-primary); }
+  .kit-fmt__name { font-weight: var(--weight-semibold); color: var(--color-text-primary); }
+  .kit-fmt__hint { font-size: var(--text-xs); color: var(--color-text-secondary); margin-top: 2px; }
+  .kit-fmt__ext { font-family: var(--font-mono); font-size: 11px; color: var(--color-text-secondary); margin-top: 6px; }
+
+  .kit-exportfoot { position: sticky; bottom: 0; background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+    padding: 16px 20px; display: flex; align-items: center; gap: 16px; margin-top: 20px; }
+  .kit-exportfoot__summary { flex: 1; font-size: var(--text-sm); color: var(--color-text-secondary); }
+  .kit-exportfoot__file { font-family: var(--font-mono); color: var(--color-text-primary); }
+
+  .kit-section-gap { height: 20px; }
+  .kit-stack { display: flex; flex-direction: column; gap: 16px; }
+  .kit-toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+    background: var(--warmgray-900); color: var(--white); padding: 12px 20px; border-radius: var(--radius-full);
+    box-shadow: var(--shadow-lg); font-size: var(--text-sm); z-index: var(--z-modal); display: flex; gap: 10px; align-items: center; }
+  .kit-toast .material-symbols-rounded { font-size: 20px; color: var(--success-100); }
+
+  @media (max-width: 920px) {
+    .kit-home-grid, .kit-kpis, .kit-charts, .kit-formats { grid-template-columns: 1fr; }
+    .kit-charts > .kit-chartcard--wide { grid-column: auto; }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script src="fixtures.js"></script>
+  <script type="text/babel" src="screens.jsx"></script>
+  <script type="text/babel">
+    ReactDOM.createRoot(document.getElementById("root")).render(<window.KitApp.App />);
+  </script>
+</body>
+</html>

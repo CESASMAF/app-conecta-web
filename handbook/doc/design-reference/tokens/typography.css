@@ -1,0 +1,40 @@
+/* ============================================================================
+   TYPOGRAPHY — Atkinson Hyperlegible family
+   Mono is used for VALUES and CODES (KPI numerals, ICD-10, IBGE codes) — it is
+   not decorative; equal-width glyphs make tables and figures scannable.
+   ============================================================================ */
+:root {
+  /* Families */
+  --font-sans: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible',
+               system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono', ui-monospace, 'SF Mono',
+               Menlo, Consolas, monospace;
+
+  /* Type scale (rem on 16px root) */
+  --text-xs:   0.75rem;   /* 12 — captions, legends, axis labels   */
+  --text-sm:   0.875rem;  /* 14 — secondary, table body            */
+  --text-base: 1rem;      /* 16 — body                             */
+  --text-lg:   1.125rem;  /* 18 — emphasised body, field labels    */
+  --text-xl:   1.25rem;   /* 20 — section headers                  */
+  --text-2xl:  1.5rem;    /* 24 — page titles                      */
+  --text-3xl:  1.875rem;  /* 30 — KPI value                        */
+  --text-4xl:  2.25rem;   /* 36 — hero KPI                         */
+
+  /* Weights (Atkinson Next: ExtraLight…ExtraBold; we use 4) */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* Line heights */
+  --leading-tight:   1.2;
+  --leading-snug:    1.35;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  /* Tracking */
+  --tracking-tight:  -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.02em;
+  --tracking-caps:   0.06em;  /* eyebrow / overline uppercase */
+}

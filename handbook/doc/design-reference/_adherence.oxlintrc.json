@@ -1,0 +1,797 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "components/data-display/**",
+              "components/dataviz/**",
+              "components/feedback/**",
+              "components/forms/**",
+              "components/navigation/**",
+              "ui_kits/analysis-bi/**",
+              "ui_kits/people-context/**",
+              "ui_kits/social-care/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:Atkinson Hyperlegible Next|Atkinson Hyperlegible Mono|Atkinson Hyperlegible))/i]",
+        "message": "Font not provided by the design system. Available: Atkinson Hyperlegible Next, Atkinson Hyperlegible Mono, Atkinson Hyperlegible."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='AgePyramidItem'] > JSXAttribute > JSXIdentifier[name!=/^(?:ageBand|sex|value|key|ref|className|style|children)$/]",
+        "message": "<AgePyramidItem> doesn't accept that prop. Declared props: ageBand, sex, value."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='AgePyramidItem'] > JSXAttribute[name.name='sex'] > Literal[value!=/^(?:MALE|FEMALE|UNKNOWN)$/]",
+        "message": "<AgePyramidItem> sex must be one of 'MALE' | 'FEMALE' | 'UNKNOWN'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IdpRetryBanner'] > JSXAttribute > JSXIdentifier[name!=/^(?:onRetry|isPending|error|key|ref|className|style|children)$/]",
+        "message": "<IdpRetryBanner> doesn't accept that prop. Declared props: onRetry, isPending, error."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='LgpdAnonymizedBanner'] > JSXAttribute > JSXIdentifier[name!=/^(?:message|key|ref|className|style|children)$/]",
+        "message": "<LgpdAnonymizedBanner> doesn't accept that prop. Declared props: message."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3ActiveBadge'] > JSXAttribute > JSXIdentifier[name!=/^(?:active|size|labels|key|ref|className|style|children)$/]",
+        "message": "<M3ActiveBadge> doesn't accept that prop. Declared props: active, size, labels."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3ActiveBadge'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:sm|md)$/]",
+        "message": "<M3ActiveBadge> size must be one of 'sm' | 'md'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Avatar'] > JSXAttribute > JSXIdentifier[name!=/^(?:name|src|size|alt|key|ref|className|style|children)$/]",
+        "message": "<M3Avatar> doesn't accept that prop. Declared props: name, src, size, alt."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Avatar'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:sm|md|lg)$/]",
+        "message": "<M3Avatar> size must be one of 'sm' | 'md' | 'lg'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Badge'] > JSXAttribute > JSXIdentifier[name!=/^(?:variant|solid|dot|icon|children|key|ref|className|style|children)$/]",
+        "message": "<M3Badge> doesn't accept that prop. Declared props: variant, solid, dot, icon, children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Badge'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:neutral|primary|success|warning|danger|info)$/]",
+        "message": "<M3Badge> variant must be one of 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Button'] > JSXAttribute > JSXIdentifier[name!=/^(?:variant|size|type|disabled|pending|icon|iconTrailing|onPress|children|key|ref|className|style|children)$/]",
+        "message": "<M3Button> doesn't accept that prop. Declared props: variant, size, type, disabled, pending, icon, iconTrailing, onPress, children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Button'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:filled|tonal|outlined|text|destructive)$/]",
+        "message": "<M3Button> variant must be one of 'filled' | 'tonal' | 'outlined' | 'text' | 'destructive'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Button'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:sm|md)$/]",
+        "message": "<M3Button> size must be one of 'sm' | 'md'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Button'] > JSXAttribute[name.name='type'] > Literal[value!=/^(?:button|submit|reset)$/]",
+        "message": "<M3Button> type must be one of 'button' | 'submit' | 'reset'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Card'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|padding|flat|href|onPress|className|style|key|ref|className|style|children)$/]",
+        "message": "<M3Card> doesn't accept that prop. Declared props: children, padding, flat, href, onPress, className, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Card'] > JSXAttribute[name.name='padding'] > Literal[value!=/^(?:md|sm|none)$/]",
+        "message": "<M3Card> padding must be one of 'md' | 'sm' | 'none'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3ChoiceOption'] > JSXAttribute > JSXIdentifier[name!=/^(?:value|label|icon|key|ref|className|style|children)$/]",
+        "message": "<M3ChoiceOption> doesn't accept that prop. Declared props: value, label, icon."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3DataField'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|value|mono|inline|emptyFallback|key|ref|className|style|children)$/]",
+        "message": "<M3DataField> doesn't accept that prop. Declared props: label, value, mono, inline, emptyFallback."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Dialog'] > JSXAttribute > JSXIdentifier[name!=/^(?:open|title|description|icon|destructive|children|actions|onClose|key|ref|className|style|children)$/]",
+        "message": "<M3Dialog> doesn't accept that prop. Declared props: open, title, description, icon, destructive, children, actions, onClose."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3DropdownOption'] > JSXAttribute > JSXIdentifier[name!=/^(?:value|label|key|ref|className|style|children)$/]",
+        "message": "<M3DropdownOption> doesn't accept that prop. Declared props: value, label."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3EmptyStateAction'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|onPress|icon|key|ref|className|style|children)$/]",
+        "message": "<M3EmptyStateAction> doesn't accept that prop. Declared props: label, onPress, icon."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3KpiCard'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|value|format|unitLabel|period|granularity|footnote|icon|href|onPress|pending|key|ref|className|style|children)$/]",
+        "message": "<M3KpiCard> doesn't accept that prop. Declared props: label, value, format, unitLabel, period, granularity, footnote, icon, href, onPress, pending."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3KpiCard'] > JSXAttribute[name.name='format'] > Literal[value!=/^(?:integer|decimal|percent|currency)$/]",
+        "message": "<M3KpiCard> format must be one of 'integer' | 'decimal' | 'percent' | 'currency'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3KpiCard'] > JSXAttribute[name.name='granularity'] > Literal[value!=/^(?:monthly|quarterly|yearly)$/]",
+        "message": "<M3KpiCard> granularity must be one of 'monthly' | 'quarterly' | 'yearly'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3KpiValue'] > JSXAttribute > JSXIdentifier[name!=/^(?:value|format|unitLabel|size|ariaLabel|key|ref|className|style|children)$/]",
+        "message": "<M3KpiValue> doesn't accept that prop. Declared props: value, format, unitLabel, size, ariaLabel."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3KpiValue'] > JSXAttribute[name.name='format'] > Literal[value!=/^(?:integer|decimal|percent|currency)$/]",
+        "message": "<M3KpiValue> format must be one of 'integer' | 'decimal' | 'percent' | 'currency'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3KpiValue'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:lg|md|sm)$/]",
+        "message": "<M3KpiValue> size must be one of 'lg' | 'md' | 'sm'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3LoginIndicator'] > JSXAttribute > JSXIdentifier[name!=/^(?:state|key|ref|className|style|children)$/]",
+        "message": "<M3LoginIndicator> doesn't accept that prop. Declared props: state."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3LoginIndicator'] > JSXAttribute[name.name='state'] > Literal[value!=/^(?:linked|none|failed)$/]",
+        "message": "<M3LoginIndicator> state must be one of 'linked' | 'none' | 'failed'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3MaskedField'] > JSXAttribute > JSXIdentifier[name!=/^(?:mask|value|onChange|label|placeholder|required|disabled|errorMessage|hint|key|ref|className|style|children)$/]",
+        "message": "<M3MaskedField> doesn't accept that prop. Declared props: mask, value, onChange, label, placeholder, required, disabled, errorMessage, hint."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3MaskedField'] > JSXAttribute[name.name='mask'] > Literal[value!=/^(?:cpf|nis|cep|phone|date|money)$/]",
+        "message": "<M3MaskedField> mask must be one of 'cpf' | 'nis' | 'cep' | 'phone' | 'date' | 'money'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3NavRailItem'] > JSXAttribute > JSXIdentifier[name!=/^(?:id|label|icon|href|key|ref|className|style|children)$/]",
+        "message": "<M3NavRailItem> doesn't accept that prop. Declared props: id, label, icon, href."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3PasswordField'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|value|onChange|errorMessage|required|disabled|minLength|hint|id|autoComplete|key|ref|className|style|children)$/]",
+        "message": "<M3PasswordField> doesn't accept that prop. Declared props: label, value, onChange, errorMessage, required, disabled, minLength, hint, id, autoComplete."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ParsedPeriod'] > JSXAttribute > JSXIdentifier[name!=/^(?:short|long|iso|key|ref|className|style|children)$/]",
+        "message": "<ParsedPeriod> doesn't accept that prop. Declared props: short, long, iso."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3RiskChip'] > JSXAttribute > JSXIdentifier[name!=/^(?:risk|label|icon|key|ref|className|style|children)$/]",
+        "message": "<M3RiskChip> doesn't accept that prop. Declared props: risk, label, icon."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3RiskChip'] > JSXAttribute[name.name='risk'] > Literal[value!=/^(?:violation|overcrowding|dropout|prenatal|default)$/]",
+        "message": "<M3RiskChip> risk must be one of 'violation' | 'overcrowding' | 'dropout' | 'prenatal' | 'default'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3RoleBadge'] > JSXAttribute > JSXIdentifier[name!=/^(?:system|role|active|key|ref|className|style|children)$/]",
+        "message": "<M3RoleBadge> doesn't accept that prop. Declared props: system, role, active."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3SearchBar'] > JSXAttribute > JSXIdentifier[name!=/^(?:value|onChange|onSubmit|placeholder|ariaLabel|key|ref|className|style|children)$/]",
+        "message": "<M3SearchBar> doesn't accept that prop. Declared props: value, onChange, onSubmit, placeholder, ariaLabel."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3SectionHeader'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|description|action|as|key|ref|className|style|children)$/]",
+        "message": "<M3SectionHeader> doesn't accept that prop. Declared props: title, description, action, as."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3SectionHeader'] > JSXAttribute[name.name='as'] > Literal[value!=/^(?:h1|h2|h3|h4)$/]",
+        "message": "<M3SectionHeader> as must be one of 'h1' | 'h2' | 'h3' | 'h4'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3SeriesLegendItem'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|colorToken|shape|muted|onPress|key|ref|className|style|children)$/]",
+        "message": "<M3SeriesLegendItem> doesn't accept that prop. Declared props: label, colorToken, shape, muted, onPress."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3SeriesLegendItem'] > JSXAttribute[name.name='shape'] > Literal[value!=/^(?:square|line)$/]",
+        "message": "<M3SeriesLegendItem> shape must be one of 'square' | 'line'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3StatCard'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|value|format|unit|icon|tone|toneLabel|footnote|pending|key|ref|className|style|children)$/]",
+        "message": "<M3StatCard> doesn't accept that prop. Declared props: label, value, format, unit, icon, tone, toneLabel, footnote, pending."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3StatCard'] > JSXAttribute[name.name='format'] > Literal[value!=/^(?:integer|decimal|percent|currency)$/]",
+        "message": "<M3StatCard> format must be one of 'integer' | 'decimal' | 'percent' | 'currency'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3StatCard'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:success|warning|danger|neutral)$/]",
+        "message": "<M3StatCard> tone must be one of 'success' | 'warning' | 'danger' | 'neutral'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3StatusChip'] > JSXAttribute > JSXIdentifier[name!=/^(?:status|label|key|ref|className|style|children)$/]",
+        "message": "<M3StatusChip> doesn't accept that prop. Declared props: status, label."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3StatusChip'] > JSXAttribute[name.name='status'] > Literal[value!=/^(?:waitlisted|active|discharged|withdrawn)$/]",
+        "message": "<M3StatusChip> status must be one of 'waitlisted' | 'active' | 'discharged' | 'withdrawn'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3Switch'] > JSXAttribute > JSXIdentifier[name!=/^(?:checked|onChange|label|disabled|id|key|ref|className|style|children)$/]",
+        "message": "<M3Switch> doesn't accept that prop. Declared props: checked, onChange, label, disabled, id."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3TextField'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|value|onChange|placeholder|type|required|disabled|errorMessage|hint|mono|leadingIcon|trailingIcon|id|key|ref|className|style|children)$/]",
+        "message": "<M3TextField> doesn't accept that prop. Declared props: label, value, onChange, placeholder, type, required, disabled, errorMessage, hint, mono, leadingIcon, trailingIcon, id."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='AuditDiffRow'] > JSXAttribute > JSXIdentifier[name!=/^(?:field|before|after|key|ref|className|style|children)$/]",
+        "message": "<AuditDiffRow> doesn't accept that prop. Declared props: field, before, after."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='M3TopAppBar'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|onBack|statusSlot|actions|key|ref|className|style|children)$/]",
+        "message": "<M3TopAppBar> doesn't accept that prop. Declared props: title, onBack, statusSlot, actions."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SuppressionBanner'] > JSXAttribute > JSXIdentifier[name!=/^(?:suppressedGroups|kThreshold|compact|onLearnMore|key|ref|className|style|children)$/]",
+        "message": "<SuppressionBanner> doesn't accept that prop. Declared props: suppressedGroups, kThreshold, compact, onLearnMore."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='RankedItem'] > JSXAttribute > JSXIdentifier[name!=/^(?:code|label|value|key|ref|className|style|children)$/]",
+        "message": "<RankedItem> doesn't accept that prop. Declared props: code, label, value."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {
+      "AgePyramidItem": {
+        "replaces": []
+      },
+      "IdpRetryBanner": {
+        "replaces": []
+      },
+      "LgpdAnonymizedBanner": {
+        "replaces": []
+      },
+      "M3ActiveBadge": {
+        "replaces": []
+      },
+      "M3Avatar": {
+        "replaces": []
+      },
+      "M3Badge": {
+        "replaces": []
+      },
+      "M3Button": {
+        "replaces": []
+      },
+      "M3Card": {
+        "replaces": []
+      },
+      "M3ChoiceOption": {
+        "replaces": []
+      },
+      "M3DataField": {
+        "replaces": []
+      },
+      "M3Dialog": {
+        "replaces": []
+      },
+      "M3DropdownOption": {
+        "replaces": []
+      },
+      "M3EmptyStateAction": {
+        "replaces": []
+      },
+      "M3KpiCard": {
+        "replaces": []
+      },
+      "M3KpiValue": {
+        "replaces": []
+      },
+      "M3LoginIndicator": {
+        "replaces": []
+      },
+      "M3MaskedField": {
+        "replaces": []
+      },
+      "M3NavRailItem": {
+        "replaces": []
+      },
+      "M3PasswordField": {
+        "replaces": []
+      },
+      "ParsedPeriod": {
+        "replaces": []
+      },
+      "M3RiskChip": {
+        "replaces": []
+      },
+      "M3RoleBadge": {
+        "replaces": []
+      },
+      "M3SearchBar": {
+        "replaces": []
+      },
+      "M3SectionHeader": {
+        "replaces": []
+      },
+      "M3SeriesLegendItem": {
+        "replaces": []
+      },
+      "M3StatCard": {
+        "replaces": []
+      },
+      "M3StatusChip": {
+        "replaces": []
+      },
+      "M3Switch": {
+        "replaces": []
+      },
+      "M3TextField": {
+        "replaces": []
+      },
+      "AuditDiffRow": {
+        "replaces": []
+      },
+      "M3TopAppBar": {
+        "replaces": []
+      },
+      "SuppressionBanner": {
+        "replaces": []
+      },
+      "RankedItem": {
+        "replaces": []
+      }
+    },
+    "tokens": [
+      "--black",
+      "--border-1",
+      "--border-2",
+      "--chart-axis",
+      "--chart-cat-1",
+      "--chart-cat-2",
+      "--chart-cat-3",
+      "--chart-cat-4",
+      "--chart-cat-5",
+      "--chart-cat-6",
+      "--chart-cat-7",
+      "--chart-cat-8",
+      "--chart-grid",
+      "--chart-h-bars",
+      "--chart-h-pyramid",
+      "--chart-h-series",
+      "--chart-seq-1",
+      "--chart-seq-2",
+      "--chart-seq-3",
+      "--chart-seq-4",
+      "--chart-seq-5",
+      "--chart-sex-female",
+      "--chart-sex-male",
+      "--chart-sex-unknown",
+      "--color-action-primary",
+      "--color-action-primary-active",
+      "--color-action-primary-fg",
+      "--color-action-primary-hover",
+      "--color-action-primary-tint",
+      "--color-action-primary-tint-fg",
+      "--color-banner-lgpd-bg",
+      "--color-banner-lgpd-border",
+      "--color-banner-lgpd-fg",
+      "--color-banner-suppression-bg",
+      "--color-banner-suppression-border",
+      "--color-banner-suppression-fg",
+      "--color-bg-elevated",
+      "--color-bg-primary",
+      "--color-bg-secondary",
+      "--color-border-active",
+      "--color-border-default",
+      "--color-border-error",
+      "--color-border-strong",
+      "--color-danger",
+      "--color-danger-bg",
+      "--color-danger-border",
+      "--color-flow-cancelado",
+      "--color-flow-cancelado-bg",
+      "--color-flow-concluido",
+      "--color-flow-concluido-bg",
+      "--color-flow-pendente",
+      "--color-flow-pendente-bg",
+      "--color-flow-rejeitado",
+      "--color-flow-rejeitado-bg",
+      "--color-focus-ring",
+      "--color-idp-failed",
+      "--color-idp-failed-bg",
+      "--color-idp-failed-border",
+      "--color-idp-linked",
+      "--color-idp-linked-bg",
+      "--color-idp-none",
+      "--color-idp-none-bg",
+      "--color-info",
+      "--color-info-bg",
+      "--color-info-border",
+      "--color-overlay",
+      "--color-person-active",
+      "--color-person-active-bg",
+      "--color-person-active-border",
+      "--color-person-inactive",
+      "--color-person-inactive-bg",
+      "--color-person-inactive-border",
+      "--color-risk-default",
+      "--color-risk-default-bg",
+      "--color-risk-delay",
+      "--color-risk-delay-bg",
+      "--color-risk-overcrowding",
+      "--color-risk-overcrowding-bg",
+      "--color-risk-prenatal",
+      "--color-risk-prenatal-bg",
+      "--color-risk-violation",
+      "--color-risk-violation-bg",
+      "--color-status-acolhido",
+      "--color-status-acolhido-bg",
+      "--color-status-alta",
+      "--color-status-alta-bg",
+      "--color-status-desistente",
+      "--color-status-desistente-bg",
+      "--color-status-fila",
+      "--color-status-fila-bg",
+      "--color-success",
+      "--color-success-bg",
+      "--color-success-border",
+      "--color-surface-sunken",
+      "--color-text-disabled",
+      "--color-text-error",
+      "--color-text-on-primary",
+      "--color-text-primary",
+      "--color-text-secondary",
+      "--color-warning",
+      "--color-warning-bg",
+      "--color-warning-border",
+      "--coral-100",
+      "--coral-200",
+      "--coral-300",
+      "--coral-400",
+      "--coral-50",
+      "--coral-500",
+      "--coral-600",
+      "--coral-700",
+      "--coral-800",
+      "--coral-900",
+      "--danger-100",
+      "--danger-50",
+      "--danger-500",
+      "--danger-600",
+      "--danger-700",
+      "--duration-fast",
+      "--duration-normal",
+      "--duration-slow",
+      "--ease-emphasized",
+      "--ease-standard",
+      "--focus-ring-offset",
+      "--focus-ring-width",
+      "--font-mono",
+      "--font-sans",
+      "--info-100",
+      "--info-50",
+      "--info-500",
+      "--info-600",
+      "--info-700",
+      "--layout-content-max",
+      "--layout-export-max",
+      "--leading-normal",
+      "--leading-relaxed",
+      "--leading-snug",
+      "--leading-tight",
+      "--radius-full",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-sm",
+      "--radius-xl",
+      "--radius-xs",
+      "--rail-width",
+      "--shadow-lg",
+      "--shadow-md",
+      "--shadow-sm",
+      "--shadow-xs",
+      "--space-0",
+      "--space-0-5",
+      "--space-1",
+      "--space-10",
+      "--space-12",
+      "--space-16",
+      "--space-2",
+      "--space-24",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--state-focus",
+      "--state-hover",
+      "--state-pressed",
+      "--success-100",
+      "--success-50",
+      "--success-500",
+      "--success-600",
+      "--success-700",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--topbar-height",
+      "--tracking-caps",
+      "--tracking-normal",
+      "--tracking-tight",
+      "--tracking-wide",
+      "--warmgray-100",
+      "--warmgray-200",
+      "--warmgray-300",
+      "--warmgray-400",
+      "--warmgray-50",
+      "--warmgray-500",
+      "--warmgray-600",
+      "--warmgray-700",
+      "--warmgray-800",
+      "--warmgray-900",
+      "--warning-100",
+      "--warning-50",
+      "--warning-500",
+      "--warning-600",
+      "--warning-700",
+      "--weight-bold",
+      "--weight-medium",
+      "--weight-regular",
+      "--weight-semibold",
+      "--white",
+      "--z-base",
+      "--z-dropdown",
+      "--z-modal",
+      "--z-sticky",
+      "--z-tooltip"
+    ],
+    "tokenKinds": {
+      "--coral-50": "color",
+      "--coral-100": "color",
+      "--coral-200": "color",
+      "--coral-300": "color",
+      "--coral-400": "color",
+      "--coral-500": "color",
+      "--coral-600": "color",
+      "--coral-700": "color",
+      "--coral-800": "color",
+      "--coral-900": "color",
+      "--warmgray-50": "color",
+      "--warmgray-100": "color",
+      "--warmgray-200": "color",
+      "--warmgray-300": "color",
+      "--warmgray-400": "color",
+      "--warmgray-500": "color",
+      "--warmgray-600": "color",
+      "--warmgray-700": "color",
+      "--warmgray-800": "color",
+      "--warmgray-900": "color",
+      "--success-50": "color",
+      "--success-100": "color",
+      "--success-500": "color",
+      "--success-600": "color",
+      "--success-700": "color",
+      "--warning-50": "color",
+      "--warning-100": "color",
+      "--warning-500": "color",
+      "--warning-600": "color",
+      "--warning-700": "color",
+      "--danger-50": "color",
+      "--danger-100": "color",
+      "--danger-500": "color",
+      "--danger-600": "color",
+      "--danger-700": "color",
+      "--info-50": "color",
+      "--info-100": "color",
+      "--info-500": "color",
+      "--info-600": "color",
+      "--info-700": "color",
+      "--white": "color",
+      "--black": "color",
+      "--chart-cat-1": "color",
+      "--chart-cat-2": "color",
+      "--chart-cat-3": "color",
+      "--chart-cat-4": "color",
+      "--chart-cat-5": "color",
+      "--chart-cat-6": "color",
+      "--chart-cat-7": "color",
+      "--chart-cat-8": "color",
+      "--chart-sex-male": "color",
+      "--chart-sex-female": "color",
+      "--chart-sex-unknown": "color",
+      "--chart-seq-1": "color",
+      "--chart-seq-2": "color",
+      "--chart-seq-3": "color",
+      "--chart-seq-4": "color",
+      "--chart-seq-5": "color",
+      "--chart-grid": "color",
+      "--chart-axis": "color",
+      "--font-sans": "font",
+      "--font-mono": "font",
+      "--text-xs": "font",
+      "--text-sm": "font",
+      "--text-base": "font",
+      "--text-lg": "font",
+      "--text-xl": "font",
+      "--text-2xl": "font",
+      "--text-3xl": "font",
+      "--text-4xl": "font",
+      "--weight-regular": "font",
+      "--weight-medium": "font",
+      "--weight-semibold": "font",
+      "--weight-bold": "font",
+      "--leading-tight": "font",
+      "--leading-snug": "font",
+      "--leading-normal": "font",
+      "--leading-relaxed": "font",
+      "--tracking-tight": "font",
+      "--tracking-normal": "font",
+      "--tracking-wide": "font",
+      "--tracking-caps": "font",
+      "--space-0": "spacing",
+      "--space-0-5": "spacing",
+      "--space-1": "spacing",
+      "--space-2": "spacing",
+      "--space-3": "spacing",
+      "--space-4": "spacing",
+      "--space-5": "spacing",
+      "--space-6": "spacing",
+      "--space-8": "spacing",
+      "--space-10": "spacing",
+      "--space-12": "spacing",
+      "--space-16": "spacing",
+      "--space-24": "spacing",
+      "--radius-xs": "radius",
+      "--radius-sm": "radius",
+      "--radius-md": "radius",
+      "--radius-lg": "radius",
+      "--radius-xl": "radius",
+      "--radius-full": "radius",
+      "--border-1": "spacing",
+      "--border-2": "spacing",
+      "--focus-ring-width": "spacing",
+      "--focus-ring-offset": "spacing",
+      "--layout-content-max": "spacing",
+      "--layout-export-max": "spacing",
+      "--rail-width": "spacing",
+      "--topbar-height": "spacing",
+      "--chart-h-pyramid": "spacing",
+      "--chart-h-bars": "spacing",
+      "--chart-h-series": "spacing",
+      "--state-hover": "other",
+      "--state-focus": "other",
+      "--state-pressed": "other",
+      "--shadow-xs": "shadow",
+      "--shadow-sm": "shadow",
+      "--shadow-md": "shadow",
+      "--shadow-lg": "shadow",
+      "--z-base": "other",
+      "--z-dropdown": "other",
+      "--z-sticky": "other",
+      "--z-tooltip": "other",
+      "--z-modal": "other",
+      "--ease-standard": "other",
+      "--ease-emphasized": "other",
+      "--duration-fast": "other",
+      "--duration-normal": "other",
+      "--duration-slow": "other",
+      "--color-bg-primary": "color",
+      "--color-bg-secondary": "color",
+      "--color-bg-elevated": "color",
+      "--color-surface-sunken": "color",
+      "--color-text-primary": "font",
+      "--color-text-secondary": "font",
+      "--color-text-disabled": "font",
+      "--color-text-on-primary": "font",
+      "--color-action-primary": "color",
+      "--color-action-primary-hover": "color",
+      "--color-action-primary-active": "color",
+      "--color-action-primary-fg": "color",
+      "--color-action-primary-tint": "color",
+      "--color-action-primary-tint-fg": "color",
+      "--color-border-default": "color",
+      "--color-border-strong": "color",
+      "--color-border-active": "color",
+      "--color-focus-ring": "color",
+      "--color-success": "color",
+      "--color-success-bg": "color",
+      "--color-success-border": "color",
+      "--color-warning": "color",
+      "--color-warning-bg": "color",
+      "--color-warning-border": "color",
+      "--color-danger": "color",
+      "--color-danger-bg": "color",
+      "--color-danger-border": "color",
+      "--color-info": "color",
+      "--color-info-bg": "color",
+      "--color-info-border": "color",
+      "--color-text-error": "font",
+      "--color-border-error": "color",
+      "--color-banner-suppression-bg": "color",
+      "--color-banner-suppression-fg": "color",
+      "--color-banner-suppression-border": "color",
+      "--color-person-active": "color",
+      "--color-person-active-bg": "color",
+      "--color-person-active-border": "color",
+      "--color-person-inactive": "color",
+      "--color-person-inactive-bg": "color",
+      "--color-person-inactive-border": "color",
+      "--color-idp-linked": "color",
+      "--color-idp-linked-bg": "color",
+      "--color-idp-none": "color",
+      "--color-idp-none-bg": "color",
+      "--color-idp-failed": "color",
+      "--color-idp-failed-bg": "color",
+      "--color-idp-failed-border": "color",
+      "--color-status-fila": "color",
+      "--color-status-fila-bg": "color",
+      "--color-status-acolhido": "color",
+      "--color-status-acolhido-bg": "color",
+      "--color-status-alta": "color",
+      "--color-status-alta-bg": "color",
+      "--color-status-desistente": "color",
+      "--color-status-desistente-bg": "color",
+      "--color-risk-violation": "color",
+      "--color-risk-violation-bg": "color",
+      "--color-risk-overcrowding": "color",
+      "--color-risk-overcrowding-bg": "color",
+      "--color-risk-delay": "color",
+      "--color-risk-delay-bg": "color",
+      "--color-risk-prenatal": "color",
+      "--color-risk-prenatal-bg": "color",
+      "--color-risk-default": "color",
+      "--color-risk-default-bg": "color",
+      "--color-flow-pendente": "color",
+      "--color-flow-pendente-bg": "color",
+      "--color-flow-concluido": "color",
+      "--color-flow-concluido-bg": "color",
+      "--color-flow-cancelado": "color",
+      "--color-flow-cancelado-bg": "color",
+      "--color-flow-rejeitado": "color",
+      "--color-flow-rejeitado-bg": "color",
+      "--color-banner-lgpd-bg": "color",
+      "--color-banner-lgpd-fg": "color",
+      "--color-banner-lgpd-border": "color",
+      "--color-overlay": "color"
+    },
+    "fontFamilies": [
+      "Atkinson Hyperlegible",
+      "Atkinson Hyperlegible Mono",
+      "Atkinson Hyperlegible Next"
+    ]
+  }
+}

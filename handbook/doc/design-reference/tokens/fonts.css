@@ -1,0 +1,10 @@
+/* Webfonts — Atkinson Hyperlegible family (Braille Institute, SIL OFL).
+   Chosen as the platform typeface because RAROS serves families affected by
+   rare diseases: hyperlegibility for low-vision readers is a product value, not
+   a style choice. Atkinson Hyperlegible Next (UI), Atkinson Hyperlegible Mono
+   (numerals, codes, tables), original Atkinson Hyperlegible (fallback).
+
+   NOTE (ADR-0008 — Self-host Webfonts): production self-hosts these as .woff2
+   (zero IP leaked to third parties — LGPD). This DS links Google Fonts for
+   portability; swap to self-hosted @font-face before go-live. */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Atkinson+Hyperlegible+Mono:wght@400;500;600;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap');

@@ -1,0 +1,29 @@
+<!-- @dsCard group="Spacing" viewport="700x160" name="State layers & focus" subtitle="M3 overlay hover .08 / focus .12 / pressed .16 · coral focus ring 2px" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 24px; background: var(--color-bg-elevated); }
+  .row { display: flex; gap: var(--space-5); align-items: center; }
+  .layer { position: relative; width: 120px; height: 56px; border-radius: var(--radius-md); background: var(--coral-500); overflow: hidden; display: flex; align-items: center; justify-content: center; color: #fff; font-size: var(--text-xs); font-weight: 600; }
+  .layer::after { content: ""; position: absolute; inset: 0; background: #000; }
+  .h::after { opacity: var(--state-hover); }
+  .f::after { opacity: var(--state-focus); }
+  .p::after { opacity: var(--state-pressed); }
+  .label { font-family: var(--font-mono); font-size: 9px; text-align: center; color: var(--color-text-secondary); margin-top: 6px; }
+  .focusbtn { font: inherit; font-weight: 600; font-size: var(--text-sm); padding: 9px 16px; border-radius: var(--radius-full); border: none; background: var(--color-action-primary); color: #fff; outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: var(--focus-ring-offset); }
+  .col { text-align: center; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="col"><div class="layer"><span style="z-index:1">base</span></div><div class="label">rest</div></div>
+    <div class="col"><div class="layer h"><span style="z-index:1">+ .08</span></div><div class="label">hover</div></div>
+    <div class="col"><div class="layer f"><span style="z-index:1">+ .12</span></div><div class="label">focus</div></div>
+    <div class="col"><div class="layer p"><span style="z-index:1">+ .16</span></div><div class="label">pressed</div></div>
+    <div class="col" style="margin-left:auto"><button class="focusbtn">Focus ring</button><div class="label">:focus-visible</div></div>
+  </div>
+</body>
+</html>

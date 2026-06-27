@@ -1,0 +1,26 @@
+<!-- @dsCard group="Spacing" viewport="700x160" name="Radius scale" subtitle="inputs md(12) · cards lg(16) · chips full — nothing sharp" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 22px 24px; background: var(--color-bg-elevated); }
+  .row { display: flex; gap: var(--space-5); align-items: flex-end; }
+  .item { text-align: center; }
+  .box { width: 72px; height: 60px; background: var(--coral-50); border: 1.5px solid var(--coral-400); }
+  .item b { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--color-text-primary); margin-top: 7px; }
+  .item span { font-family: var(--font-mono); font-size: 9px; color: var(--color-text-secondary); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="item"><div class="box" style="border-radius:var(--radius-xs)"></div><b>xs</b><span>4</span></div>
+    <div class="item"><div class="box" style="border-radius:var(--radius-sm)"></div><b>sm</b><span>8</span></div>
+    <div class="item"><div class="box" style="border-radius:var(--radius-md)"></div><b>md</b><span>12</span></div>
+    <div class="item"><div class="box" style="border-radius:var(--radius-lg)"></div><b>lg</b><span>16</span></div>
+    <div class="item"><div class="box" style="border-radius:var(--radius-xl)"></div><b>xl</b><span>28</span></div>
+    <div class="item"><div class="box" style="border-radius:var(--radius-full)"></div><b>full</b><span>pill</span></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+/* ============================================================================
+   CHART TOKENS — the platform's only legitimate color "scale"
+   Categorical palette = Okabe–Ito (colorblind-safe by construction). These are
+   literal values on purpose: a chart palette is a contract (design-tokens.fe.md
+   §2). Series consume cat-1..8 IN ORDER, never skipping. Semantic series (sex)
+   use the fixed aliases so the same category is the same color everywhere.
+   Color is NEVER the only channel — always pair with a direct label/legend.
+   ============================================================================ */
+:root {
+  /* Categorical (Okabe–Ito), max 8 series */
+  --chart-cat-1: #0072b2;  /* blue          */
+  --chart-cat-2: #e69f00;  /* orange        */
+  --chart-cat-3: #009e73;  /* bluish green  */
+  --chart-cat-4: #d9c000;  /* yellow (darkened for AA on light) */
+  --chart-cat-5: #cc79a7;  /* reddish purple */
+  --chart-cat-6: #d55e00;  /* vermillion    */
+  --chart-cat-7: #56b4e9;  /* sky blue      */
+  --chart-cat-8: #6e6e6e;  /* gray          */
+
+  /* Fixed semantic aliases (same color in every chart) */
+  --chart-sex-male:    var(--chart-cat-1);
+  --chart-sex-female:  var(--chart-cat-2);
+  --chart-sex-unknown: var(--chart-cat-8);
+
+  /* Sequential mono-hue ramp (blue), ordered by luminance — intensity only */
+  --chart-seq-1: oklch(94% 0.03 245);
+  --chart-seq-2: oklch(82% 0.07 245);
+  --chart-seq-3: oklch(68% 0.11 245);
+  --chart-seq-4: oklch(56% 0.14 245);
+  --chart-seq-5: oklch(45% 0.14 245);
+
+  /* Chart chrome */
+  --chart-grid: var(--warmgray-200);
+  --chart-axis: var(--warmgray-600);
+}

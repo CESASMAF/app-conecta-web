@@ -1,0 +1,39 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Warm gray — neutral field" subtitle="hue ~70 · surfaces & text, never a primitive in UI" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 20px; background: var(--color-bg-elevated); }
+  .row { display: flex; gap: 0; border: 1px solid var(--color-border-default); border-radius: var(--radius-md); overflow: hidden; }
+  .sw { flex: 1; height: 64px; display: flex; align-items: flex-end; }
+  .sw span { font-size: 10px; font-family: var(--font-mono); padding: 3px 5px; }
+  .sw.light span { color: var(--warmgray-700); }
+  .sw.on span { color: #fff; opacity: .92; }
+  .legend { display: flex; gap: var(--space-2); margin-top: var(--space-4); font-size: var(--text-sm); color: var(--color-text-secondary); }
+  .legend b { color: var(--color-text-primary); font-weight: var(--weight-semibold); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw light" style="background:var(--warmgray-50)"><span>50</span></div>
+    <div class="sw light" style="background:var(--warmgray-100)"><span>100</span></div>
+    <div class="sw light" style="background:var(--warmgray-200)"><span>200</span></div>
+    <div class="sw light" style="background:var(--warmgray-300)"><span>300</span></div>
+    <div class="sw light" style="background:var(--warmgray-400)"><span>400</span></div>
+    <div class="sw on" style="background:var(--warmgray-500)"><span>500</span></div>
+    <div class="sw on" style="background:var(--warmgray-600)"><span>600</span></div>
+    <div class="sw on" style="background:var(--warmgray-700)"><span>700</span></div>
+    <div class="sw on" style="background:var(--warmgray-800)"><span>800</span></div>
+    <div class="sw on" style="background:var(--warmgray-900)"><span>900</span></div>
+  </div>
+  <div class="legend">
+    <span><b>50/100</b> bg</span><span>·</span>
+    <span><b>200</b> border</span><span>·</span>
+    <span><b>400</b> disabled</span><span>·</span>
+    <span><b>600</b> secondary text</span><span>·</span>
+    <span><b>900</b> primary text</span>
+  </div>
+</body>
+</html>

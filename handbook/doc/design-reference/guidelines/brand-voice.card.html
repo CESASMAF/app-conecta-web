@@ -1,0 +1,36 @@
+<!-- @dsCard group="Brand" viewport="700x200" name="Voice & privacy copy" subtitle="PT-BR · neutral, never celebratory · privacy vocabulary is fixed" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 22px 24px; background: var(--color-bg-elevated); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  .do, .dont { border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); font-size: var(--text-sm); }
+  .do { background: var(--color-success-bg); }
+  .dont { background: var(--color-danger-bg); }
+  .lab { font-size: 10px; font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; margin-bottom: 4px; }
+  .do .lab { color: var(--color-success); }
+  .dont .lab { color: var(--color-danger); }
+  .do p { color: var(--color-text-primary); }
+  .dont p { color: var(--color-text-secondary); text-decoration: line-through; }
+  .banner { margin-top: var(--space-3); display: flex; gap: 10px; align-items: flex-start; background: var(--color-banner-suppression-bg); border: 1px solid var(--color-banner-suppression-border); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); }
+  .banner .ico { font-family: 'Material Symbols Rounded'; font-size: 20px; color: var(--color-info); line-height: 1.2; }
+  .banner .txt { font-size: var(--text-sm); color: var(--color-banner-suppression-fg); }
+  @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0');
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+  <div class="grid">
+    <div class="do"><div class="lab">Say</div><p>Sem dados no período selecionado — amplie o intervalo.</p></div>
+    <div class="dont"><div class="lab">Not</div><p>Ops! 🎉 Nada por aqui ainda!</p></div>
+  </div>
+  <div class="banner">
+    <span class="ico">shield_lock</span>
+    <span class="txt">3 grupos com menos de 5 pessoas foram omitidos para proteger a privacidade. <strong>K-anonimato (K=5)</strong> — texto não-dispensável.</span>
+  </div>
+</body>
+</html>

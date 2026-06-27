@@ -1,0 +1,29 @@
+<!-- @dsCard group="Spacing" viewport="700x160" name="Spacing scale — 4px grid" subtitle="suffix ≈ value / 4 · space-4 = 16px, space-6 = 24px" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 22px 24px; background: var(--color-bg-elevated); }
+  .scale { display: flex; align-items: flex-end; gap: var(--space-4); }
+  .step { text-align: center; }
+  .bar { background: var(--coral-400); border-radius: var(--radius-xs) var(--radius-xs) 0 0; width: 26px; }
+  .step span { display: block; font-family: var(--font-mono); font-size: 9px; color: var(--color-text-secondary); margin-top: 5px; }
+  .step b { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--color-text-primary); }
+</style>
+</head>
+<body>
+  <div class="scale">
+    <div class="step"><div class="bar" style="height:4px"></div><b>1</b><span>4</span></div>
+    <div class="step"><div class="bar" style="height:8px"></div><b>2</b><span>8</span></div>
+    <div class="step"><div class="bar" style="height:12px"></div><b>3</b><span>12</span></div>
+    <div class="step"><div class="bar" style="height:16px"></div><b>4</b><span>16</span></div>
+    <div class="step"><div class="bar" style="height:24px"></div><b>6</b><span>24</span></div>
+    <div class="step"><div class="bar" style="height:32px"></div><b>8</b><span>32</span></div>
+    <div class="step"><div class="bar" style="height:48px"></div><b>12</b><span>48</span></div>
+    <div class="step"><div class="bar" style="height:64px"></div><b>16</b><span>64</span></div>
+    <div class="step"><div class="bar" style="height:84px"></div><b>24</b><span>96</span></div>
+  </div>
+</body>
+</html>

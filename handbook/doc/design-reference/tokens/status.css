@@ -1,0 +1,53 @@
+/* ============================================================================
+   STATUS · RISK · FLOW · LGPD — social-care semantic aliases
+   PatientStatus, computed-analytics risk chips, flow status (referrals/lookup
+   requests) and the LGPD-anonymized banner. All derive from existing primitives
+   (no new brand color). Color is never the only channel — chips pair color +
+   icon + label (design-tokens.fe.md §3).
+   ============================================================================ */
+:root {
+  /* PatientStatus → chip fg + bg */
+  --color-status-fila:         var(--warning-700); /* waitlisted */
+  --color-status-fila-bg:      var(--warning-50);
+  --color-status-acolhido:     var(--success-700); /* active     */
+  --color-status-acolhido-bg:  var(--success-50);
+  --color-status-alta:         var(--info-700);    /* discharged */
+  --color-status-alta-bg:      var(--info-50);
+  --color-status-desistente:   var(--warmgray-600);/* withdrawn  */
+  --color-status-desistente-bg:var(--warmgray-100);
+
+  /* Risk chips (computedAnalytics + protection aggregates) */
+  --color-risk-violation:    var(--danger-600);
+  --color-risk-violation-bg: var(--danger-50);
+  --color-risk-overcrowding: var(--warning-700);
+  --color-risk-overcrowding-bg: var(--warning-50);
+  --color-risk-delay:        var(--warning-700);
+  --color-risk-delay-bg:     var(--warning-50);
+  --color-risk-prenatal:     var(--info-700);
+  --color-risk-prenatal-bg:  var(--info-50);
+  --color-risk-default:      var(--warmgray-600);
+  --color-risk-default-bg:   var(--warmgray-100);
+
+  /* Flow status (Referral.Status, LookupRequestStatus) */
+  --color-flow-pendente:   var(--warning-700);
+  --color-flow-pendente-bg:var(--warning-50);
+  --color-flow-concluido:  var(--success-700);
+  --color-flow-concluido-bg: var(--success-50);
+  --color-flow-cancelado:  var(--warmgray-600);
+  --color-flow-cancelado-bg: var(--warmgray-100);
+  --color-flow-rejeitado:  var(--danger-600);
+  --color-flow-rejeitado-bg: var(--danger-50);
+
+  /* LGPD anonymized record banner (permanent, informative) */
+  --color-banner-lgpd-bg:     oklch(60% 0.15 245 / 0.10);
+  --color-banner-lgpd-fg:     var(--warmgray-900);
+  --color-banner-lgpd-border: oklch(60% 0.15 245 / 0.28);
+
+  /* Modal scrim */
+  --color-overlay: oklch(24% 0.008 70 / 0.45);
+}
+
+.dark,
+[data-theme="dark"] {
+  --color-banner-lgpd-fg: var(--warmgray-50);
+}

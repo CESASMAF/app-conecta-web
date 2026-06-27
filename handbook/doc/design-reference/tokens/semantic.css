@@ -1,0 +1,94 @@
+/* ============================================================================
+   SEMANTIC TOKENS — the type contract (contract.css.ts origin)
+   UI references ONLY these aliases, never the primitives. Referencing a missing
+   token is a compile error in production (vanilla-extract). Dark mode covers
+   neutrals only (v1) — coral and semaphores stay calibrated against light.
+   ============================================================================ */
+:root {
+  /* Surfaces / backgrounds */
+  --color-bg-primary:    var(--warmgray-50);   /* app background      */
+  --color-bg-secondary:  var(--warmgray-100);  /* sunken / rail       */
+  --color-bg-elevated:   var(--white);         /* cards, sheets, menus */
+  --color-surface-sunken:var(--warmgray-100);
+
+  /* Text */
+  --color-text-primary:   var(--warmgray-900);
+  --color-text-secondary: var(--warmgray-600);
+  --color-text-disabled:  var(--warmgray-400);
+  --color-text-on-primary:var(--white);
+
+  /* Primary action (coral) */
+  --color-action-primary:        var(--coral-500);
+  --color-action-primary-hover:  var(--coral-600);
+  --color-action-primary-active: var(--coral-700);
+  --color-action-primary-fg:     var(--white);
+  --color-action-primary-tint:   var(--coral-50);   /* tonal button bg */
+  --color-action-primary-tint-fg:var(--coral-700);
+
+  /* Borders */
+  --color-border-default: var(--warmgray-200);
+  --color-border-strong:  var(--warmgray-400);
+  --color-border-active:  var(--coral-500);
+
+  /* Focus — WCAG 2.2 AA */
+  --color-focus-ring: var(--coral-500);
+
+  /* Semaphore surfaces (bg tint / fg / border) */
+  --color-success: var(--success-600);
+  --color-success-bg: var(--success-50);
+  --color-success-border: var(--success-100);
+  --color-warning: var(--warning-700);
+  --color-warning-bg: var(--warning-50);
+  --color-warning-border: var(--warning-100);
+  --color-danger: var(--danger-600);
+  --color-danger-bg: var(--danger-50);
+  --color-danger-border: var(--danger-100);
+  --color-info: var(--info-600);
+  --color-info-bg: var(--info-50);
+  --color-info-border: var(--info-100);
+
+  /* Validation */
+  --color-text-error:   var(--danger-600);
+  --color-border-error: var(--danger-500);
+
+  /* Privacy suppression banner (LGPD Art. 12) — info, permanent, not an alert */
+  --color-banner-suppression-bg: oklch(60% 0.15 245 / 0.10);
+  --color-banner-suppression-fg: var(--warmgray-900);
+  --color-banner-suppression-border: oklch(60% 0.15 245 / 0.28);
+
+  /* People-context domain — active/inactive (1:1 with the `active` boolean of
+     Person and SystemRole; never a third state). Always colour + icon + label. */
+  --color-person-active:          var(--success-600);
+  --color-person-active-bg:       var(--success-50);
+  --color-person-active-border:   var(--success-100);
+  --color-person-inactive:        var(--warmgray-600);
+  --color-person-inactive-bg:     var(--warmgray-100);
+  --color-person-inactive-border: var(--warmgray-200);
+
+  /* IdP login state — derived in the ViewModel from idpUserId / 207 flag */
+  --color-idp-linked:    var(--success-600);
+  --color-idp-linked-bg: var(--success-50);
+  --color-idp-none:      var(--warmgray-600);
+  --color-idp-none-bg:   var(--warmgray-100);
+  --color-idp-failed:    var(--warning-700);
+  --color-idp-failed-bg: var(--warning-50);
+  --color-idp-failed-border: var(--warning-100);
+}
+
+/* ---- Dark scope (neutrals only) ------------------------------------------- */
+.dark,
+[data-theme="dark"] {
+  --color-bg-primary:    var(--warmgray-900);
+  --color-bg-secondary:  oklch(20% 0.008 70);
+  --color-bg-elevated:   var(--warmgray-800);
+  --color-surface-sunken:oklch(20% 0.008 70);
+
+  --color-text-primary:   var(--warmgray-50);
+  --color-text-secondary: var(--warmgray-300);
+  --color-text-disabled:  var(--warmgray-500);
+
+  --color-border-default: var(--warmgray-700);
+  --color-border-strong:  var(--warmgray-500);
+
+  --color-banner-suppression-fg: var(--warmgray-50);
+}

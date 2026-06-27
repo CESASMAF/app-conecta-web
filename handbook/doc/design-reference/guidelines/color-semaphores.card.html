@@ -1,0 +1,40 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Semaphores — meaning only" subtitle="success / warning / danger / info · appear only to carry meaning" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 20px; background: var(--color-bg-elevated); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
+  .cell { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border-default); }
+  .chip { height: 44px; }
+  .tint { padding: var(--space-2) var(--space-3); font-size: var(--text-xs); display: flex; align-items: center; gap: 6px; }
+  .dot { width: 9px; height: 9px; border-radius: var(--radius-full); }
+  .name { font-weight: var(--weight-semibold); color: var(--color-text-primary); }
+  .val { font-family: var(--font-mono); font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+  .meta { font-size: var(--text-xs); color: var(--color-text-secondary); margin-top: var(--space-4); }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="cell">
+      <div class="chip" style="background:var(--success-500)"></div>
+      <div class="tint" style="background:var(--color-success-bg);color:var(--color-success)"><span class="dot" style="background:var(--success-500)"></span><span class="name" style="color:var(--color-success)">success</span></div>
+    </div>
+    <div class="cell">
+      <div class="chip" style="background:var(--warning-500)"></div>
+      <div class="tint" style="background:var(--color-warning-bg);color:var(--color-warning)"><span class="dot" style="background:var(--warning-500)"></span><span class="name" style="color:var(--color-warning)">warning</span></div>
+    </div>
+    <div class="cell">
+      <div class="chip" style="background:var(--danger-500)"></div>
+      <div class="tint" style="background:var(--color-danger-bg);color:var(--color-danger)"><span class="dot" style="background:var(--danger-500)"></span><span class="name" style="color:var(--color-danger)">danger</span></div>
+    </div>
+    <div class="cell">
+      <div class="chip" style="background:var(--info-500)"></div>
+      <div class="tint" style="background:var(--color-info-bg);color:var(--color-info)"><span class="dot" style="background:var(--info-500)"></span><span class="name" style="color:var(--color-info)">info</span></div>
+    </div>
+  </div>
+  <p class="meta">429 → warning · 400/5xx → danger · reference notes → info · never decorative.</p>
+</body>
+</html>
