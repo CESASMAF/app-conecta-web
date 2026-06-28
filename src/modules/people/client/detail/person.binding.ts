@@ -37,11 +37,11 @@ export function usePersonBinding() {
   })
   const notFound = createMemo(() => {
     const r = person()
-    return Boolean(r) && !isOk(r!) && r!.error.kind === 'notFound'
+    return Boolean(r) && !isOk(r!) && r!.error?.kind === 'notFound'
   })
   const loadErrorTag = createMemo<PeopleTag | null>(() => {
     const r = person()
-    return r && !isOk(r) ? peopleErrorTag(r.error.kind) : null
+    return r && !isOk(r) ? peopleErrorTag(r.error?.kind ?? 'unknown') : null
   })
   const roleList = createMemo<readonly PersonRole[]>(() => {
     const r = roles()
@@ -62,7 +62,7 @@ export function usePersonBinding() {
       return true
     }
     setBusy(false)
-    setErrTag(peopleActionErrorTag(r.error.kind))
+    setErrTag(peopleActionErrorTag(r.error?.kind ?? 'unknown'))
     return false
   }
 

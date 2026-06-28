@@ -41,7 +41,7 @@ export function usePeopleListBinding() {
   })
   const errorTag = createMemo<PeopleTag | null>(() => {
     const f = first()
-    if (f && !isOk(f)) return peopleErrorTag(f.error.kind)
+    if (f && !isOk(f)) return peopleErrorTag(f.error?.kind ?? 'unknown')
     const te = tailError()
     return te ? peopleErrorTag(te.kind) : null
   })

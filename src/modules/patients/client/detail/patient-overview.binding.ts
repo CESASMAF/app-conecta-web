@@ -42,12 +42,12 @@ export function usePatientOverviewBinding() {
   const notFound = createMemo(() => {
     if (override()) return false
     const o = overview()
-    return Boolean(o) && !isOk(o!) && o!.error.kind === 'notFound'
+    return Boolean(o) && !isOk(o!) && o!.error?.kind === 'notFound'
   })
   const errorOther = createMemo(() => {
     if (override()) return false
     const o = overview()
-    return Boolean(o) && !isOk(o!) && o!.error.kind !== 'notFound'
+    return Boolean(o) && !isOk(o!) && o!.error?.kind !== 'notFound'
   })
 
   // Executa uma mutação: anti-duplo-submit (busy global), aplica o overview recomposto ou mapeia erro→tag.
@@ -61,7 +61,7 @@ export function usePatientOverviewBinding() {
       setOverride(r.value)
       return true
     }
-    setErrTag(actionErrorTag(r.error.kind))
+    setErrTag(actionErrorTag(r.error?.kind ?? 'unknown'))
     return false
   }
 
