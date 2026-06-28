@@ -47,7 +47,7 @@ export function useCareBinding() {
       return true
     }
     setBusy(false)
-    setErrTag(actionErrorTag(r.error.kind))
+    setErrTag(actionErrorTag(r.error?.kind ?? 'unknown'))
     return false
   }
 

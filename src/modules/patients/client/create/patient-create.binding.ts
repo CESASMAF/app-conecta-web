@@ -106,7 +106,7 @@ export function usePatientCreateBinding() {
 
   const submitErrorTag = createMemo<PatientsTag | null>(() => {
     const res = submission.result
-    return res && !isOk(res) ? registerErrorTag(res.error.kind) : null
+    return res && !isOk(res) ? registerErrorTag(res.error?.kind ?? 'unknown') : null
   })
 
   const relationshipOptions = createMemo(() => {

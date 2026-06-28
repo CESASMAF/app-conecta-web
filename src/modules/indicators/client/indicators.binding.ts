@@ -26,7 +26,7 @@ export function useIndicatorsBinding() {
   })
   const loadErrorTag = createMemo<IndicatorsTag | null>(() => {
     const r = result()
-    return r && !isOk(r) ? indicatorsErrorTag(r.error.kind) : null
+    return r && !isOk(r) ? indicatorsErrorTag(r.error?.kind ?? 'unknown') : null
   })
 
   function apply(): void {

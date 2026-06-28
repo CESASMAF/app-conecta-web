@@ -44,7 +44,7 @@ export function useAssessmentBinding() {
       setOverrides({ [section]: payload } as Partial<Record<AssessmentSectionKey, unknown>>)
       return true
     }
-    setErrTag(actionErrorTag(r.error.kind))
+    setErrTag(actionErrorTag(r.error?.kind ?? 'unknown'))
     return false
   }
 

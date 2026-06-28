@@ -33,7 +33,7 @@ export function usePersonCreateBinding() {
 
   const submitErrorTag = createMemo<PeopleTag | null>(() => {
     const res = submission.result
-    return res && !isOk(res) ? peopleActionErrorTag(res.error.kind) : null
+    return res && !isOk(res) ? peopleActionErrorTag(res.error?.kind ?? 'unknown') : null
   })
 
   return { form, set, errorFor, save, pending: () => submission.pending, submitErrorTag }

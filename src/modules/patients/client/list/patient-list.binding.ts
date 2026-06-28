@@ -53,7 +53,7 @@ export function usePatientListBinding() {
 
   const errorTag = createMemo(() => {
     const f = first()
-    if (f && !isOk(f)) return patientsErrorTag(f.error.kind)
+    if (f && !isOk(f)) return patientsErrorTag(f.error?.kind ?? 'unknown')
     const te = tailError()
     return te ? patientsErrorTag(te.kind) : null
   })
