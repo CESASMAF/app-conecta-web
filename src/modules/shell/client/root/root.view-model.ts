@@ -26,10 +26,24 @@ const TITLES: Readonly<Record<string, string>> = {
 const hasGroup = (groups: readonly string[], required: string): boolean =>
   groups.includes('superadmin') || groups.includes(required) || groups.some((g) => g.endsWith(`:${required}`))
 
+// Rótulo PT-BR do papel principal (só exibição, no card do rail). Ordem = prioridade.
+const ROLE_LABELS: readonly (readonly [string, string])[] = [
+  ['superadmin', 'Superadmin'],
+  ['worker', 'Assistente Social'],
+  ['owner', 'Administrador'],
+  ['admin', 'Administrador'],
+  ['analyst', 'Analista'],
+  ['exporter', 'Analista'],
+]
+
 export const rootViewModel = {
   visibleMenu: (groups: readonly string[]): readonly MenuItem[] =>
     MENU.filter((item) => !item.requiredGroup || hasGroup(groups, item.requiredGroup)),
   pageTitle: (path: string): string => TITLES[path] ?? 'RAROS Boa Vista',
+  roleLabel: (groups: readonly string[]): string => {
+    const match = ROLE_LABELS.find(([g]) => groups.includes(g) || groups.some((x) => x.endsWith(`:${g}`)))
+    return match ? match[1] : 'Usuário'
+  },
   isActive: (path: string, href: string): boolean =>
     href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`),
   // Destino padrão ao entrar: a primeira área visível ao papel do usuário (Inc 1 → Pacientes p/ worker).

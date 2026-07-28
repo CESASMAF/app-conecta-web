@@ -19,9 +19,11 @@ export function PatientCreatePage() {
       <header class={s.header}>
         <h1 class={s.title}>Novo paciente</h1>
         <div class={s.stepper} aria-label={`Passo ${b.step()} de 2`}>
-          <span class={b.step() === 1 ? s.dotActive : s.dot} />
-          <span class={s.stepLine} />
-          <span class={b.step() === 2 ? s.dotActive : s.dot} />
+          <span class={s.stepNodeActive}>1</span>
+          <span class={s.stepTrack}>
+            <span class={s.stepTrackFill} style={{ width: b.step() >= 2 ? '100%' : '0%' }} />
+          </span>
+          <span class={b.step() >= 2 ? s.stepNodeActive : s.stepNode}>2</span>
         </div>
       </header>
 

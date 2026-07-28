@@ -1,7 +1,8 @@
 // Preload de testes: envs dummy ANTES de qualquer módulo carregar (senão env.ts/oidc quebram sem IdP).
 process.env.NODE_ENV ??= 'test'
-process.env.AUTHENTIK_URL ??= 'https://auth.test.local'
-process.env.AUTHENTIK_APP_SLUG ??= 'acdg-web'
+process.env.OIDC_ISSUER ??= 'https://auth.test.local'
+process.env.KRATOS_PUBLIC_URL ??= 'https://id.test.local'
+process.env.KRATOS_ADMIN_URL ??= 'http://kratos-admin.test.local'
 process.env.OIDC_CLIENT_ID ??= 'acdg-web'
 process.env.OIDC_CLIENT_SECRET ??= 'test-secret'
 process.env.SESSION_SECRET ??= 'test-session-secret'

@@ -15,9 +15,9 @@ export function RootPage(props: RootPageProps) {
   const binding = useRootBinding(() => props.user)
   return (
     <div class={s.shell}>
-      <SideBar items={binding.menu()} isActive={binding.isActive} />
+      <SideBar items={binding.menu()} isActive={binding.isActive} userName={binding.userLabel()} userRole={binding.userRole()} />
       <div class={s.main}>
-        <TopBar title={binding.pageTitle()} userLabel={binding.userLabel()} onLogout={binding.logout} />
+        <TopBar title={binding.pageTitle()} onLogout={binding.logout} />
         <main class={s.content}>{props.children}</main>
       </div>
     </div>

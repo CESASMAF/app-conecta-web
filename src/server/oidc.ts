@@ -53,7 +53,8 @@ type TokenResponse = Readonly<{
 
 const asString = (v: unknown): string | null => (typeof v === 'string' ? v : null)
 
-export function createAuthentikClient(): OidcClient {
+export function createOidcClient(): OidcClient {
+  // Cliente OIDC genérico (Ory Hydra). Authorization Code + PKCE; JWT RS256 validado via JWKS.
   // JWKS lazy: não tocar a rede na construção (app sobe em dev/teste sem IdP real).
   let jwks: ReturnType<typeof createRemoteJWKSet> | null = null
   const getJwks = (): ReturnType<typeof createRemoteJWKSet> =>

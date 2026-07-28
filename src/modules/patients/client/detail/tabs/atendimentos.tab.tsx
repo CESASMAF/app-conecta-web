@@ -31,15 +31,25 @@ export function AtendimentosTab() {
           <AppointmentForm_ busy={b.busy()} onSave={(p) => saveClose(p, b.registerAppointment)} onCancel={close} />
         </Show>
         <Show when={(b.data()?.appointments.length ?? 0) > 0} fallback={<p class={s.muted}>{tp('care.empty')}</p>}>
-          <ul class={s.familyList}>
+          <ul class={s.timeline}>
             <For each={b.data()!.appointments}>
               {(a) => (
-                <li class={s.familyRow}>
-                  <span>
-                    <strong>{formatDate(a.date) || 'Atendimento'}</strong>
-                    <Show when={a.type}><span class={s.muted}> · {a.type}</span></Show>
-                    <Show when={a.summary}><span class={s.muted}> · {a.summary}</span></Show>
+                <li class={s.tlItem}>
+                  <span class={s.tlRail}>
+                    <span class={s.tlDot} aria-hidden="true" />
+                    <span class={s.tlThread} />
                   </span>
+                  <div class={s.tlCard}>
+                    <div class={s.tlHead}>
+                      <span class={s.tlType}>{a.type || 'Atendimento'}</span>
+                      <Show when={formatDate(a.date)}>
+                        <span class={s.tlDate}>{formatDate(a.date)}</span>
+                      </Show>
+                    </div>
+                    <Show when={a.summary}>
+                      <p class={s.tlBody}>{a.summary}</p>
+                    </Show>
+                  </div>
                 </li>
               )}
             </For>

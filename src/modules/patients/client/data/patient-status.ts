@@ -12,3 +12,15 @@ const LABELS: Readonly<Record<PatientStatus, string>> = {
 }
 
 export const patientStatusLabel = (s: PatientStatus): string => LABELS[s]
+
+// Variante de chip (cor = significado; ver kit `chipStatus`). Só situações ativas ganham cor;
+// desligado/retirado ficam neutros (Modo Enxuto). Nomes batem com as chaves de `chipStatus`.
+export type PatientStatusVariant = 'acolhido' | 'fila' | 'alta' | 'neutral'
+const VARIANTS: Readonly<Record<PatientStatus, PatientStatusVariant>> = {
+  ACTIVE: 'acolhido',
+  WAITLISTED: 'fila',
+  ADMITTED: 'alta',
+  DISCHARGED: 'neutral',
+  WITHDRAWN: 'neutral',
+}
+export const patientStatusVariant = (s: PatientStatus): PatientStatusVariant => VARIANTS[s]

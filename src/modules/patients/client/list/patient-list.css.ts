@@ -12,7 +12,7 @@ export const header = style({
   flexWrap: 'wrap',
 })
 
-export const title = style({ fontSize: vars.text.xxl, fontWeight: vars.weight.bold, letterSpacing: vars.tracking.tight })
+export const title = style({ fontSize: vars.text.xxl, fontWeight: vars.weight.semibold, letterSpacing: vars.tracking.tight, color: vars.color.text.primary })
 export const count = style({ fontSize: vars.text.sm, color: vars.color.text.secondary })
 
 export const headerActions = style({ display: 'flex', alignItems: 'center', gap: vars.space.md })
@@ -60,18 +60,19 @@ export const list = style({
 
 export const row = style({
   display: 'grid',
-  gridTemplateColumns: '1fr auto',
+  gridTemplateColumns: 'auto 1fr auto',
   alignItems: 'center',
   gap: vars.space.md,
   padding: vars.space.md,
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.card,
   border: `${vars.border.hairline} solid ${vars.color.border.default}`,
   background: vars.color.bg.elevated,
   textDecoration: 'none',
   color: 'inherit',
+  transition: `border-color ${vars.motion.fast} ${vars.motion.ease}, background-color ${vars.motion.fast} ${vars.motion.ease}`,
   selectors: {
-    '&:hover': { background: vars.color.bg.secondary },
-    '&:focus-visible': { outline: `2px solid ${vars.color.focus}`, outlineOffset: '2px' },
+    '&:hover': { background: vars.color.bg.secondary, borderColor: vars.color.action.tint },
+    '&:focus-visible': { outline: `${vars.focusRing.width} solid ${vars.color.focus}`, outlineOffset: vars.focusRing.offset },
   },
 })
 
