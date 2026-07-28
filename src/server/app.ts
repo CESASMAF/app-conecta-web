@@ -7,7 +7,7 @@ import { sessionStore } from '~/external/session-store'
 import { createSocialCareClient } from '~/external/social-care-client'
 import { createPeopleContextClient } from '~/external/people-context-client'
 import { createAnalysisBiClient } from '~/external/analysis-bi-client'
-import { createAuthentikClient } from '~/server/oidc'
+import { createOidcClient } from '~/server/oidc'
 import { logAuthEvent } from '~/shared/log'
 import { loginRoute } from '~/server/routes/login.service.fn'
 import { callbackRoute } from '~/server/routes/callback.service.fn'
@@ -81,7 +81,7 @@ export function createApp(deps: AppDeps) {
 
 // Singleton de producao: cliente real do Authentik (JWKS lazy) + store de sessao + os 3 backends.
 export const app = createApp({
-  oidc: createAuthentikClient(),
+  oidc: createOidcClient(),
   sessions: sessionStore,
   socialCare: createSocialCareClient(),
   peopleContext: createPeopleContextClient(),

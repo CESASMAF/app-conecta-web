@@ -1,44 +1,90 @@
-// Contrato de design tokens (ADR-0007) — portado do DS RAROS web_02 (OKLCH, Atkinson, 4px grid).
+// Contrato de design tokens (ADR-0007) — alinhado ao protótipo hi-fi RORAIMA_DESIGN (Raros Boa Vista).
 // UI referencia SOMENTE `vars.*` (token-only); hex/px cru no UI = erro de governance test.
+// Neutros = slate cool do protótipo; acentos + tints + status derivam de `wf-styles.css :root`.
 import { createGlobalTheme } from '@vanilla-extract/css'
 
 export const vars = createGlobalTheme(':root', {
   color: {
     bg: {
-      primary: 'oklch(98.5% 0.003 70)', // warmgray-50 — fundo do app
-      secondary: 'oklch(97% 0.004 70)', // warmgray-100 — sunken/rail
-      elevated: '#ffffff', // cards, sheets, menus
+      primary: '#f3f4f6', // --bg (fundo do app)
+      secondary: '#fbfbfc', // rail / superfície sutil
+      elevated: '#ffffff', // cards, sheets, menus (--card)
+      sunken: '#eef0f3', // --line-soft (tracks, th, fills rebaixados)
     },
     text: {
-      primary: 'oklch(24% 0.008 70)', // warmgray-900
-      secondary: 'oklch(52% 0.011 70)', // warmgray-600
-      disabled: 'oklch(72% 0.009 70)', // warmgray-400
+      primary: '#111827', // --ink (títulos, nomes, valores em destaque)
+      body: '#374151', // --body (texto corrido padrão)
+      secondary: '#6b7280', // --muted (metadados, legendas)
+      disabled: '#9aa3af', // --faint (placeholders, micro-rótulos)
       onPrimary: '#ffffff',
     },
     action: {
-      primary: '#703cc0', // RAROS roxo — âncora da marca (Raros Boa Vista, brand-identity.md)
-      hover: '#5b2ea0', // RAROS roxo-escuro (hover do roxo)
+      primary: '#703cc0', // RAROS roxo — âncora da marca (--purple)
+      hover: '#5b2ea0', // roxo-escuro (--blue-dark)
       active: '#4a2585', // roxo pressionado
       fg: '#ffffff',
-      tint: '#ede4fb', // RAROS roxo-claro (botão tonal / badge de situação)
+      tint: '#ede4fb', // roxo-claro (botão tonal / badge) — --tec-bg
       tintFg: '#703cc0',
     },
     border: {
-      default: 'oklch(93% 0.006 70)', // warmgray-200
-      strong: 'oklch(72% 0.009 70)', // warmgray-400
+      default: '#e8eaee', // --line
+      soft: '#eef0f3', // --line-soft (divisórias leves)
+      strong: '#9aa3af', // --faint
       active: '#703cc0', // RAROS roxo
     },
-    focus: '#703cc0', // RAROS roxo — anel de foco WCAG 2.2 AA
-    danger: 'oklch(52% 0.200 25)',
-    dangerBg: 'oklch(96% 0.02 25)',
-    dangerBorder: 'oklch(58% 0.210 25)',
-    success: 'oklch(55% 0.145 150)',
-    warning: 'oklch(56% 0.150 65)',
-    info: 'oklch(54% 0.145 245)',
+    focus: '#703cc0', // anel de foco WCAG 2.2 AA
+    // Acentos da marca (cor = significado; ver §7 Modo Enxuto do handoff)
+    accent: {
+      magenta: '#9618ba',
+      turquoise: '#00c2d1',
+      blue: '#267ce8',
+      blueDark: '#5b2ea0',
+      orange: '#ea580c',
+      green: '#16a34a',
+    },
+    // Tints de categoria (fundos suaves)
+    tint: {
+      news: '#dbeafe',
+      tec: '#ede4fb',
+      saude: '#cdf6f9',
+      tut: '#f3def8',
+      eventos: '#ffedd5',
+    },
+    // Cores de status (chip/badge): fg + bg + border por significado
+    status: {
+      acolhidoFg: '#16a34a',
+      acolhidoBg: '#ecfdf3',
+      acolhidoBorder: 'color-mix(in srgb, #16a34a 45%, #fff)',
+      filaFg: '#ea580c',
+      filaBg: '#fff7ed',
+      filaBorder: 'color-mix(in srgb, #ea580c 45%, #fff)',
+      altaFg: '#267ce8',
+      altaBg: '#dbeafe',
+      altaBorder: 'color-mix(in srgb, #267ce8 45%, #fff)',
+      riscoFg: '#dc2626',
+      riscoBg: '#fef2f2',
+      riscoBorder: '#fecaca',
+      saudeFg: '#0e8a96',
+      saudeBg: '#cdf6f9',
+      saudeBorder: 'color-mix(in srgb, #00c2d1 40%, #fff)',
+      tecFg: '#703cc0',
+      tecBg: '#ede4fb',
+      tecBorder: 'color-mix(in srgb, #703cc0 35%, #fff)',
+      tutFg: '#9618ba',
+      tutBg: '#f3def8',
+      tutBorder: 'color-mix(in srgb, #9618ba 35%, #fff)',
+    },
+    danger: '#dc2626',
+    dangerBg: '#fef2f2',
+    dangerBorder: '#fecaca',
+    success: '#16a34a',
+    warning: '#ea580c',
+    info: '#267ce8',
     brand: { gradient: 'linear-gradient(135deg, #703cc0, #9618ba 45%, #267ce8)' }, // gradiente da marca (CTAs)
   },
   font: {
     // Atkinson Hyperlegible (hiperlegibilidade = valor de produto). Self-host .woff2 em prod (ADR-0008).
+    // Decisão do app: Atkinson para tudo (títulos e códigos) — Poppins/JetBrains só no site.
     sans: "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
     mono: "'Atkinson Hyperlegible Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
   },
@@ -65,15 +111,16 @@ export const vars = createGlobalTheme(':root', {
     xxl: '32px', // space-8
     xxxl: '48px', // space-12
   },
-  radius: { xs: '4px', sm: '8px', md: '12px', lg: '16px', xl: '28px', full: '9999px' },
+  radius: { xs: '4px', sm: '8px', md: '12px', card: '14px', lg: '16px', xl: '28px', full: '9999px' },
   border: { hairline: '1px', strong: '2px' },
   focusRing: { width: '2px', offset: '1px' },
   shadow: {
-    xs: '0 1px 2px oklch(24% 0.008 70 / 0.06)',
-    sm: '0 1px 2px oklch(24% 0.008 70 / 0.08), 0 1px 3px oklch(24% 0.008 70 / 0.06)',
-    md: '0 2px 4px oklch(24% 0.008 70 / 0.07), 0 6px 16px oklch(24% 0.008 70 / 0.09)',
-    lg: '0 8px 24px oklch(24% 0.008 70 / 0.12), 0 2px 6px oklch(24% 0.008 70 / 0.08)',
+    // slate cool (rgba(16,24,40,…)) — casa com o protótipo. No Modo Enxuto, usar hairline antes de sombra.
+    xs: '0 1px 2px rgba(16, 24, 40, 0.05)',
+    sm: '0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.05)',
+    md: '0 8px 24px rgba(16, 24, 40, 0.08)',
+    lg: '0 18px 50px rgba(15, 23, 42, 0.14)',
   },
-  layout: { contentMax: '1200px', railWidth: '72px', topbarHeight: '64px' },
-  motion: { fast: '120ms', normal: '200ms', ease: 'cubic-bezier(0.2, 0, 0, 1)' },
+  layout: { contentMax: '1180px', railWidth: '224px', topbarHeight: '64px' },
+  motion: { fast: '120ms', normal: '160ms', ease: 'cubic-bezier(0.2, 0, 0, 1)' },
 })

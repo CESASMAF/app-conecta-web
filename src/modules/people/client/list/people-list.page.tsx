@@ -7,6 +7,15 @@ import { tpe } from '~/shared/i18n/people'
 import { formatDate } from '~/shared/date'
 import * as s from '../people.css'
 
+// Iniciais para o avatar (2 primeiras palavras). Só exibição.
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '·'
+  const first = parts[0]?.[0] ?? ''
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : ''
+  return (first + last).toUpperCase()
+}
+
 export function PeopleListPage() {
   const b = usePeopleListBinding()
   let sentinel: HTMLDivElement | undefined
@@ -59,9 +68,11 @@ export function PeopleListPage() {
                 {(p) => (
                   <li>
                     <A href={`/people/${p.id}`} class={s.row}>
-                      <span>
+                      <span class={s.avatarCell} aria-hidden="true">
+                        {initials(p.fullName || '')}
+                      </span>
+                      <span class={s.rowMain}>
                         <span class={s.name}>{p.fullName || 'Sem nome'}</span>
-                        <br />
                         <span class={s.sub}>Nascimento: {formatDate(p.birthDate) || '—'}</span>
                       </span>
                       <span class={p.active ? s.badge : s.badgeOff}>{p.active ? tpe('people.active') : tpe('people.inactive')}</span>

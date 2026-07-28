@@ -25,6 +25,15 @@ import * as s from '../people.css'
 
 const todayIso = (): string => new Date().toISOString().slice(0, 10)
 
+// Iniciais para o avatar (2 primeiras palavras). Só exibição.
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '·'
+  const first = parts[0]?.[0] ?? ''
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : ''
+  return (first + last).toUpperCase()
+}
+
 export function PersonDetailPage() {
   const b = usePersonBinding()
   const [editing, setEditing] = createSignal(false)
@@ -64,10 +73,20 @@ export function PersonDetailPage() {
                 ← Pessoas
               </A>
               <header class={s.detailHeader}>
+                <span class={s.avatarLg} aria-hidden="true">
+                  {initials(d().fullName || '')}
+                </span>
                 <h1 class={s.title}>{d().fullName || 'Pessoa'}</h1>
                 <span class={d().active ? s.badge : s.badgeOff}>{d().active ? tpe('people.active') : tpe('people.inactive')}</span>
               </header>
-              <p class={s.sub}>Nascimento: {formatDate(d().birthDate) || '—'}</p>
+              <div class={s.panel}>
+                <div class={s.dgrid}>
+                  <div class={s.dfield}>
+                    <span class={s.dlabel}>Nascimento</span>
+                    <span class={s.dvalue}>{formatDate(d().birthDate) || '—'}</span>
+                  </div>
+                </div>
+              </div>
 
               <Show when={b.errTag()}>{(t) => <div class={s.errorBanner} role="alert">{tpe(t())}</div>}</Show>
               <Show when={b.info()}>{(m) => <div class={s.warnBanner}>{m()}</div>}</Show>

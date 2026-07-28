@@ -4,10 +4,13 @@ import { app } from '~/server/app'
 import type { CurrentUser } from '../client/data/current-user.model'
 
 const PUBLIC_PREFIXES = ['/api/', '/_'] as const
+// Páginas de auth públicas (sem sessão): login e recuperação de senha (fluxos self-service do Kratos).
+const PUBLIC_PAGES = new Set(['/login', '/recover'])
 
-// Documento protegido = página de app: não /login, não /api/*, não rota interna (/_*), não asset (tem ".").
+// Documento protegido = página de app: não é página de auth pública, não /api/*, não rota interna (/_*),
+// não asset (tem ".").
 export function isProtectedPagePath(path: string): boolean {
-  if (path === '/login') return false
+  if (PUBLIC_PAGES.has(path)) return false
   if (PUBLIC_PREFIXES.some((p) => path.startsWith(p))) return false
   if (path.includes('.')) return false // favicon.ico, *.js, *.css, *.webp…
   return true

@@ -11,10 +11,11 @@ export function useRootBinding(user: () => CurrentUser) {
     pageTitle: () => rootViewModel.pageTitle(location.pathname),
     isActive: (href: string) => rootViewModel.isActive(location.pathname, href),
     userLabel: () => user().displayName ?? user().userId,
+    userRole: () => rootViewModel.roleLabel(user().groups),
     logout: () => {
-      // CSRF: X-Requested-With (ADR-0005). Best-effort: navega ao login mesmo se a rede falhar.
+      // CSRF: X-Requested-With (ADR-0005). Best-effort: navega à confirmação de logout mesmo se a rede falhar.
       void fetch('/api/auth/logout', { method: 'POST', headers: { 'x-requested-with': 'fetch' } }).finally(() =>
-        navigate('/login'),
+        navigate('/login?status=logout'),
       )
     },
   }

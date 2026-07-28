@@ -14,7 +14,7 @@ export const back = style({
 })
 
 export const header = style({ display: 'flex', alignItems: 'center', gap: vars.space.md, flexWrap: 'wrap' })
-export const title = style({ fontSize: vars.text.xxl, fontWeight: vars.weight.bold, letterSpacing: vars.tracking.tight })
+export const title = style({ fontSize: vars.text.xxl, fontWeight: vars.weight.semibold, letterSpacing: vars.tracking.tight, color: vars.color.text.primary })
 
 export const badge = style({
   fontSize: vars.text.xs,
@@ -24,6 +24,101 @@ export const badge = style({
   background: vars.color.action.tint,
   color: vars.color.action.tintFg,
 })
+
+// --- Layout master-detail (RORAIMA_DESIGN): cartão de identidade fixo + coluna principal com abas ---
+export const record = style({
+  display: 'grid',
+  gridTemplateColumns: '312px 1fr',
+  gap: vars.space.xl,
+  alignItems: 'start',
+  '@media': { '(max-width: 900px)': { gridTemplateColumns: '1fr' } },
+})
+
+export const pcard = style({
+  background: vars.color.bg.elevated,
+  border: `${vars.border.hairline} solid ${vars.color.border.default}`,
+  borderRadius: vars.radius.lg,
+  overflow: 'hidden',
+  position: 'sticky',
+  top: vars.space.lg,
+  '@media': { '(max-width: 900px)': { position: 'static' } },
+})
+
+export const pcardTop = style({
+  padding: vars.space.lg,
+  borderBottom: `${vars.border.hairline} solid ${vars.color.border.soft}`,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: vars.space.sm,
+})
+
+export const pcardName = style({
+  fontSize: vars.text.lg,
+  fontWeight: vars.weight.semibold,
+  color: vars.color.text.primary,
+  letterSpacing: vars.tracking.tight,
+  lineHeight: vars.leading.snug,
+})
+
+export const preftag = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: vars.space.xs,
+  fontSize: vars.text.xs,
+  fontWeight: vars.weight.semibold,
+  color: vars.color.action.primary,
+  background: vars.color.action.tint,
+  borderRadius: vars.radius.full,
+  padding: `2px ${vars.space.sm}`,
+})
+
+export const pcardSec = style({
+  padding: vars.space.lg,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.space.sm,
+})
+
+export const pcardMeta = style({ fontSize: vars.text.sm, color: vars.color.text.secondary })
+
+export const rmain = style({ minWidth: 0, display: 'flex', flexDirection: 'column', gap: vars.space.lg })
+
+// Abas em pílula (rtab2) — trilho com fundo, item ativo preenchido de roxo.
+export const rtabs2 = style({
+  display: 'flex',
+  gap: '2px',
+  flexWrap: 'wrap',
+  background: vars.color.bg.elevated,
+  border: `${vars.border.hairline} solid ${vars.color.border.default}`,
+  borderRadius: vars.radius.md,
+  padding: vars.space.xs,
+})
+
+const rtab2Base = {
+  appearance: 'none',
+  border: 'none',
+  background: 'transparent',
+  fontFamily: vars.font.sans,
+  fontWeight: vars.weight.semibold,
+  fontSize: vars.text.sm,
+  color: vars.color.text.secondary,
+  padding: `${vars.space.sm} ${vars.space.md}`,
+  borderRadius: vars.radius.sm,
+  cursor: 'pointer',
+  whiteSpace: 'nowrap',
+  transition: `background-color ${vars.motion.fast} ${vars.motion.ease}, color ${vars.motion.fast} ${vars.motion.ease}`,
+  selectors: {
+    '&:hover': { background: vars.color.bg.sunken, color: vars.color.text.primary },
+    '&:focus-visible': { outline: `${vars.focusRing.width} solid ${vars.color.focus}`, outlineOffset: vars.focusRing.offset },
+  },
+} as const
+
+export const rtab2 = style(rtab2Base)
+export const rtab2Active = style([
+  rtab2Base,
+  { background: vars.color.action.primary, color: vars.color.action.fg, selectors: { '&:hover': { background: vars.color.action.hover, color: vars.color.action.fg } } },
+])
 
 export const tabs = style({
   display: 'flex',
@@ -59,6 +154,47 @@ export const sectionTitle = style({
 })
 
 export const muted = style({ color: vars.color.text.secondary, fontSize: vars.text.sm })
+
+// --- Timeline de atendimentos (RORAIMA_DESIGN) ---
+export const timeline = style({ display: 'flex', flexDirection: 'column', listStyle: 'none', margin: 0, padding: 0 })
+
+export const tlItem = style({ display: 'grid', gridTemplateColumns: '26px 1fr', gap: vars.space.md, paddingBottom: vars.space.lg })
+
+export const tlRail = style({ display: 'flex', flexDirection: 'column', alignItems: 'center' })
+
+export const tlDot = style({
+  width: '26px',
+  height: '26px',
+  borderRadius: vars.radius.sm,
+  background: vars.color.brand.gradient,
+  color: vars.color.action.fg,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flex: 'none',
+  fontSize: vars.text.xs,
+  fontWeight: vars.weight.bold,
+})
+
+export const tlThread = style({
+  flex: 1,
+  width: '2px',
+  background: vars.color.border.default,
+  marginTop: vars.space.xs,
+  selectors: { [`${tlItem}:last-child &`]: { display: 'none' } },
+})
+
+export const tlCard = style({
+  background: vars.color.bg.elevated,
+  border: `${vars.border.hairline} solid ${vars.color.border.default}`,
+  borderRadius: vars.radius.md,
+  padding: `${vars.space.md} ${vars.space.md}`,
+})
+
+export const tlHead = style({ display: 'flex', alignItems: 'center', gap: vars.space.sm, flexWrap: 'wrap', marginBottom: vars.space.xs })
+export const tlType = style({ fontWeight: vars.weight.semibold, fontSize: vars.text.sm, color: vars.color.text.primary })
+export const tlDate = style({ marginLeft: 'auto', fontFamily: vars.font.mono, fontSize: vars.text.xs, color: vars.color.text.secondary })
+export const tlBody = style({ fontSize: vars.text.sm, color: vars.color.text.body, lineHeight: vars.leading.normal })
 
 export const familyList = style({
   listStyle: 'none',

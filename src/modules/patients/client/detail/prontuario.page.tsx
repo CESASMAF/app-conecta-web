@@ -10,7 +10,10 @@ import { AtendimentosTab } from './tabs/atendimentos.tab'
 import { ProtecaoTab } from './tabs/protecao.tab'
 import { HistoricoTab } from './tabs/historico.tab'
 import { LifecycleControl } from './components/lifecycle-control.component'
+import { patientStatusVariant } from '../data/patient-status'
 import { tp } from '~/shared/i18n/patients'
+import { avatar, chipStatus } from '../../../../shared/ui/kit.css'
+import { initials } from '../../../../shared/ui/initials'
 import * as s from './prontuario.css'
 
 const TABS = [
@@ -59,52 +62,74 @@ export function ProntuarioPage() {
               <A class={s.back} href="/patients">
                 ← Pacientes
               </A>
-              <header class={s.header}>
-                <h1 class={s.title}>{d().fullName || 'Paciente'}</h1>
-                <span class={s.badge}>{d().statusLabel}</span>
-              </header>
 
-              <LifecycleControl overview={d()} b={b} />
-              <Show when={b.actionErrorTag()}>
-                {(tag) => (
-                  <div class={s.errorBanner} role="alert">
-                    {tp(tag())}
+              <div class={s.record}>
+                <aside class={s.pcard}>
+                  <div class={s.pcardTop}>
+                    <span class={avatar.lg} aria-hidden="true">
+                      {initials(d().fullName || 'Paciente')}
+                    </span>
+                    <h1 class={s.pcardName}>{d().fullName || 'Paciente'}</h1>
+                    <span class={s.preftag}>Pessoa de referência</span>
                   </div>
-                )}
-              </Show>
+                  <div class={s.pcardSec}>
+                    <span class={chipStatus[patientStatusVariant(d().status)]}>{d().statusLabel}</span>
+                    <span class={s.pcardMeta}>
+                      {d().family.members.length} no núcleo familiar
+                    </span>
+                    <Show when={d().socialIdentity}>
+                      {(si) => <span class={chipStatus.tec}>{si().typeLabel}</span>}
+                    </Show>
+                    <Show when={d().partial}>
+                      <span class={s.pcardMeta}>Alguns dados podem estar incompletos.</span>
+                    </Show>
+                  </div>
+                </aside>
 
-              <nav class={s.tabs} role="tablist" aria-label="Seções do prontuário">
-                <For each={TABS}>
-                  {(t) => (
-                    <button
-                      type="button"
-                      role="tab"
-                      aria-selected={tab() === t.id}
-                      class={tab() === t.id ? s.tabActive : s.tab}
-                      onClick={() => setTab(t.id)}
-                    >
-                      {t.label}
-                    </button>
-                  )}
-                </For>
-              </nav>
+                <div class={s.rmain}>
+                  <LifecycleControl overview={d()} b={b} />
+                  <Show when={b.actionErrorTag()}>
+                    {(tag) => (
+                      <div class={s.errorBanner} role="alert">
+                        {tp(tag())}
+                      </div>
+                    )}
+                  </Show>
 
-              <div class={s.panel} role="tabpanel">
-                <Show when={tab() === 'resumo'}>
-                  <ResumoTab overview={d()} b={b} />
-                </Show>
-                <Show when={tab() === 'avaliacao'}>
-                  <AvaliacaoTab overview={d()} />
-                </Show>
-                <Show when={tab() === 'atendimentos'}>
-                  <AtendimentosTab />
-                </Show>
-                <Show when={tab() === 'protecao'}>
-                  <ProtecaoTab overview={d()} />
-                </Show>
-                <Show when={tab() === 'historico'}>
-                  <HistoricoTab />
-                </Show>
+                  <nav class={s.rtabs2} role="tablist" aria-label="Seções do prontuário">
+                    <For each={TABS}>
+                      {(t) => (
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={tab() === t.id}
+                          class={tab() === t.id ? s.rtab2Active : s.rtab2}
+                          onClick={() => setTab(t.id)}
+                        >
+                          {t.label}
+                        </button>
+                      )}
+                    </For>
+                  </nav>
+
+                  <div class={s.panel} role="tabpanel">
+                    <Show when={tab() === 'resumo'}>
+                      <ResumoTab overview={d()} b={b} />
+                    </Show>
+                    <Show when={tab() === 'avaliacao'}>
+                      <AvaliacaoTab overview={d()} />
+                    </Show>
+                    <Show when={tab() === 'atendimentos'}>
+                      <AtendimentosTab />
+                    </Show>
+                    <Show when={tab() === 'protecao'}>
+                      <ProtecaoTab overview={d()} />
+                    </Show>
+                    <Show when={tab() === 'historico'}>
+                      <HistoricoTab />
+                    </Show>
+                  </div>
+                </div>
               </div>
             </section>
           )}

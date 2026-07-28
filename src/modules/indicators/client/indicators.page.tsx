@@ -10,6 +10,8 @@ import * as s from './indicators.css'
 export function IndicatorsPage() {
   const b = useIndicatorsBinding()
   const cols = createMemo(() => labelKeys(b.data()?.rows ?? []))
+  // Escala das barras horizontais = maior valor entre as linhas renderizadas (só visual, sem alterar dados).
+  const maxValue = createMemo(() => (b.data()?.rows ?? []).reduce((m, r) => Math.max(m, r.value), 1))
 
   return (
     <section class={s.wrap}>
@@ -48,28 +50,40 @@ export function IndicatorsPage() {
                   <strong>{tpi('indicators.kanon')}:</strong>{' '}
                   {tpi('indicators.kanon.note').replace('{k}', String(d().kThreshold)).replace('{n}', String(d().suppressedGroups))}
                 </p>
-                <Show when={d().rows.length > 0} fallback={<p class={s.muted}>{tpi('indicators.empty')}</p>}>
-                  <div class={s.tableWrap}>
-                    <table class={s.table}>
-                      <thead>
-                        <tr>
-                          <For each={cols()}>{(c) => <th class={s.th}>{c}</th>}</For>
-                          <th class={`${s.th} ${s.num}`}>{tpi('indicators.col.value')}</th>
-                          <th class={s.th}>{tpi('indicators.col.period')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <For each={d().rows}>
-                          {(row) => (
-                            <tr>
-                              <For each={cols()}>{(c) => <td class={s.td}>{row.labels[c] ?? '—'}</td>}</For>
-                              <td class={`${s.td} ${s.num}`}>{row.value}</td>
-                              <td class={s.td}>{row.period}</td>
-                            </tr>
-                          )}
-                        </For>
-                      </tbody>
-                    </table>
+                <Show
+                  when={d().rows.length > 0}
+                  fallback={<div class={s.resultPanel}><p class={s.empty}>{tpi('indicators.empty')}</p></div>}
+                >
+                  <div class={s.resultPanel}>
+                    <div class={s.tableWrap}>
+                      <table class={s.table}>
+                        <thead>
+                          <tr>
+                            <For each={cols()}>{(c) => <th class={s.th}>{c}</th>}</For>
+                            <th class={`${s.th} ${s.num}`}>{tpi('indicators.col.value')}</th>
+                            <th class={s.th}>{tpi('indicators.col.period')}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <For each={d().rows}>
+                            {(row) => (
+                              <tr>
+                                <For each={cols()}>{(c) => <td class={s.td}>{row.labels[c] ?? '—'}</td>}</For>
+                                <td class={`${s.td} ${s.num}`}>
+                                  <div class={s.valueCell}>
+                                    <span class={s.valueNum}>{row.value}</span>
+                                    <span class={s.hbarTrack}>
+                                      <span class={s.hbarFill} style={{ width: `${Math.round((row.value / maxValue()) * 100)}%` }} />
+                                    </span>
+                                  </div>
+                                </td>
+                                <td class={s.td}>{row.period}</td>
+                              </tr>
+                            )}
+                          </For>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </Show>
               </>

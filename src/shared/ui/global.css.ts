@@ -13,7 +13,7 @@ globalStyle('body', {
   fontSize: vars.text.base,
   lineHeight: vars.leading.normal,
   fontWeight: vars.weight.regular,
-  color: vars.color.text.primary,
+  color: vars.color.text.body,
   background: vars.color.bg.primary,
   WebkitFontSmoothing: 'antialiased',
   textRendering: 'optimizeLegibility',
@@ -30,6 +30,7 @@ globalStyle('h1, h2, h3, h4', {
 globalStyle('p', { margin: 0 })
 globalStyle('code, kbd, samp', { fontFamily: vars.font.mono })
 globalStyle('a', { color: vars.color.action.primary, textUnderlineOffset: '2px' })
+globalStyle('a:hover', { color: vars.color.accent.magenta })
 
 // Foco SEMPRE visível — acessibilidade é o valor da marca (WCAG 2.2 AA).
 globalStyle(':where(a, button, input, select, textarea, [tabindex]):focus-visible', {
