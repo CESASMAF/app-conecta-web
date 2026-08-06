@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "extraKnownMarketplaces": {
+    "acdg-reference-network": {
+      "source": { "source": "directory", "path": "../infra/reference-network" }
+    }
+  },
+  "enabledPlugins": { "acdg-ref@acdg-reference-network": true },
+  "permissions": {
+    "allow": ["Read(../infra/reference/**)"],
+    "deny": [
+      "Read(./node_modules/**)",
+      "Read(./.output/**)",
+      "Read(./.vinxi/**)",
+      "Read(./.nitro/**)",
+      "Read(./dist/**)",
+      "Read(./coverage/**)",
+      "Read(./bun.lockb)",
+      "Read(./**/_ds_bundle.js)",
+      "Read(./handbook/doc/design-reference/uploads/**)",
+      "Read(./handbook/doc/design-reference/assets/**)",
+      "Read(./**/*.pdf)"
+    ]
+  }
+}
