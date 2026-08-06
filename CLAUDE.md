@@ -1,10 +1,60 @@
-<!-- SPECKIT START -->
-**Feature `004-social-care-area` — COMPLETA** (TELAS da área do Assistente Social; app único, navegação por papel; mobile-first). Os 5 incrementos (US1–US5) entregues.
-Planejamento: `specs/004-social-care-area/` (spec.md · screen-map.md · plan.md). Identidade visual: `handbook/brand-identity.md` (marca Raros Boa Vista — roxo `#703cc0` + gradiente; **fonte = Atkinson**, Poppins só no site). **Incrementos 1–3 FEITOS** (1: shell nav-por-papel + home busca + prontuário com abas/Resumo via overview; 2: wizard de cadastro de 2 passos — passo 1 com 6 campos incl. nacionalidade — + rota de cadastro orquestrado pessoa+paciente via `composePatientRegister`, idempotente por CPF, `createLogin=false`; 3: ações no Resumo — ciclo de vida (admit/discharge/readmit/withdraw, motivo+notes), família (remover/cuidador principal + **adicionar membro nos bastidores** via `composeAddFamilyMember`) e identidade social; overview enriquecido com nome do membro (people-context, partial); toda mutação devolve o overview recomposto → client troca estado sem refetch; **4: aba Avaliação COMPLETA — lê o agregado p/ status preenchida/pendente (novo `GET /assessment` + `getPatientAssessment`) e EDITA as 7 seções; 4 planas (moradia/socioeconômico/rede de apoio/resumo) + 3 por-membro com listas dinâmicas (trabalho/renda, educação, saúde — selects de ocupação/escolaridade/efeito/deficiência do cache de domínio, membro da família como chave); 5: abas Atendimentos (lista + registrar; ingresso ler/editar), Proteção (acolhimento ler/editar; violações e encaminhamentos listar/criar) e Histórico (trilha de auditoria read-only) — leitura via novo `GET /care` + `getPatientCare` e `GET /audit-trail`; escritas re-leem o agregado (revalidate) pois não recompõem; `professionalId` default = usuário logado.** Feature 004 fechada.
-**SERVER-SIDE COMPLETO** (3 micro-serviços cobertos no BFF — ver `handbook/bff-backend-surface.md`; ~55 rotas; 3 políticas de ator; composições view-ready). Features concluídas: `001-foundation`, `002-patient-browse`, `003-patient-manage` (BFF escrita pacientes), Foundation+analysis-bi+people-context+social-care (server-side).
+# CLAUDE.md — app-conecta-web
 
-**Stack (web_02):** SolidStart (Vinxi · Nitro preset `bun`) + Elysia (BFF em `routes/api/[...path].ts`)
-+ Bun (PM/test/bundle) + Eden Treaty + jose (OIDC) + TypeBox (`Elysia.t`) + vanilla-extract.
-**Regra-mãe:** Bun-native / zero-npm-utility (constituição `.specify/memory/constitution.md`, Princ. IV).
-Testes em `bun:test`; governança e ADRs em `handbook/`.
-<!-- SPECKIT END -->
+App único do ecossistema Conecta Raros: front + **BFF**. Navegação por papel, mobile-first.
+O BFF cobre os 3 microserviços (`svc-people-context`, `svc-social-care`, `svc-analysis-bi`)
+em ~55 rotas — o client nunca fala direto com serviço.
+
+## Comandos
+
+```bash
+bun run dev          # vinxi dev
+bun run build        # vinxi build
+bun run start        # bun .output/server/index.mjs (produção)
+bun run typecheck    # tsc --noEmit
+bun test             # bun:test
+bun run fonts:fetch  # baixa as fontes locais
+```
+
+## Stack
+
+SolidStart (Vinxi · Nitro preset `bun`) + **Elysia** como BFF em `routes/api/[...path].ts`
++ Eden Treaty (client tipado) + jose (OIDC) + TypeBox (`Elysia.t`) + vanilla-extract.
+
+**Regra-mãe: Bun-native / zero-npm-utility.** Antes de adicionar dependência, verifique se
+Bun ou a stdlib já resolve. Utilitário de terceiros para o que Bun faz nativamente é rejeitado
+em review.
+
+## O BFF é uma facade view-ready (ADR-0010)
+
+Esta é a decisão que governa o repo: **o servidor devolve dado pronto para a tela**, o client
+só renderiza. Isso significa, no BFF e não no client:
+
+- fan-out cross-service e merge dos agregados
+- resolução de código → rótulo (selects de domínio)
+- cálculo de quais ações/transições estão disponíveis
+- degradação parcial quando um serviço upstream falha
+
+Toda mutação devolve o agregado recomposto, para o client trocar estado sem refetch. Quando
+uma rota não recompõe, ela revalida.
+
+Superfície completa das rotas: `handbook/bff-backend-surface.md`.
+
+**Guarda obrigatória**: rotas que falam com `svc-analysis-bi` validam `iss`/`aud` e a role
+(`analyst`/`exporter`) **antes** de encaminhar — o backend pode rodar sem auth. Ver skill
+`bff-guard-analysis-bi`.
+
+Receitas: skills `bff-add-endpoint` (novo endpoint) e `bff-compose-view` (composição multi-origem).
+
+## Identidade visual
+
+`handbook/brand-identity.md` — marca Raros Boa Vista: roxo `#703cc0` + gradiente.
+**Fonte = Atkinson** em todo o app (Poppins é só do site institucional).
+Design system de referência em `handbook/doc/design-reference/` (tokens, guidelines, componentes).
+
+## Convenções
+
+- Testes em `bun:test`.
+- Governança e ADRs em `handbook/adr/` — decisão estrutural exige ADR.
+- Commits: Conventional Commits.
+- Auth: o BFF encaminha `Authorization: Bearer <jwt>` aos serviços; não há header
+  customizado de identidade de ator (ADR-023).

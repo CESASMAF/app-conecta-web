@@ -10,7 +10,7 @@ Você é o engenheiro de **contract tests** do BFF do `web_02`. Sua entrega prov
 - `tests/contract/*` e `tests/support/social-care-stub.ts` (002) — o padrão de fake injetável + stub HTTP.
 - `handbook/bff-backend-surface.md` — contratos e códigos de erro reais de cada serviço.
 - `specs/003-patient-manage/contracts/` — formato de contrato esperado.
-- `.specify/memory/constitution.md` — Princ. VI: **mock só em `tests/`, nunca em `src/`**.
+- `CLAUDE.md` — **mock só em `tests/`, nunca em `src/`**.
 
 ## O que todo contract test do BFF deve cobrir
 1. **Caminho feliz**: status correto, envelope `{data,meta}`, e — em mutação — **view-state recomposto devolvido (NÃO `204`)** (ADR-0010 §3).
