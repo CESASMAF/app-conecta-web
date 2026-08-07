@@ -40,6 +40,27 @@ function splitName(full: string): Readonly<{ firstName: string; lastName: string
   return { firstName: parts[0] ?? '', lastName: parts.slice(1).join(' ') }
 }
 
+// --- Tradução do vocabulário do formulário → contrato do social-care (ADR-0010: o BFF traduz) ---
+// O <input type=date> produz 'yyyy-mm-dd', mas o social-care decodifica TimeStamp como ISO8601 completo
+// e devolve HTTP-400 "Expected date string to be ISO8601-formatted".
+//
+// A concatenação é PROPOSITAL: `new Date('2015-08-10T00:00:00').toISOString()` interpreta no fuso local
+// (BRT = UTC−3) e vira '2015-08-10T03:00:00Z' — o caminho de volta desloca o dia e a data de nascimento
+// cai um dia antes. Montar a string à mão mantém o dia civil intacto.
+const atMidnightUTC = (isoDate: string): string => (/^\d{4}-\d{2}-\d{2}$/.test(isoDate) ? `${isoDate}T00:00:00Z` : isoDate)
+
+// O wizard usa as iniciais do rótulo em pt-BR; o domínio do social-care usa o enum por extenso
+// (PersonalData.Sex: masculino|feminino|outro) e rejeita o resto com REGP-013.
+const SEX_BY_INITIAL: Readonly<Record<string, string>> = { M: 'masculino', F: 'feminino', O: 'outro' }
+const toDomainSex = (sex: string): string => SEX_BY_INITIAL[sex] ?? sex
+
+const toDomainDiagnoses = (list: readonly DiagnosisInput[]): readonly DiagnosisInput[] =>
+  list.map((d) => ({ ...d, date: atMidnightUTC(d.date) }))
+
+// Vale p/ os DOIS caminhos (person e personId): quem manda personalData pronto tambem vem do formulario.
+const toDomainPersonalData = (pd: RegisterPatientInput['personalData']): RegisterPatientInput['personalData'] =>
+  pd ? { ...pd, sex: toDomainSex(pd.sex), birthDate: atMidnightUTC(pd.birthDate) } : pd
+
 export async function composePatientRegister(
   deps: AppDeps,
   token: string,
@@ -62,18 +83,25 @@ export async function composePatientRegister(
     if (isErr(created)) return created // people-context fora/inválido → erro; paciente NÃO é criado (fail-secure)
     personId = created.value.id
     const { firstName, lastName } = splitName(p.fullName)
-    personalData = { firstName, lastName, motherName: p.motherName, nationality: p.nationality, sex: p.sex, birthDate: p.birthDate }
+    personalData = toDomainPersonalData({
+      firstName,
+      lastName,
+      motherName: p.motherName,
+      nationality: p.nationality,
+      sex: p.sex,
+      birthDate: p.birthDate,
+    })
     if (p.cpf) civilDocuments = { cpf: p.cpf }
   } else {
     personId = cmd.personId! // a rota garante o xor (exatamente um entre person|personId)
-    personalData = cmd.personalData
+    personalData = toDomainPersonalData(cmd.personalData)
     civilDocuments = cmd.civilDocuments
   }
 
   // Fase 2 — cria o paciente (WAITLISTED). Ator do JWT.sub no social-care (sem header de ator).
   const input: RegisterPatientInput = {
     personId,
-    initialDiagnoses: cmd.initialDiagnoses,
+    initialDiagnoses: toDomainDiagnoses(cmd.initialDiagnoses),
     prRelationshipId: cmd.prRelationshipId,
     ...(personalData ? { personalData } : {}),
     ...(civilDocuments ? { civilDocuments } : {}),

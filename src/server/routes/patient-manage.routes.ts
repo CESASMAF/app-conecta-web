@@ -19,11 +19,17 @@ const WITHDRAW_REASONS = ['refused_service', 'moved_location', 'other']
 
 // Identidade da pessoa criada nos bastidores no cadastro orquestrado (caminho `person`). O passo 1 do
 // wizard preenche estes campos; o BFF cria a pessoa (people-context) e deriva o personalData do paciente.
+// `sex` é a inicial do rótulo pt-BR; a composição traduz para o enum do social-care
+// (masculino|feminino|outro). Validar aqui faz um valor errado virar 422 no BFF, em vez do HTTP-400
+// opaco que o upstream devolve (REGP-013) e que a tela exibe como "revise os campos destacados".
+// `birthDate` fica String de propósito: a composição aceita 'yyyy-mm-dd' E ISO8601 completo.
+const SEX_INITIAL = t.Union([t.Literal('M'), t.Literal('F'), t.Literal('O')])
+
 const PERSON_INPUT = t.Object({
   fullName: t.String({ minLength: 1 }),
   birthDate: t.String({ minLength: 1 }),
   cpf: t.Optional(t.String()),
-  sex: t.String({ minLength: 1 }),
+  sex: SEX_INITIAL,
   motherName: t.String({ minLength: 1 }),
   nationality: t.String({ minLength: 1 }),
 })
