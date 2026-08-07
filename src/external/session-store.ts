@@ -53,8 +53,14 @@ export function createRedisSessionStore(): SessionStore {
   }
 }
 
+// O Map vive no globalThis, nao no escopo do modulo: em dev o Vinxi carrega este modulo em mais de
+// um contexto (SSR do documento vs server functions) e cada copia teria seu proprio Map — a sessao
+// criada no login sumiria nas mutacoes, devolvendo 401 e deslogando o usuario a cada escrita.
+// Mesmo processo ⇒ mesmo globalThis ⇒ um unico store.
+const globalStore = globalThis as typeof globalThis & { __cesasmafSessionStore?: Map<string, Session> }
+
 export function createInMemorySessionStore(): SessionStore {
-  const store = new Map<string, Session>()
+  const store = (globalStore.__cesasmafSessionStore ??= new Map<string, Session>())
   return {
     create: async (session) => {
       store.set(key(session.sessionId), session)
@@ -71,4 +77,5 @@ export function createInMemorySessionStore(): SessionStore {
 }
 
 // Composition: prod usa Bun.redis; dev usa in-memory (smoke sem Redis real).
+// Em dev NAO da p/ usar Bun.redis: o SSR do Vinxi roda em Node, onde `Bun` nao existe.
 export const sessionStore: SessionStore = env.isProd ? createRedisSessionStore() : createInMemorySessionStore()
