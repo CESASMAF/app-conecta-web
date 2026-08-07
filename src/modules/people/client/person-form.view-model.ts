@@ -32,10 +32,19 @@ export type PersonForm = {
 export const emptyPerson = (): PersonForm => ({ fullName: '', birthDate: '', cpf: '', email: '', createLogin: false, initialPassword: '' })
 
 // Edição pré-preenche só nome+nascimento (a visão composta não traz CPF/e-mail; PUT é COALESCE → vazio preserva).
-export const personFromOverview = (o: { fullName: string; birthDate: string }): PersonForm => ({
+// cpf/email PRECISAM entrar: o form abria vazio para dados que existiam, e o "salvar" mandava o
+// CPF ausente — o backend, em set-or-null, apagava a PII a cada edicao de nome.
+export const personFromOverview = (o: {
+  fullName: string
+  birthDate: string
+  cpf?: string | null
+  email?: string | null
+}): PersonForm => ({
   ...emptyPerson(),
   fullName: o.fullName,
   birthDate: o.birthDate,
+  cpf: o.cpf ?? '',
+  email: o.email ?? '',
 })
 
 export type PersonField = 'fullName' | 'birthDate' | 'cpf' | 'email' | 'initialPassword'

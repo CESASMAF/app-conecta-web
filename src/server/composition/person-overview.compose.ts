@@ -11,6 +11,12 @@ export type PersonOverview = Readonly<{
   fullName: string
   birthDate: string
   active: boolean
+  // cpf/email alimentam o formulario de edicao: sem eles o form abria vazio e o PUT apagava o CPF.
+  cpf: string | null
+  email: string | null
+  // `hasLogin` (e nao o idpUserId) diz se a pessoa tem acesso ao sistema — booleano basta para a
+  // tela decidir entre mostrar o estado e oferecer o provisionamento retroativo.
+  hasLogin: boolean
   roles: readonly PersonRoleView[]
   partial: boolean
 }>
@@ -30,5 +36,15 @@ export async function composePersonOverview(
   const roles: readonly PersonRoleView[] = partial
     ? []
     : rolesR.value.map((r) => ({ system: r.system, role: r.role, active: r.active }))
-  return ok({ id: p.id, fullName: p.fullName, birthDate: p.birthDate, active: p.active, roles, partial })
+  return ok({
+    id: p.id,
+    fullName: p.fullName,
+    birthDate: p.birthDate,
+    active: p.active,
+    cpf: p.cpf,
+    email: p.email,
+    hasLogin: p.hasLogin,
+    roles,
+    partial,
+  })
 }

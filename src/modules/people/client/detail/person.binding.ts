@@ -9,6 +9,7 @@ import {
   updatePersonFn,
   setPersonActiveFn,
   requestPasswordResetFn,
+  provisionLoginFn,
   assignRoleFn,
   setRoleActiveFn,
 } from '../../server/people.fn'
@@ -83,6 +84,9 @@ export function usePersonBinding() {
     update: (b: PersonUpdateBody) => run(() => updatePersonFn(id(), b)),
     setActive: (active: boolean) => run(() => setPersonActiveFn(id(), active)),
     requestPasswordReset: () => run(() => requestPasswordResetFn(id()), { infoMsg: 'Solicitação de redefinição de senha enviada.' }),
+    // Conserto da pessoa que ficou sem acesso porque o provisionamento no IdP falhou na criação
+    // (a rota devolve 207 nesse caso e o aviso passava despercebido).
+    provisionLogin: () => run(() => provisionLoginFn(id()), { infoMsg: 'Acesso ao sistema criado.' }),
     assignRole: (b: AssignRoleBody) => run(() => assignRoleFn(id(), b), { reloadRoles: true }),
     setRoleActive: (roleId: string, active: boolean) => run(() => setRoleActiveFn(id(), roleId, active), { reloadRoles: true }),
   }

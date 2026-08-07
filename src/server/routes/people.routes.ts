@@ -193,7 +193,13 @@ export function peopleRoutes(deps: AppDeps) {
         set.status = statusForKind(r.error.kind)
         return errorBody(r.error, requestId)
       }
-      return { data: r.value, meta: { timestamp: now() } }
+      // LGPD: devolve o minimo. O `cpf` fica porque o chamador o enviou na URL — nao revela nada
+      // novo. `email` e `hasLogin` ficam de fora: esta rota e uma busca, nao a ficha da pessoa.
+      const p = r.value
+      return {
+        data: { id: p.id, fullName: p.fullName, cpf: p.cpf, birthDate: p.birthDate, active: p.active },
+        meta: { timestamp: now() },
+      }
     })
 
     // POST /api/people/:id/request-password-reset — 202 SEM link (o link viaja por NATS — nunca no HTTP).

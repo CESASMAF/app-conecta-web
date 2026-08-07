@@ -85,8 +85,41 @@ export function PersonDetailPage() {
                     <span class={s.dlabel}>Nascimento</span>
                     <span class={s.dvalue}>{formatDate(d().birthDate) || '—'}</span>
                   </div>
+                  <div class={s.dfield}>
+                    <span class={s.dlabel}>CPF</span>
+                    <span class={s.dvalue}>{d().cpf || '—'}</span>
+                  </div>
+                  <div class={s.dfield}>
+                    <span class={s.dlabel}>Acesso ao sistema</span>
+                    <span class={s.dvalue}>{d().hasLogin ? 'Sim' : 'Sem acesso'}</span>
+                  </div>
                 </div>
               </div>
+
+              {/* O provisionamento no IdP pode falhar DEPOIS da pessoa ser criada (a rota devolve
+                  207). Antes isso passava em silêncio: a pessoa nascia sem login e ninguém via.
+                  O estado fica visível sempre — não só no instante da criação — e traz o conserto
+                  junto, para quem já nasceu sem acesso. Só oferece quando há e-mail: sem ele o
+                  IdP não tem identificador de login. */}
+              <Show when={!d().hasLogin}>
+                <div class={s.warnBanner}>
+                  Esta pessoa não tem acesso ao sistema.
+                  <Show
+                    when={d().email}
+                    fallback={<> Cadastre um e-mail para poder criar o acesso.</>}
+                  >
+                    {' '}
+                    <button
+                      type="button"
+                      class={s.linkBtn}
+                      disabled={b.busy()}
+                      onClick={() => void b.provisionLogin()}
+                    >
+                      Criar acesso
+                    </button>
+                  </Show>
+                </div>
+              </Show>
 
               <Show when={b.errTag()}>{(t) => <div class={s.errorBanner} role="alert">{tpe(t())}</div>}</Show>
               <Show when={b.info()}>{(m) => <div class={s.warnBanner}>{m()}</div>}</Show>
@@ -147,7 +180,11 @@ export function PersonDetailPage() {
   )
 }
 
-function EditPanel(props: { b: ReturnType<typeof usePersonBinding>; initial: { fullName: string; birthDate: string }; onClose: () => void }) {
+function EditPanel(props: {
+  b: ReturnType<typeof usePersonBinding>
+  initial: { fullName: string; birthDate: string; cpf: string | null; email: string | null }
+  onClose: () => void
+}) {
   const [form, setForm] = createStore<PersonForm>(personFromOverview(props.initial))
   const [showErr, setShowErr] = createSignal(false)
   const errors = createMemo(() => validatePersonEdit(form, todayIso()))
