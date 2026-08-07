@@ -36,9 +36,18 @@ const ROLE_LABELS: readonly (readonly [string, string])[] = [
   ['exporter', 'Analista'],
 ]
 
+// Papel exigido por uma ROTA (não só pelo item de menu): `/people/new` e `/people/:id` herdam a
+// exigência de `/people`. Existe para o guard de página usar a MESMA fonte que o menu — esconder do
+// menu não protegia nada: o worker abria /people por URL, via as pessoas e criava uma nova.
+export const requiredGroupForPath = (path: string): string | undefined =>
+  MENU.find((item) => path === item.href || path.startsWith(`${item.href}/`))?.requiredGroup
+
 export const rootViewModel = {
   visibleMenu: (groups: readonly string[]): readonly MenuItem[] =>
     MENU.filter((item) => !item.requiredGroup || hasGroup(groups, item.requiredGroup)),
+  // exposto p/ a UI decidir o que RENDERIZAR (ação que o papel não pode não deve ser oferecida)
+  canAccess: (groups: readonly string[], required: string | undefined): boolean =>
+    !required || hasGroup(groups, required),
   pageTitle: (path: string): string => TITLES[path] ?? 'RAROS Boa Vista',
   roleLabel: (groups: readonly string[]): string => {
     const match = ROLE_LABELS.find(([g]) => groups.includes(g) || groups.some((x) => x.endsWith(`:${g}`)))
