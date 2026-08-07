@@ -10,6 +10,7 @@ import type { AppDeps } from '~/server/deps'
 import { ok, isErr, type Result } from '~/shared/http/result'
 import type { AppError } from '~/shared/http/app-error'
 import type { RegisterPatientInput } from '~/external/social-care-client'
+import { toIso8601 } from '~/shared/date'
 
 type DiagnosisInput = Readonly<{ icdCode: string; date: string; description: string }>
 type OrchestratedPerson = Readonly<{
@@ -41,13 +42,10 @@ function splitName(full: string): Readonly<{ firstName: string; lastName: string
 }
 
 // --- Tradução do vocabulário do formulário → contrato do social-care (ADR-0010: o BFF traduz) ---
-// O <input type=date> produz 'yyyy-mm-dd', mas o social-care decodifica TimeStamp como ISO8601 completo
-// e devolve HTTP-400 "Expected date string to be ISO8601-formatted".
-//
-// A concatenação é PROPOSITAL: `new Date('2015-08-10T00:00:00').toISOString()` interpreta no fuso local
-// (BRT = UTC−3) e vira '2015-08-10T03:00:00Z' — o caminho de volta desloca o dia e a data de nascimento
-// cai um dia antes. Montar a string à mão mantém o dia civil intacto.
-const atMidnightUTC = (isoDate: string): string => (/^\d{4}-\d{2}-\d{2}$/.test(isoDate) ? `${isoDate}T00:00:00Z` : isoDate)
+// `toIso8601` (shared/date) resolve o 'yyyy-mm-dd' do <input type=date> → ISO8601 completo, que é o
+// que o social-care exige. Mora no shared porque a MESMA traducao vale para outras rotas que mandam
+// data ao servico (ex.: registrar atendimento em care.routes) — duas copias divergiriam.
+const atMidnightUTC = (isoDate: string): string => toIso8601(isoDate)
 
 // O wizard usa as iniciais do rótulo em pt-BR; o domínio do social-care usa o enum por extenso
 // (PersonalData.Sex: masculino|feminino|outro) e rejeita o resto com REGP-013.

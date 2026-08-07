@@ -7,6 +7,7 @@ import { requireSession } from '~/modules/auth/server/guard'
 import { SESSION_COOKIE } from '~/server/session'
 import { isErr } from '~/shared/http/result'
 import { statusForKind, errorBody } from '~/server/routes/error-response'
+import { toIso8601 } from '~/shared/date'
 
 const readSid = (raw: unknown): string | undefined => (typeof raw === 'string' ? raw : undefined)
 const now = () => new Date().toISOString()
@@ -62,7 +63,13 @@ export function careRoutes(deps: AppDeps) {
           return { error: { code: 'REGA-006', message: 'validation', requestId } } // ≥1 narrativa
         }
         const professionalId = body.professionalId?.trim() ? body.professionalId : session.idpSub
-        const r = await deps.socialCare.registerAppointment(session.accessToken, params.patientId, { ...body, professionalId })
+        // O <input type=date> manda 'yyyy-mm-dd'; o social-care exige ISO8601 completo (mesma
+        // traducao do cadastro de paciente — ver patient-register.compose).
+        const r = await deps.socialCare.registerAppointment(session.accessToken, params.patientId, {
+          ...body,
+          professionalId,
+          ...(body.date ? { date: toIso8601(body.date) } : {}),
+        })
         if (isErr(r)) {
           set.status = statusForKind(r.error.kind)
           return errorBody(r.error, requestId)

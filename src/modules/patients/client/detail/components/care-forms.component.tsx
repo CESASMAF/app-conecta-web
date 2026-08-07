@@ -60,6 +60,19 @@ function Actions(props: { busy: boolean; onCancel: () => void; onSave: () => voi
 }
 
 // ===================== Atendimento (novo) =====================
+
+// O social-care valida `type` contra um enum FECHADO (REGA-005). Este campo era texto livre com o
+// placeholder "Ex.: clínico, psicossocial" — sugerindo justamente valores que o backend rejeita:
+// quem seguisse o exemplo da tela NUNCA conseguia registrar um atendimento, e a mensagem de erro
+// ("informações inválidas") não dizia qual campo nem quais valores valem.
+// Não vem de `dominio_*`: é enum do dominio Swift, nao tabela de lookup — por isso fica aqui.
+const APPOINTMENT_TYPES: readonly { id: string; label: string }[] = [
+  { id: 'HOME_VISIT', label: 'Visita domiciliar' },
+  { id: 'OFFICE_APPOINTMENT', label: 'Atendimento no serviço' },
+  { id: 'PHONE_CALL', label: 'Contato telefônico' },
+  { id: 'MULTIDISCIPLINARY', label: 'Atendimento multidisciplinar' },
+  { id: 'OTHER', label: 'Outro' },
+]
 export function AppointmentForm_(props: { busy: boolean; onSave: (p: AppointmentBody) => Promise<boolean>; onCancel: () => void }) {
   const [form, setForm] = createStore<AppointmentForm>(emptyAppointment())
   const [err, setErr] = createSignal<string | null>(null)
@@ -73,7 +86,7 @@ export function AppointmentForm_(props: { busy: boolean; onSave: (p: Appointment
   }
   return (
     <div class={s.editPanel}>
-      <TextField label="Tipo (opcional)" value={form.type} onInput={(v) => setForm({ type: v })} placeholder="Ex.: clínico, psicossocial" />
+      <SelectField label="Tipo (opcional)" value={form.type} onChange={(v) => setForm({ type: v })} placeholder="Selecionar…" options={APPOINTMENT_TYPES} />
       <TextField label="Data (opcional)" type="date" value={form.date} onInput={(v) => setForm({ date: v })} />
       <TextField label="Resumo" value={form.summary} onInput={(v) => setForm({ summary: v })} placeholder="O que foi atendido" />
       <TextField label="Plano de ação" value={form.actionPlan} onInput={(v) => setForm({ actionPlan: v })} placeholder="Encaminhamentos/condutas" />
