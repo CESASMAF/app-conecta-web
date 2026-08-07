@@ -12,7 +12,11 @@ test('GET /api/auth/callback → cria sessão, __Host-session, 302 p/ destino sa
     }),
   )
   expect(res.status).toBe(302)
-  expect(res.headers.get('location')).toBe('/dashboard')
+  // Location absoluto: `redirect` usa Response.redirect, que rejeita path relativo. O que importa
+  // e o destino saneado preservado na MESMA origem (PUBLIC_BASE_URL).
+  const loc = new URL(res.headers.get('location') ?? '')
+  expect(loc.origin).toBe('http://localhost:3000')
+  expect(loc.pathname).toBe('/dashboard')
   expect(res.headers.getSetCookie().join('; ')).toContain('__Host-session=')
 })
 

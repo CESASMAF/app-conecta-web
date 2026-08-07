@@ -31,6 +31,7 @@ export type Env = Readonly<{
   oidcJwksUrl: string // JWKS p/ validar o JWT (pode ser interno; iss continua público)
   oidcClientId: string
   oidcClientSecret: string
+  oidcAudiences: readonly string[] // audiences pedidas no /authorize → viram o `aud` do access_token
   kratosPublicUrl: string // Kratos Public API (self-service flows: login/recovery/…) — browser-facing
   kratosAdminUrl: string // Kratos Admin API (server-only; nunca vai ao browser — Princ. I)
   sessionSecret: string
@@ -50,6 +51,9 @@ export const env: Env = {
   oidcJwksUrl: process.env.OIDC_JWKS_URL ?? `${oidcIssuerRaw ?? ''}/.well-known/jwks.json`,
   oidcClientId: required(process.env.OIDC_CLIENT_ID, 'OIDC_CLIENT_ID'),
   oidcClientSecret: required(readSecret('OIDC_CLIENT_SECRET'), 'OIDC_CLIENT_SECRET'),
+  oidcAudiences: (process.env.OIDC_AUDIENCES ?? 'social-care people-context analysis-bi')
+    .split(/[\s,]+/)
+    .filter(Boolean),
   kratosPublicUrl: required(process.env.KRATOS_PUBLIC_URL, 'KRATOS_PUBLIC_URL'),
   kratosAdminUrl: process.env.KRATOS_ADMIN_URL ?? '',
   sessionSecret: required(readSecret('SESSION_SECRET'), 'SESSION_SECRET'),

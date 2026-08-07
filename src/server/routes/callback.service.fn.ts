@@ -2,6 +2,7 @@
 // grava cookie opaco `__Host-session` e redireciona ao destino saneado.
 import { Elysia, t } from 'elysia'
 import type { AppDeps } from '~/server/deps'
+import { env } from '~/server/env'
 import { createSession, SESSION_COOKIE, PKCE_COOKIE, type PkceCookie } from '~/server/session'
 import { sanitizeRedirectPath } from '~/shared/http/safe-redirect'
 import { logAuthEvent } from '~/shared/log'
@@ -43,10 +44,12 @@ export function callbackRoute(deps: AppDeps) {
           path: '/',
         })
         logAuthEvent('login.success', { requestId, sub: claims.sub })
-        return redirect(sanitizeRedirectPath(pkce.redirectTo), 302)
-      } catch {
+        // O destino ja vem saneado a mesma origem (path relativo); `redirect` exige URL absoluta.
+        const target = new URL(sanitizeRedirectPath(pkce.redirectTo), env.publicBaseUrl)
+        return redirect(target.toString(), 302)
+      } catch (error) {
         set.status = 502
-        logAuthEvent('login.failed', { requestId, reason: 'idp' })
+        logAuthEvent('login.failed', { requestId, reason: 'idp', cause: String(error) })
         return envelopeError('AUTH-IDP')
       }
     },

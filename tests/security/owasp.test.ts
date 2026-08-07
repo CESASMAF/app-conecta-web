@@ -39,7 +39,12 @@ describe('A01 Broken Access Control', () => {
     const app = makeApp()
     const { pkceCookie, state } = await driveLogin(app, 'https://evil.com/phish')
     const cb = await get(app, `/api/auth/callback?code=x&state=${state}`, { headers: { cookie: pkceCookie } })
-    expect(cb.headers.get('location')).toBe('/') // destino externo descartado
+    // O Location e absoluto (o `redirect` usa Response.redirect, que exige URL completa), entao a
+    // propriedade a garantir nao e a string "/" e sim: MESMA ORIGEM e nunca o destino externo.
+    const loc = new URL(cb.headers.get('location') ?? '')
+    expect(loc.origin).toBe('http://localhost:3000')
+    expect(loc.pathname).toBe('/')
+    expect(loc.host).not.toBe('evil.com') // destino externo descartado
   })
 })
 
@@ -153,7 +158,9 @@ describe('A05 Injection (CRLF / response splitting / open-redirect)', () => {
     const cb = await get(app, `/api/auth/callback?code=x&state=${state}`, { headers: { cookie: pkceCookie } })
     const loc = cb.headers.get('location') ?? ''
     expect(loc.includes('\r') || loc.includes('\n')).toBe(false)
-    expect(loc).toBe('/') // saneado
+    // saneado: o CRLF caiu no fallback, sobrando a raiz da propria origem (Location e absoluto).
+    expect(new URL(loc).pathname).toBe('/')
+    expect(new URL(loc).origin).toBe('http://localhost:3000')
   })
   test('cookie pkce malformado → 400 (fail closed, sem crash)', async () => {
     const res = await get(makeApp(), '/api/auth/callback?code=x&state=s', { headers: { cookie: 'pkce=lixo.invalido' } })

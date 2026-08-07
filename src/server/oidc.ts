@@ -34,6 +34,8 @@ export function buildAuthorizeUrl(p: Pick<Pkce, 'challenge' | 'state' | 'nonce'>
   u.searchParams.set('code_challenge_method', 'S256')
   u.searchParams.set('state', p.state)
   u.searchParams.set('nonce', p.nonce)
+  // Sem `audience` o Hydra emite access_token com `aud` vazio e os servicos downstream rejeitam.
+  if (env.oidcAudiences.length > 0) u.searchParams.set('audience', env.oidcAudiences.join(' '))
   return u.toString()
 }
 
