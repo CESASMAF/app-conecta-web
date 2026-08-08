@@ -1,7 +1,10 @@
 // Preload de testes: envs dummy ANTES de qualquer módulo carregar (senão env.ts/oidc quebram sem IdP).
 process.env.NODE_ENV ??= 'test'
 process.env.OIDC_ISSUER ??= 'https://auth.test.local'
-process.env.KRATOS_PUBLIC_URL ??= 'https://id.test.local'
+// As duas faces do Kratos com valores DIFERENTES de propósito: em produção a interna é um nome de
+// serviço Docker e a pública é o gateway. Igualar as duas aqui esconderia trocas entre elas (infra#14).
+process.env.KRATOS_PUBLIC_URL ??= 'http://kratos.internal.test:4433'
+process.env.KRATOS_BROWSER_URL ??= 'https://id.test.local'
 process.env.KRATOS_ADMIN_URL ??= 'http://kratos-admin.test.local'
 process.env.OIDC_CLIENT_ID ??= 'acdg-web'
 process.env.OIDC_CLIENT_SECRET ??= 'test-secret'

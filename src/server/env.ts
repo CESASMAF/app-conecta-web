@@ -32,7 +32,8 @@ export type Env = Readonly<{
   oidcClientId: string
   oidcClientSecret: string
   oidcAudiences: readonly string[] // audiences pedidas no /authorize → viram o `aud` do access_token
-  kratosPublicUrl: string // Kratos Public API (self-service flows: login/recovery/…) — browser-facing
+  kratosPublicUrl: string // Kratos Public API por DENTRO da malha (server-to-server: ler flow, whoami)
+  kratosBrowserUrl: string // MESMA API, endereço PÚBLICO — só p/ URLs que o browser vai seguir
   kratosAdminUrl: string // Kratos Admin API (server-only; nunca vai ao browser — Princ. I)
   sessionSecret: string
   redisUrl: string
@@ -55,6 +56,11 @@ export const env: Env = {
     .split(/[\s,]+/)
     .filter(Boolean),
   kratosPublicUrl: required(process.env.KRATOS_PUBLIC_URL, 'KRATOS_PUBLIC_URL'),
+  // Sem KRATOS_BROWSER_URL o default é a interna — que é o que o browser NÃO alcança. Em produção
+  // isso é erro de config, não fallback: falha no boot em vez de servir um host inalcançável.
+  kratosBrowserUrl: isProd
+    ? required(process.env.KRATOS_BROWSER_URL, 'KRATOS_BROWSER_URL')
+    : (process.env.KRATOS_BROWSER_URL ?? process.env.KRATOS_PUBLIC_URL ?? ''),
   kratosAdminUrl: process.env.KRATOS_ADMIN_URL ?? '',
   sessionSecret: required(readSecret('SESSION_SECRET'), 'SESSION_SECRET'),
   redisUrl: process.env.REDIS_URL ?? 'redis://localhost:6379',
@@ -76,15 +82,22 @@ export const oidcEndpoints = {
 } as const
 
 // Endpoints do Kratos (self-service flows via Public API; provisionamento via Admin API).
+// DUAS bases para a MESMA API, e a distinção é quem faz a requisição:
+//   • `*Browser` = URL que devolvemos num redirect — quem busca é o NAVEGADOR, então tem que ser o
+//     endereço público (id.${DOMAIN} pelo gateway). Usar a interna aqui manda o usuário para um host
+//     que só existe dentro do Docker: foi o que travou /login e /recover em produção.
+//   • as demais = fetch do nosso servidor, por dentro da app-net (`internal: true`, sem egress) —
+//     têm que ser a interna, porque o container não alcança o IP público.
+// Mesmo par que `oidcIssuer` (público) e `oidcJwksUrl` (interno) logo acima.
 export const kratosEndpoints = {
   public: env.kratosPublicUrl,
+  browser: env.kratosBrowserUrl,
   admin: env.kratosAdminUrl,
-  // Browser flows (o app age como UI do Kratos): inicia o flow no browser e lê/submete via Public API.
-  loginBrowser: `${env.kratosPublicUrl}/self-service/login/browser`,
+  loginBrowser: `${env.kratosBrowserUrl}/self-service/login/browser`,
   loginFlow: `${env.kratosPublicUrl}/self-service/login/flows`,
-  recoveryBrowser: `${env.kratosPublicUrl}/self-service/recovery/browser`,
+  recoveryBrowser: `${env.kratosBrowserUrl}/self-service/recovery/browser`,
   recoveryFlow: `${env.kratosPublicUrl}/self-service/recovery/flows`,
-  logoutBrowser: `${env.kratosPublicUrl}/self-service/logout/browser`,
+  logoutBrowser: `${env.kratosBrowserUrl}/self-service/logout/browser`,
   whoami: `${env.kratosPublicUrl}/sessions/whoami`,
 } as const
 
