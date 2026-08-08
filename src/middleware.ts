@@ -92,8 +92,17 @@ export default createMiddleware({
   // ⚠️ ANDA JUNTO COM `serialization: { mode: 'json' }` do app.config.ts. Quem remover um
   // quebra o outro — e a quebra é silenciosa.
   //
-  // No `server-handler` do SolidStart só o modo `js` carimba Content-Type (`text/javascript`);
-  // o modo `json` marca a resposta APENAS com `x-serialized: true`, sem Content-Type nenhum.
+  // O fato que arma a armadilha é só um: **a resposta do `/_server` sai sem Content-Type**.
+  // Em `@solidjs/start/dist/runtime/server-handler.js:131-136` (e de novo em :164-169, no
+  // caminho de erro):
+  //
+  //     setHeader(h3Event, 'x-serialized', 'true')
+  //     if (import.meta.env.SEROVAL_MODE === 'js') {
+  //       setHeader(h3Event, 'content-type', 'text/javascript')   // ← só o modo `js`
+  //       return serializeToJSStream(instance, result)
+  //     }
+  //     return serializeToJSONStream(result)                      // ← modo `json`: sem header
+  //
   // Estamos em `json` porque o modo `js` exigiria `unsafe-eval` na CSP (ADR-0006) — ou seja,
   // foi uma decisão de SEGURANÇA que colocou o app no caminho exposto.
   //
