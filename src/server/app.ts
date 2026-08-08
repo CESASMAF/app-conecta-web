@@ -47,12 +47,33 @@ export function createApp(deps: AppDeps) {
     .onRequest(({ request, set }) => {
       const m = request.method
       if (m === 'GET' || m === 'HEAD' || m === 'OPTIONS') return
+
+      // Submissão de flow do Kratos: o FORMULÁRIO NATIVO posta aqui, e form nativo não
+      // consegue mandar header customizado — exigir `X-Requested-With` o barraria sempre.
+      // A troca não afrouxa a proteção, endurece o que resta:
+      //   • `Origin` deixa de ser "se vier, confira" e passa a ser OBRIGATÓRIO e igual.
+      //     O navegador sempre envia Origin em POST, inclusive same-origin (MDN: "added to
+      //     same-origin requests except for GET or HEAD") — então ausência aqui é anomalia.
+      //   • o `csrf_token` do flow segue no corpo e quem o valida é o Kratos. Um formulário
+      //     de outra origem não teria um token válido para ESTE flow.
+      // Restrito a este prefixo: o resto do BFF continua exigindo os dois sinais.
+      const ehSubmissaoDeFlow = new URL(request.url).pathname.startsWith('/api/auth/kratos/')
+      const origin = request.headers.get('origin')
+
+      if (ehSubmissaoDeFlow) {
+        if (origin !== allowedOrigin) {
+          set.status = 403
+          logAuthEvent('csrf.blocked', { reason: 'origin', origin: origin ?? '(ausente)' })
+          return { error: { code: 'AUTH-ORIGIN', message: 'origin', requestId: crypto.randomUUID() } }
+        }
+        return
+      }
+
       if (!request.headers.get('x-requested-with')) {
         set.status = 403
         logAuthEvent('csrf.blocked', { reason: 'x-requested-with' })
         return { error: { code: 'AUTH-CSRF', message: 'csrf', requestId: crypto.randomUUID() } }
       }
-      const origin = request.headers.get('origin')
       if (origin && origin !== allowedOrigin) {
         set.status = 403
         logAuthEvent('csrf.blocked', { reason: 'origin', origin })
