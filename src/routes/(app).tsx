@@ -3,10 +3,9 @@
 // `deferStream: true` é OBRIGATÓRIO: garante o resolve ANTES do streaming (redirect SSR não pode
 // ocorrer depois que o stream começa).
 import { createAsync, query, redirect, type RouteSectionProps } from '@solidjs/router'
-import { ErrorBoundary, Show } from 'solid-js'
+import { Show } from 'solid-js'
 import { getCurrentUserFn } from '~/modules/auth/public-api'
 import { RootPage } from '~/modules/shell/public-api'
-import { CrashFallback } from '~/shared/ui/crash-fallback.component'
 
 const requireUser = query(async () => {
   const user = await getCurrentUserFn()
@@ -14,15 +13,12 @@ const requireUser = query(async () => {
   return user
 }, 'auth:me')
 
+// A rede de proteção contra throw no render vive DENTRO do RootPage, em volta só do conteúdo
+// da rota — não aqui. Envolver este layout inteiro numa ErrorBoundary quebrou toda navegação
+// SPA em produção (2026-08-08): a boundary reavalia `props.children`, a subárvore da rota é
+// recriada e o resultado da query em voo se perde, então CADA tela abria com "não foi possível
+// carregar" e só voltava ao normal recarregando o documento, que resolve tudo no SSR.
 export default function AppLayout(props: RouteSectionProps) {
   const user = createAsync(() => requireUser(), { deferStream: true })
-  // ErrorBoundary em volta de TODA a área logada: sem ela, um throw no render de qualquer
-  // tela derruba o documento e o usuário cai na página crua do SolidStart. Aconteceu em
-  // produção — uma mutação que respondeu 403 virou "Uncaught Client Exception", e o erro
-  // real nunca chegou ao formulário (2026-08-08).
-  return (
-    <ErrorBoundary fallback={(err, reset) => <CrashFallback error={err} reset={reset} />}>
-      <Show when={user()}>{(u) => <RootPage user={u()}>{props.children}</RootPage>}</Show>
-    </ErrorBoundary>
-  )
+  return <Show when={user()}>{(u) => <RootPage user={u()}>{props.children}</RootPage>}</Show>
 }

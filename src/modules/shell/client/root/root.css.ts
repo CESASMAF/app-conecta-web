@@ -167,6 +167,16 @@ export const logoutBtn = style({
   selectors: { '&:hover': { background: vars.color.bg.secondary } },
 })
 
+// Aviso de logout que não completou. Fica ao lado do botão, não num toast que some: a pessoa
+// pode já ter virado as costas para a tela, e o que importa é o aviso continuar lá.
+export const logoutErro = style({
+  fontSize: vars.text.sm,
+  fontWeight: vars.weight.medium,
+  color: vars.color.danger,
+  textAlign: 'right',
+  lineHeight: vars.leading.snug,
+})
+
 export const content = style({
   flex: 1,
   width: '100%',

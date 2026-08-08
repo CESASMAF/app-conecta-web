@@ -56,11 +56,13 @@ test('logout devolve o RP-initiated logout do Hydra, com id_token_hint', async (
   expect(url.searchParams.get('post_logout_redirect_uri')).toBeTruthy()
 })
 
-test('sem id_token guardado (sessão legada) cai na raiz, não numa URL quebrada', () => {
-  // O Hydra responde `invalid_request` se vier post_logout_redirect_uri sem id_token_hint;
-  // mandar o browser para lá trocaria o logout por uma tela de erro do OAuth.
+test('sem id_token guardado (sessão legada) ainda vai ao IdP, só que sem o redirect', () => {
+  // O Hydra responde `invalid_request` se vier post_logout_redirect_uri sem id_token_hint —
+  // então esse par sai. Mas PULAR o IdP seria o pior desfecho: Hydra e Kratos ficam de pé, o
+  // /authorize seguinte faz `skip` e o usuário volta logado. Atingiria toda sessão já viva no
+  // Redis no momento do deploy, que é justamente quem mais precisa conseguir sair.
   const destino = buildLogoutRedirect(undefined)
-  expect(destino.endsWith('/')).toBe(true)
+  expect(destino).toBe(oidcEndpoints.endSession)
   expect(destino).not.toContain('post_logout_redirect_uri')
 })
 
