@@ -97,6 +97,7 @@ export const kratosEndpoints = {
   loginFlow: `${env.kratosPublicUrl}/self-service/login/flows`,
   recoveryBrowser: `${env.kratosBrowserUrl}/self-service/recovery/browser`,
   recoveryFlow: `${env.kratosPublicUrl}/self-service/recovery/flows`,
+  flowError: `${env.kratosPublicUrl}/self-service/errors`, // detalhe do erro que o Kratos só expõe por id
   logoutBrowser: `${env.kratosBrowserUrl}/self-service/logout/browser`,
   whoami: `${env.kratosPublicUrl}/sessions/whoami`,
 } as const

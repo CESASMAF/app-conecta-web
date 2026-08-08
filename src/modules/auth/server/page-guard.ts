@@ -5,7 +5,11 @@ import type { CurrentUser } from '../client/data/current-user.model'
 
 const PUBLIC_PREFIXES = ['/api/', '/_'] as const
 // Páginas de auth públicas (sem sessão): login e recuperação de senha (fluxos self-service do Kratos).
-const PUBLIC_PAGES = new Set(['/login', '/recover'])
+// `/error` PRECISA estar aqui: é para onde o Kratos manda quem falhou em autenticar, ou
+// seja, alguém que por definição NÃO tem sessão. Tratá-la como página protegida a
+// redireciona para /login — que foi o comportamento até 2026-08-08 e engolia a explicação
+// do próprio Kratos, deixando todo defeito de auth com a mesma cara muda.
+const PUBLIC_PAGES = new Set(['/login', '/recover', '/error'])
 
 // Documento protegido = página de app: não é página de auth pública, não /api/*, não rota interna (/_*),
 // não asset (tem ".").

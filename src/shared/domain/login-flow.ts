@@ -37,3 +37,32 @@ export type RecoveryFlowView = Readonly<{
 export type RecoveryFlowResult =
   | Readonly<{ kind: 'flow'; view: RecoveryFlowView }>
   | Readonly<{ kind: 'expired' }>
+
+// --- Erro de fluxo — o Kratos redireciona para ui_url do `error` com ?id=<uuid> ---
+//
+// O detalhe fica na API dele (`GET /self-service/errors?id=`), NÃO na URL. Sem uma tela
+// que o busque, a explicação que o Kratos produziu é jogada fora e o usuário volta ao
+// login sem saber de nada — foi o que escondeu o loop de redirect de 2026-08-08.
+//
+// `reason` NÃO entra aqui: o texto do Kratos embute a URL rejeitada, que carrega
+// login_challenge/return_to. Isso é material sensível e não vai para a tela; fica no log
+// do servidor. Para a pessoa, o `kind` vira mensagem em português; para o suporte, o `id`.
+export type FlowErrorView = Readonly<{
+  id: string // id do erro no Kratos — o que o suporte usa para correlacionar
+  kind: FlowErrorKind // causa normalizada (o `error.id` do Kratos, mapeado)
+  status: number // código HTTP do erro (400, 403, 410…)
+}>
+
+// As causas que o Kratos nomeia e que sabemos explicar. Qualquer outra vira 'unknown'.
+export type FlowErrorKind =
+  | 'returnToForbidden' // return_to fora de allowed_return_urls — derruba o login em loop
+  | 'flowExpired' // o fluxo passou do lifespan
+  | 'csrf' // token de CSRF ausente/divergente
+  | 'identityMismatch' // o fluxo pertence a outra identidade
+  | 'alreadyLoggedIn' // já há sessão ativa
+  | 'unknown'
+
+export type FlowErrorResult =
+  | Readonly<{ kind: 'error'; view: FlowErrorView }>
+  | Readonly<{ kind: 'notFound' }> // id inexistente ou já expirado no Kratos (ele guarda por tempo limitado)
+  | Readonly<{ kind: 'missing' }> // chegou em /error sem ?id — acesso direto à URL
