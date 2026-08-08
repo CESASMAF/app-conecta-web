@@ -98,6 +98,10 @@ export const kratosEndpoints = {
   recoveryBrowser: `${env.kratosBrowserUrl}/self-service/recovery/browser`,
   recoveryFlow: `${env.kratosPublicUrl}/self-service/recovery/flows`,
   flowError: `${env.kratosPublicUrl}/self-service/errors`, // detalhe do erro que o Kratos só expõe por id
+  // Submissão dos flows. O `ui.action` do Kratos aponta para a face PÚBLICA; o BFF chama a
+  // INTERNA, porque quem faz esta requisição é o servidor, não o navegador.
+  loginSubmit: `${env.kratosPublicUrl}/self-service/login`,
+  recoverySubmit: `${env.kratosPublicUrl}/self-service/recovery`,
   logoutBrowser: `${env.kratosBrowserUrl}/self-service/logout/browser`,
   whoami: `${env.kratosPublicUrl}/sessions/whoami`,
 } as const
