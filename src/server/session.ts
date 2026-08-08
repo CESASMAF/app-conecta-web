@@ -41,6 +41,7 @@ export async function createSession(
     displayName: claims.name,
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
+    idToken: tokens.idToken, // guardado só para o `id_token_hint` do logout (ver session-store)
     groups: claims.groups,
     createdAt: iso(now),
     lastSeenAt: iso(now),
@@ -105,6 +106,8 @@ async function doRefresh(deps: AppDeps, session: Session): Promise<Session | nul
       refreshToken: tokens.refreshToken,
       accessExpiresAt: iso(now + tokens.expiresIn * 1000),
       lastSeenAt: iso(now),
+      // O refresh nem sempre reemite id_token; sobrescrever com '' perderia o hint do logout.
+      ...(tokens.idToken ? { idToken: tokens.idToken } : {}),
     }
     await deps.sessions.touch(session.sessionId, patch, ABSOLUTE_TTL_SECONDS)
     return { ...session, ...patch }

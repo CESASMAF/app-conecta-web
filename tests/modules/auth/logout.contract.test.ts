@@ -1,6 +1,8 @@
-// Contract test do logout (T043, US3): CSRF + revogação de sessão.
+// Contract test do logout (T043, US3): CSRF + revogação de sessão + saída para o IdP.
 import { test, expect } from 'bun:test'
 import { makeApp, driveSession } from './_fakes'
+import { buildLogoutRedirect } from '~/server/routes/logout.service.fn'
+import { oidcEndpoints } from '~/server/env'
 
 test('POST /api/auth/logout sem X-Requested-With → 403 (CSRF)', async () => {
   const res = await makeApp().handle(new Request('http://localhost/api/auth/logout', { method: 'POST' }))
@@ -27,4 +29,43 @@ test('POST /api/auth/logout com X-Requested-With → 200 e sessão revogada', as
   // sessão antiga não vale mais
   const me2 = await app.handle(new Request('http://localhost/api/me', { headers: { cookie: sessionCookie } }))
   expect(me2.status).toBe(401)
+})
+
+// ─── A saída para o IdP ─────────────────────────────────────────
+//
+// Revogar a sessão local NÃO desloga: são três (BFF, Hydra, Kratos). Sem mandar o browser
+// ao RP-initiated logout, o /authorize seguinte acha a sessão do Hydra viva, faz `skip` e
+// devolve o usuário autenticado — foi o que aconteceu em produção em 2026-08-08.
+
+test('logout devolve o RP-initiated logout do Hydra, com id_token_hint', async () => {
+  const app = makeApp()
+  const sessionCookie = await driveSession(app)
+
+  const out = await app.handle(
+    new Request('http://localhost/api/auth/logout', {
+      method: 'POST',
+      headers: { 'x-requested-with': 'fetch', cookie: sessionCookie },
+    }),
+  )
+  const body = (await out.json()) as { data: { ok: boolean; redirectTo: string } }
+  const url = new URL(body.data.redirectTo)
+
+  expect(`${url.origin}${url.pathname}`).toBe(oidcEndpoints.endSession)
+  // o id_token do fakeOidc — sem ele o Hydra recusa o post_logout_redirect_uri
+  expect(url.searchParams.get('id_token_hint')).toBe('id-token')
+  expect(url.searchParams.get('post_logout_redirect_uri')).toBeTruthy()
+})
+
+test('sem id_token guardado (sessão legada) cai na raiz, não numa URL quebrada', () => {
+  // O Hydra responde `invalid_request` se vier post_logout_redirect_uri sem id_token_hint;
+  // mandar o browser para lá trocaria o logout por uma tela de erro do OAuth.
+  const destino = buildLogoutRedirect(undefined)
+  expect(destino.endsWith('/')).toBe(true)
+  expect(destino).not.toContain('post_logout_redirect_uri')
+})
+
+test('o id_token_hint sai encodado (é um JWT, tem . e pode ter -_)', () => {
+  const jwt = 'aaa.bbb-cc_dd.eee'
+  const url = new URL(buildLogoutRedirect(jwt))
+  expect(url.searchParams.get('id_token_hint')).toBe(jwt)
 })
