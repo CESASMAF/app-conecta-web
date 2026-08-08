@@ -15,6 +15,14 @@ import type {
 
 export type Option = Readonly<{ value: string; label: string }>
 
+// O paciente aparece na lista de pessoas E como membro do proprio nucleo familiar, com o mesmo
+// personId — o select mostrava duas linhas identicas. Mantem a primeira ocorrencia (a rotulada
+// "(paciente)"), que e a mais informativa.
+export const dedupById = <T extends { value: string }>(items: readonly T[]): T[] => {
+  const seen = new Set<string>()
+  return items.filter((i) => !seen.has(i.value) && seen.add(i.value))
+}
+
 export type SectionMeta = Readonly<{ key: AssessmentSectionKey; label: string; tier: 'now' | 'soon' }>
 export const SECTIONS: readonly SectionMeta[] = [
   { key: 'housingCondition', label: 'Moradia', tier: 'now' },

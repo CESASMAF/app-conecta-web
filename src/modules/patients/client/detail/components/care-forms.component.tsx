@@ -73,6 +73,12 @@ const APPOINTMENT_TYPES: readonly { id: string; label: string }[] = [
   { id: 'MULTIDISCIPLINARY', label: 'Atendimento multidisciplinar' },
   { id: 'OTHER', label: 'Outro' },
 ]
+
+// A LISTAGEM mostrava o enum cru ("MULTIDISCIPLINARY") porque os rotulos acima so eram usados no
+// formulario: a traducao existia so no caminho de ESCRITA. Desconhecido volta cru de proposito —
+// enum novo no backend aparece como esta, em vez de sumir atras de um "Atendimento" generico.
+export const appointmentTypeLabel = (code: string | null | undefined): string =>
+  code ? (APPOINTMENT_TYPES.find((t) => t.id === code)?.label ?? code) : 'Atendimento'
 export function AppointmentForm_(props: { busy: boolean; onSave: (p: AppointmentBody) => Promise<boolean>; onCancel: () => void }) {
   const [form, setForm] = createStore<AppointmentForm>(emptyAppointment())
   const [err, setErr] = createSignal<string | null>(null)
@@ -160,7 +166,7 @@ export function PlacementForm_(props: {
   const [showErr, setShowErr] = createSignal(false)
   const memberOpts = createMemo(() => opt(props.members))
   const errors = createMemo(() => validatePlacement(form))
-  const regErr = (i: number, k: 'memberId' | 'startDate' | 'reason'): string | undefined => {
+  const regErr = (i: number, k: 'memberId' | 'startDate' | 'endDate' | 'reason'): string | undefined => {
     if (!showErr()) return undefined
     const tag = errors().registries[i]?.[k]
     return tag ? tp(tag) : undefined
@@ -185,7 +191,7 @@ export function PlacementForm_(props: {
           <div class={s.subRow}>
             <SelectField label="Membro" value={r.memberId} onChange={(v) => setForm('registries', i(), { memberId: v })} placeholder="Selecionar…" options={memberOpts()} error={regErr(i(), 'memberId')} />
             <TextField label="Início" type="date" value={r.startDate} onInput={(v) => setForm('registries', i(), { startDate: v })} error={regErr(i(), 'startDate')} />
-            <TextField label="Fim (opcional)" type="date" value={r.endDate} onInput={(v) => setForm('registries', i(), { endDate: v })} />
+            <TextField label="Fim (opcional)" type="date" value={r.endDate} onInput={(v) => setForm('registries', i(), { endDate: v })} error={regErr(i(), 'endDate')} />
             <TextField label="Motivo" value={r.reason} onInput={(v) => setForm('registries', i(), { reason: v })} error={regErr(i(), 'reason')} />
             <button type="button" class={s.dangerLink} onClick={() => setForm('registries', (a) => a.filter((_, idx) => idx !== i()))}>
               remover acolhimento
@@ -238,6 +244,24 @@ export function ViolationForm_(props: { persons: readonly Picker[]; busy: boolea
 }
 
 // ===================== Encaminhamento (novo) =====================
+
+// Mesma armadilha do campo "Tipo" do atendimento: era texto livre com placeholder "Ex.: CRAS, CAPS",
+// mas o dominio valida contra o enum FECHADO `Referral.DestinationService` (CREF-006). "CRAS" passa,
+// "CAPS" — sugerido pelo proprio placeholder — sempre falhava. Nao vem de `dominio_*`: e enum do
+// dominio Swift, nao tabela de lookup.
+const DESTINATION_SERVICES: readonly { id: string; label: string }[] = [
+  { id: 'CRAS', label: 'CRAS' },
+  { id: 'CREAS', label: 'CREAS' },
+  { id: 'HEALTH_CARE', label: 'Saúde' },
+  { id: 'EDUCATION', label: 'Educação' },
+  { id: 'LEGAL', label: 'Justiça / Conselho Tutelar' },
+  { id: 'OTHER', label: 'Outro' },
+]
+
+// A listagem de encaminhamentos mostrava o enum cru ("LEGAL"), pelo mesmo motivo da lista de
+// atendimentos: o rotulo so existia no caminho de escrita. Desconhecido volta cru de proposito.
+export const destinationServiceLabel = (code: string | null | undefined): string =>
+  code ? (DESTINATION_SERVICES.find((d) => d.id === code)?.label ?? code) : ''
 export function ReferralForm_(props: { persons: readonly Picker[]; busy: boolean; onSave: (p: ReferralBody) => Promise<boolean>; onCancel: () => void }) {
   const [form, setForm] = createStore<ReferralForm>(emptyReferral())
   const [showErr, setShowErr] = createSignal(false)
@@ -258,7 +282,7 @@ export function ReferralForm_(props: { persons: readonly Picker[]; busy: boolean
   return (
     <div class={s.editPanel}>
       <SelectField label="Pessoa encaminhada" value={form.referredPersonId} onChange={(v) => setForm({ referredPersonId: v })} placeholder="Selecionar…" options={personOpts()} error={errFor('referredPersonId')} />
-      <TextField label="Serviço de destino" value={form.destinationService} onInput={(v) => setForm({ destinationService: v })} error={errFor('destinationService')} placeholder="Ex.: CRAS, CAPS" />
+      <SelectField label="Serviço de destino" value={form.destinationService} onChange={(v) => setForm({ destinationService: v })} placeholder="Selecionar…" options={DESTINATION_SERVICES} error={errFor('destinationService')} />
       <TextField label="Motivo" value={form.reason} onInput={(v) => setForm({ reason: v })} error={errFor('reason')} />
       <TextField label="Data (opcional)" type="date" value={form.date} onInput={(v) => setForm({ date: v })} />
       <Actions busy={props.busy} onCancel={props.onCancel} onSave={() => void submit()} label="Encaminhar" />

@@ -2,8 +2,9 @@
 // (listar + criar). Pessoas/membros para os pickers vêm do overview já carregado.
 import { Show, For, createSignal, createMemo } from 'solid-js'
 import { useCareBinding } from '../care.binding'
-import { PlacementForm_, ViolationForm_, ReferralForm_, type Picker } from '../components/care-forms.component'
+import { PlacementForm_, ViolationForm_, ReferralForm_, destinationServiceLabel, type Picker } from '../components/care-forms.component'
 import { formatDate } from '../care.view-model'
+import { dedupById } from '../assessment.view-model'
 import type { PatientOverview } from '~/shared/domain/patient-overview'
 import { tp } from '~/shared/i18n/patients'
 import * as s from '../prontuario.css'
@@ -19,10 +20,10 @@ export function ProtecaoTab(props: { overview: PatientOverview }) {
   }
 
   const members = createMemo<Picker[]>(() => props.overview.family.members.map((m) => ({ value: m.memberPersonId, label: m.fullName || m.relationshipLabel })))
-  const persons = createMemo<Picker[]>(() => [
-    { value: props.overview.personId, label: `${props.overview.fullName || 'Paciente'} (paciente)` },
-    ...members(),
-  ])
+  // Dedup: o paciente costuma constar tambem como membro do proprio nucleo (mesmo id) — ver dedupById.
+  const persons = createMemo<Picker[]>(() =>
+    dedupById([{ value: props.overview.personId, label: `${props.overview.fullName || 'Paciente'} (paciente)` }, ...members()]),
+  )
 
   return (
     <Show when={!b.pending()} fallback={<p class={s.muted}>Carregando…</p>}>
@@ -89,7 +90,7 @@ export function ProtecaoTab(props: { overview: PatientOverview }) {
                 <li class={s.familyRow}>
                   <span>
                     <strong>{formatDate(r.date)}</strong>
-                    <Show when={r.destinationService}><span class={s.muted}> · {r.destinationService}</span></Show>
+                    <Show when={r.destinationService}><span class={s.muted}> · {destinationServiceLabel(r.destinationService)}</span></Show>
                     <Show when={r.reason}><span class={s.muted}> · {r.reason}</span></Show>
                   </span>
                 </li>

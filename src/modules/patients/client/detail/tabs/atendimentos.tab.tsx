@@ -1,7 +1,7 @@
 // Aba ATENDIMENTOS (US5): lista de atendimentos + registrar; informações de ingresso (ler + editar).
 import { Show, For, createSignal } from 'solid-js'
 import { useCareBinding } from '../care.binding'
-import { AppointmentForm_, IntakeForm_ } from '../components/care-forms.component'
+import { AppointmentForm_, IntakeForm_, appointmentTypeLabel } from '../components/care-forms.component'
 import { formatDate } from '../care.view-model'
 import { tp } from '~/shared/i18n/patients'
 import * as s from '../prontuario.css'
@@ -41,7 +41,7 @@ export function AtendimentosTab() {
                   </span>
                   <div class={s.tlCard}>
                     <div class={s.tlHead}>
-                      <span class={s.tlType}>{a.type || 'Atendimento'}</span>
+                      <span class={s.tlType}>{appointmentTypeLabel(a.type)}</span>
                       <Show when={formatDate(a.date)}>
                         <span class={s.tlDate}>{formatDate(a.date)}</span>
                       </Show>

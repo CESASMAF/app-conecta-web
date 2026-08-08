@@ -1,9 +1,10 @@
-// Aba AVALIAÇÃO (US4): lista as 7 seções com status preenchida/pendente (lê o agregado) e abre cada seção
-// PLANA para edição (moradia, socioeconômico, rede de apoio, resumo social-sanitário). As 3 por-membro
-// ficam "em construção" honesto (ADR-0011). Salvar marca preenchida sem recarregar a aba inteira (FR-009).
+// Aba AVALIAÇÃO (US4): lista as 7 seções com status preenchida/pendente (lê o agregado) e abre cada uma
+// para edição — as 4 planas (moradia, socioeconômico, rede de apoio, resumo social-sanitário) e as 3
+// por-membro (trabalho e renda, educação, saúde), todas `tier: 'now'` em SECTIONS. Salvar marca
+// preenchida sem recarregar a aba inteira (FR-009).
 import { Show, For, createSignal, createMemo } from 'solid-js'
 import { useAssessmentBinding } from '../assessment.binding'
-import { SECTIONS, type Option } from '../assessment.view-model'
+import { SECTIONS, dedupById, type Option } from '../assessment.view-model'
 import {
   HousingSectionForm,
   SocioSectionForm,
@@ -36,11 +37,12 @@ export function AvaliacaoTab(props: { overview: PatientOverview }) {
   const members = createMemo<Option[]>(() =>
     props.overview.family.members.map((m) => ({ value: m.memberPersonId, label: m.fullName || m.relationshipLabel })),
   )
-  // Beneficiário de benefício social = paciente + membros da família.
-  const beneficiaries = createMemo<Option[]>(() => [
-    { value: props.overview.personId, label: `${props.overview.fullName || 'Paciente'} (paciente)` },
-    ...members(),
-  ])
+  // Beneficiário de benefício social = paciente + membros da família. O paciente costuma constar
+  // TAMBEM como membro do proprio nucleo, e ai a lista trazia duas linhas com o mesmo id — visualmente
+  // indistinguiveis. Dedup por id, mantendo a primeira (a do paciente, que e a rotulada).
+  const beneficiaries = createMemo<Option[]>(() =>
+    dedupById([{ value: props.overview.personId, label: `${props.overview.fullName || 'Paciente'} (paciente)` }, ...members()]),
+  )
 
   const saveAndClose = async (section: AssessmentSectionKey, payload: unknown): Promise<boolean> => {
     const okDone = await b.save(section, payload)
