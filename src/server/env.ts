@@ -33,8 +33,9 @@ export type Env = Readonly<{
   oidcClientId: string
   oidcClientSecret: string
   oidcAudiences: readonly string[] // audiences pedidas no /authorize → viram o `aud` do access_token
-  kratosPublicUrl: string // Kratos Public API (self-service flows: login/recovery/…) — browser-facing
+  kratosPublicUrl: string // Kratos Public API (self-service flows: login/recovery/…) — chamada pelo servidor
   kratosAdminUrl: string // Kratos Admin API (server-only; nunca vai ao browser — Princ. I)
+  kratosUiUrl: string // UI self-service do Ory (kratos-ui): é para onde o BROWSER vai autenticar
   sessionSecret: string
   redisUrl: string
   publicBaseUrl: string
@@ -62,6 +63,9 @@ export const env: Env = {
     .filter(Boolean),
   kratosPublicUrl: required(process.env.KRATOS_PUBLIC_URL, 'KRATOS_PUBLIC_URL'),
   kratosAdminUrl: process.env.KRATOS_ADMIN_URL ?? '',
+  // Raiz PÚBLICA da UI do Ory (ex.: https://login.cesasmaf.app.br). É o único endereço do IdP que
+  // este app entrega ao browser — as telas de autenticação não são mais nossas.
+  kratosUiUrl: required(process.env.KRATOS_UI_URL, 'KRATOS_UI_URL'),
   sessionSecret: required(readSecret('SESSION_SECRET'), 'SESSION_SECRET'),
   redisUrl: process.env.REDIS_URL ?? 'redis://localhost:6379',
   publicBaseUrl: process.env.PUBLIC_BASE_URL ?? 'http://localhost:3000',

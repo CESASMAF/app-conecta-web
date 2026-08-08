@@ -52,13 +52,22 @@ test('o issuer permanece o público', () => {
   expect(valorDe(bloco('oidcEndpoints'), 'issuer')).toContain('env.oidcIssuer')
 })
 
-// Mesma regra do outro lado da malha: o Kratos já a seguia, e é dela que a do Hydra foi copiada.
-test('no Kratos, só as URLs que o browser segue usam a face pública', () => {
+// Do lado do Kratos a regra ficou mais simples: o app NÃO leva mais o browser ao Kratos. Quem
+// renderiza login/recuperação é a UI do Ory (`kratos-ui`, em `KRATOS_UI_URL`), então toda URL do
+// Kratos declarada aqui é chamada pelo SERVIDOR e usa a Public API por dentro da malha.
+//
+// O gate é contra a REGRESSÃO de voltar a hospedar as telas: um `kratosBrowserUrl` reaparecendo
+// nesta declaração significa que o app voltou a mandar o usuário ao Kratos por conta própria —
+// o desenho que produziu a cadeia de quebras de 08/08 (CSP, CSRF, allowed_return_urls).
+test('o app não leva o browser ao Kratos — quem faz isso é a UI do Ory', () => {
   const src = bloco('kratosEndpoints')
-  for (const chave of ['loginFlow', 'recoveryFlow', 'loginSubmit', 'recoverySubmit', 'whoami']) {
+  expect(src).not.toContain('kratosBrowserUrl')
+  for (const chave of ['loginFlow', 'recoveryFlow', 'whoami']) {
     expect(valorDe(src, chave)).toContain('kratosPublicUrl') // "public" = a API, não a face pública
   }
-  for (const chave of ['loginBrowser', 'recoveryBrowser', 'logoutBrowser']) {
-    expect(valorDe(src, chave)).toContain('kratosBrowserUrl')
-  }
+})
+
+// O único endereço do IdP que chega ao browser é a UI do Ory — e ele não pode ser o da malha.
+test('a UI do Ory é entregue ao browser por uma env própria', () => {
+  expect(env).toContain('kratosUiUrl: required(process.env.KRATOS_UI_URL')
 })
