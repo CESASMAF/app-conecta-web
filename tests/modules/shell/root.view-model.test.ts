@@ -17,7 +17,9 @@ describe('rootViewModel (puro)', () => {
   test('landingHref: destino = 1ª área visível ao papel (worker → /patients; analyst → /indicators)', () => {
     expect(rootViewModel.landingHref(['worker'])).toBe('/patients')
     expect(rootViewModel.landingHref(['analyst'])).toBe('/indicators')
-    expect(rootViewModel.landingHref([])).toBe('/patients') // fallback
+    // Sem papel nenhum NÃO há destino: todas as áreas exigem um. Inventar `/patients` aqui
+    // fazia o middleware redirecionar para uma rota que ele mesmo nega, em laço infinito.
+    expect(rootViewModel.landingHref([])).toBeNull()
   })
 
   test('pageTitle: mapeia rota conhecida; fallback p/ a marca', () => {
@@ -62,7 +64,7 @@ describe('rootViewModel — groups ausente não pode derrubar o render', () => {
     for (const g of ausentes) {
       const groups = g as unknown as readonly string[]
       expect(rootViewModel.roleLabel(groups)).toBe('Usuário')
-      expect(rootViewModel.landingHref(groups)).toBe('/patients')
+      expect(rootViewModel.landingHref(groups)).toBeNull()
     }
   })
 })

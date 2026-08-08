@@ -62,3 +62,14 @@ test('o BusyButton continua disponível para quem for escrever formulário novo'
   expect(src).toContain('aria-busy')
   expect(src).toMatch(/class=\{btnSpinner\}|s\.btnSpinner/)
 })
+
+// Grep de `class={btnSpinner}` não prova que o spinner APARECE. O `<span>` só tem tamanho
+// dentro de um contêiner flex — em `display: inline` o browser ignora width/height, e o anel
+// de 14px vira um risco de ~4px. Os botões do prontuário não herdam o `btnBase` do kit, então
+// a propriedade tem que estar no `btn` local: foi exatamente o que faltava quando o spinner
+// foi restaurado (achado do code-review, 2026-08-08).
+test('o botão que hospeda o spinner é flex — senão o spinner não tem tamanho', () => {
+  for (const f of ['modules/patients/client/detail/prontuario.css.ts', 'shared/ui/kit.css.ts']) {
+    expect(read(f)).toMatch(/display: 'inline-flex'/)
+  }
+})

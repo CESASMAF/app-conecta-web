@@ -9,7 +9,11 @@ export default function Home() {
   const user = createAsync(() => getCurrentUserFn(), { deferStream: true })
   return (
     <Show when={user()} fallback={<Navigate href="/patients" />}>
-      {(u) => <Navigate href={rootViewModel.landingHref(u().groups)} />}
+      {/* `landingHref` é null quando o papel não alcança área nenhuma. Mandar para /patients
+          aí seria mandar para uma rota que o middleware nega, e ele redirigiria de volta:
+          quem chega sem papel é atendido pela resposta 403 explicativa do próprio middleware
+          — que este Navigate provoca ao tocar /patients uma única vez. */}
+      {(u) => <Navigate href={rootViewModel.landingHref(u().groups) ?? '/patients'} />}
     </Show>
   )
 }

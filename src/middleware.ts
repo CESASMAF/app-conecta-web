@@ -16,6 +16,34 @@ function inicioDoLogin(destino: string): string {
   return `/api/auth/login?redirect=${encodeURIComponent(sanitizeRedirectPath(destino))}`
 }
 
+const escapar = (s: string): string =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+// Conta autenticada, porém sem papel em nenhuma área. Acontece de verdade: o people-context
+// provisiona a identidade no Kratos ANTES de atribuir o papel, e quem entrar nessa janela não
+// tem para onde ir. HTML mínimo e inline de propósito — é fora da árvore do app (o shell
+// precisa de um usuário com papel para montar) e não pode depender de JS nem de rota nova.
+function semAcesso(nome: string | null): Response {
+  const quem = nome ? escapar(nome) : 'Sua conta'
+  return new Response(
+    `<!doctype html><html lang="pt-BR"><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width,initial-scale=1">` +
+      `<title>Sem acesso — RAROS Boa Vista</title>` +
+      `<body style="margin:0;min-height:100dvh;display:grid;place-items:center;background:#f4f4f5;` +
+      `font-family:system-ui,sans-serif;color:#18181b;padding:24px">` +
+      `<main style="max-width:32rem;background:#fff;border:1px solid #e4e4e7;border-radius:14px;padding:32px">` +
+      `<h1 style="margin:0 0 12px;font-size:1.25rem">Sem acesso liberado</h1>` +
+      `<p style="margin:0 0 8px;color:#52525b;line-height:1.5">${quem} entrou, mas ainda não tem ` +
+      `permissão em nenhuma área do sistema.</p>` +
+      `<p style="margin:0 0 20px;color:#52525b;line-height:1.5">Peça a um administrador para ` +
+      `atribuir seu papel e entre de novo.</p>` +
+      `<a href="/login" style="display:inline-block;background:#703cc0;color:#fff;text-decoration:none;` +
+      `padding:10px 18px;border-radius:12px;font-weight:600">Entrar com outra conta</a>` +
+      `</main></body></html>`,
+    { status: 403, headers: { 'content-type': 'text/html; charset=utf-8' } },
+  )
+}
+
 export default createMiddleware({
   onRequest: async (event) => {
     const nonce = newNonce()
@@ -49,7 +77,12 @@ export default createMiddleware({
       // Manda para a landing do próprio papel — não para /login, que sugeriria sessão expirada.
       const required = requiredGroupForPath(path)
       if (!rootViewModel.canAccess(user.groups, required)) {
-        return redirect(rootViewModel.landingHref(user.groups))
+        const destino = rootViewModel.landingHref(user.groups)
+        // Sem NENHUMA área acessível não há para onde mandar: redirecionar para a landing
+        // seria redirecionar para uma rota que este mesmo guard nega — o browser aborta com
+        // ERR_TOO_MANY_REDIRECTS e nada explica que faltam papéis. Diz o que houve, com saída.
+        if (destino === null) return semAcesso(user.displayName)
+        return redirect(destino)
       }
       event.locals.user = user
     }

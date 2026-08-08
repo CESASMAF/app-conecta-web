@@ -27,12 +27,18 @@ const posLogout = (): string => `${env.publicBaseUrl}/`
 
 // `id_token_hint` é OBRIGATÓRIO quando se manda `post_logout_redirect_uri`: sem ele o Hydra
 // responde "Logout failed because query parameter post_logout_redirect_uri is set but
-// id_token_hint is missing" (verificado em produção). Sem o id_token guardado — sessão
-// criada antes desta versão, ou refresh que não reemitiu — mandamos o browser para a raiz:
-// o middleware trata quem chega sem sessão e reinicia o OIDC.
+// id_token_hint is missing" (verificado em produção).
+//
+// Sem o hint — sessão criada antes desta versão, ou refresh que não reemitiu o id_token —
+// vamos ao end_session MESMO ASSIM, só que sem o `post_logout_redirect_uri`. O Hydra deriva
+// o subject do próprio cookie de sessão dele e cai no `urls.post_logout_redirect` do
+// hydra.yml. O que NÃO se pode fazer é pular o IdP: mandar o browser direto para a raiz
+// deixa Hydra e Kratos de pé, o /authorize seguinte faz `skip` e o usuário volta logado —
+// exatamente o bug que esta rota existe para corrigir, e que atingiria TODA sessão já viva
+// no Redis no momento do deploy.
 export function buildLogoutRedirect(idToken: string | undefined): string {
-  if (!idToken) return posLogout()
   const u = new URL(oidcEndpoints.endSession)
+  if (!idToken) return u.toString()
   u.searchParams.set('id_token_hint', idToken)
   u.searchParams.set('post_logout_redirect_uri', posLogout())
   return u.toString()

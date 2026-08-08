@@ -226,6 +226,13 @@ export const card = style({
 export const lifecycle = style({ display: 'flex', flexWrap: 'wrap', gap: vars.space.sm, alignItems: 'flex-start' })
 
 const btn = {
+  // inline-flex + gap não é cosmético: sem eles o `<span>` do spinner fica `display: inline`,
+  // onde width/height são ignorados, e o anel de 14px vira um risco de 4px colado no texto.
+  // O botão do prontuário não herda o `btnBase` do kit, então precisa declarar aqui.
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: vars.space.sm,
   height: '40px',
   padding: `0 ${vars.space.lg}`,
   borderRadius: vars.radius.md,

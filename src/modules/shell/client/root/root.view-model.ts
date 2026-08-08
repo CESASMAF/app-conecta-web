@@ -68,9 +68,14 @@ export const rootViewModel = {
   isActive: (path: string, href: string): boolean =>
     href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`),
   // Destino padrão ao entrar: a primeira área visível ao papel do usuário (Inc 1 → Pacientes p/ worker).
-  landingHref: (groups: readonly string[] | undefined): string => {
+  //
+  // `null` quando NENHUMA área é acessível. O fallback antigo (`?? '/patients'`) devolvia uma
+  // rota que o próprio guard nega em seguida, e o middleware redirecionava para ela de novo:
+  // um usuário sem papel nenhum (identidade provisionada antes da atribuição) batia em
+  // ERR_TOO_MANY_REDIRECTS em toda área, sem erro e sem log. Quem chama decide o que fazer —
+  // não existe destino seguro para inventar aqui.
+  landingHref: (groups: readonly string[] | undefined): string | null => {
     const g = asGroups(groups)
-    const first = MENU.find((item) => !item.requiredGroup || hasGroup(g, item.requiredGroup))
-    return first?.href ?? '/patients'
+    return MENU.find((item) => !item.requiredGroup || hasGroup(g, item.requiredGroup))?.href ?? null
   },
 }

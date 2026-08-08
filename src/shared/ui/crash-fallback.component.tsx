@@ -8,13 +8,13 @@
 //
 // A boundary não conserta o bug — ela impede que um bug de uma tela vire uma sessão perdida.
 import { Show } from 'solid-js'
+import { revalidate } from '@solidjs/router'
 import * as s from './crash-fallback.css'
 import { btn } from './kit.css'
 
 export type CrashFallbackProps = Readonly<{
   error: unknown
-  // Re-renderiza a subárvore. Resolve o caso comum (estado transitório de revalidação);
-  // quando não resolve, o usuário ainda tem "recarregar".
+  // `reset` do ErrorBoundary: limpa o erro e re-renderiza a subárvore.
   reset: () => void
 }>
 
@@ -27,11 +27,20 @@ export function CrashFallback(props: CrashFallbackProps) {
       <div class={s.card} role="alert">
         <h1 class={s.title}>Algo quebrou nesta tela</h1>
         <p class={s.body}>
-          O erro foi contido aqui — sua sessão continua ativa e nada do que você já salvou se perdeu. Tente de novo; se
-          repetir, recarregue a página.
+          O erro foi contido aqui — sua sessão continua ativa e nada do que você já salvou se perdeu.
         </p>
         <div class={s.actions}>
-          <button type="button" class={btn.primary} onClick={() => props.reset()}>
+          {/* `reset()` sozinho só limpa o erro e re-renderiza: se o que lançou foi a LEITURA de
+              um recurso que já está em estado de erro, ele lança de novo no mesmo instante e a
+              tela de crash volta — quantas vezes se clique. Revalidar primeiro dá ao recurso a
+              chance de buscar de novo, e é o que faz o botão significar o que promete. */}
+          <button
+            type="button"
+            class={btn.primary}
+            onClick={() => {
+              void revalidate(undefined).finally(() => props.reset())
+            }}
+          >
             Tentar novamente
           </button>
           <button type="button" class={btn.ghost} onClick={() => window.location.reload()}>
