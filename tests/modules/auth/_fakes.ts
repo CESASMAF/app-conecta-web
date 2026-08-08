@@ -57,7 +57,7 @@ export const stubPeopleContext: PeopleContextClient = {
     ok({ id: 'p1', fullName: '', birthDate: '2000-01-01', active: true, cpf: null, email: null, hasLogin: false }),
   getRoles: async () => ok([]),
   listRoles: async () => ok([]),
-  createPerson: async () => ok({ id: 'person-1', idpProvisioned: true }),
+  createPerson: async () => ok({ id: 'person-1', idpProvisioned: true, alreadyExisted: false }),
   updatePerson: async () => ok(undefined),
   deactivatePerson: async () => ok(undefined),
   reactivatePerson: async () => ok(undefined),

@@ -9,6 +9,9 @@ export type SessionId = string & { readonly __brand: 'SessionId' }
 export type Session = Readonly<{
   sessionId: SessionId
   idpSub: string
+  // Nome do claim `name` do id_token. Sem guardar aqui, `toAuthenticatedUser` devolvia sempre null e
+  // a shell caia no fallback `userId` — o usuario logado aparecia como UUID no rodape do menu.
+  displayName: string | null
   accessToken: string
   refreshToken: string
   groups: readonly string[]

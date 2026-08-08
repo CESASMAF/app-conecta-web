@@ -10,6 +10,7 @@ const baseSession = (over: Partial<Session> = {}): Session => {
   return {
     sessionId: crypto.randomUUID() as SessionId,
     idpSub: 'user-1',
+    displayName: 'Fulana de Teste',
     accessToken: 'at',
     refreshToken: 'rt',
     groups: ['worker'],
