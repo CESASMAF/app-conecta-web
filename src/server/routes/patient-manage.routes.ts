@@ -14,8 +14,15 @@ import { composeAddFamilyMember, type AddFamilyMemberCommand } from '~/server/co
 
 const readSid = (raw: unknown): string | undefined => (typeof raw === 'string' ? raw : undefined)
 const now = () => new Date().toISOString()
-const DISCHARGE_REASONS = ['improved', 'deceased', 'transferred', 'abandoned', 'other']
-const WITHDRAW_REASONS = ['refused_service', 'moved_location', 'other']
+// Espelham os enums `DischargeReason`/`WithdrawReason` do social-care. Antes divergiam: o BFF
+// validava um vocabulario que o dominio nao conhecia e so deixava passar `other`.
+const DISCHARGE_REASONS = [
+  'caseObjectiveAchieved', 'transferredToAnotherService', 'patientRequestedDischarge',
+  'lossOfContact', 'relocation', 'death', 'other',
+]
+const WITHDRAW_REASONS = [
+  'patientDeclined', 'noResponse', 'duplicateRecord', 'ineligible', 'transferredBeforeAdmit', 'other',
+]
 
 // Identidade da pessoa criada nos bastidores no cadastro orquestrado (caminho `person`). O passo 1 do
 // wizard preenche estes campos; o BFF cria a pessoa (people-context) e deriva o personalData do paciente.

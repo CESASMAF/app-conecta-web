@@ -109,7 +109,7 @@ describe('Pacientes · ciclo de vida (mutação devolve view-state)', () => {
     const fake = catalogFake()
     const app = makeApp(fake)
     const cookie = await driveSession(app)
-    const res = await MUT(app, 'POST', '/api/patients/p1/discharge', cookie, true, { reason: 'improved' })
+    const res = await MUT(app, 'POST', '/api/patients/p1/discharge', cookie, true, { reason: 'caseObjectiveAchieved' })
     expect(res.status).toBe(200)
     expect(fake.calls.commands).toContain('discharge')
   })
