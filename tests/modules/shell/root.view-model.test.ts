@@ -34,3 +34,35 @@ describe('rootViewModel (puro)', () => {
     expect(rootViewModel.isActive('/peopleX', '/people')).toBe(false)
   })
 })
+
+// Em produção (2026-08-08) o shell recebeu, durante a revalidação disparada por uma mutação
+// que falhou, um objeto SEM `groups` — `groups.includes` lançou e a TELA INTEIRA virou
+// "Uncaught Client Exception". Estas funções rodam dentro do render: lançar aqui não é um
+// menu errado, é o documento no chão. Na dúvida mostram MENOS, nunca mais; quem autoriza
+// de verdade é o backend.
+describe('rootViewModel — groups ausente não pode derrubar o render', () => {
+  const ausentes = [undefined, null] as const
+
+  test('visibleMenu não lança e esconde o que exige papel', () => {
+    for (const g of ausentes) {
+      const menu = rootViewModel.visibleMenu(g as unknown as readonly string[])
+      expect(menu).toEqual([])
+    }
+  })
+
+  test('canAccess nega o que exige papel e libera o que não exige', () => {
+    for (const g of ausentes) {
+      const groups = g as unknown as readonly string[]
+      expect(rootViewModel.canAccess(groups, 'admin')).toBe(false)
+      expect(rootViewModel.canAccess(groups, undefined)).toBe(true)
+    }
+  })
+
+  test('roleLabel e landingHref caem no default em vez de lançar', () => {
+    for (const g of ausentes) {
+      const groups = g as unknown as readonly string[]
+      expect(rootViewModel.roleLabel(groups)).toBe('Usuário')
+      expect(rootViewModel.landingHref(groups)).toBe('/patients')
+    }
+  })
+})
