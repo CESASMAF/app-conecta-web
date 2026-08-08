@@ -114,7 +114,15 @@ export const panel = style([
 ])
 
 export const actions = style({ display: 'flex', justifyContent: 'flex-end', gap: vars.space.sm, marginTop: vars.space.sm })
-export const rowActions = style({ display: 'flex', gap: vars.space.sm, flexWrap: 'wrap' })
+export const rowActions = style({ display: 'flex', gap: vars.space.sm, flexWrap: 'wrap', alignItems: 'center' })
+
+// Pergunta da confirmacao em dois passos (desativar / redefinir senha) — fica na propria linha de
+// acoes, nomeando a pessoa, para que "Confirmar" nunca seja um sim no escuro.
+export const confirmText = style({
+  fontSize: vars.text.sm,
+  color: vars.color.text.primary,
+  fontWeight: vars.weight.bold,
+})
 
 export const btnPrimary = style([btn.gradient, { textDecoration: 'none' }])
 export const btnGhost = style([btn.ghost, { textDecoration: 'none' }])

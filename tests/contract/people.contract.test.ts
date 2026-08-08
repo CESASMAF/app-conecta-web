@@ -100,7 +100,7 @@ describe('Pessoas · escrita — política X-Actor-Id + CSRF', () => {
   })
 
   test('POST /people com IdP não provisionado (207) → meta.warning honesto', async () => {
-    const fake = makeFakePeople({ create: async () => ok({ id: 'person-9', idpProvisioned: false }) })
+    const fake = makeFakePeople({ create: async () => ok({ id: 'person-9', idpProvisioned: false, alreadyExisted: false }) })
     const { app } = pplApp(['worker'], fake)
     const cookie = await driveSession(app)
     const body = await (await MUT(app, 'POST', '/api/people', cookie, true, VALID)).json()

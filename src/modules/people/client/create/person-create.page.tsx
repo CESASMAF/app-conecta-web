@@ -23,6 +23,20 @@ export function PersonCreatePage() {
 
       <Show when={b.submitErrorTag()}>{(tag) => <div class={s.errorBanner} role="alert">{tpe(tag())}</div>}</Show>
 
+      {/* CPF ja cadastrado: NADA foi criado e o cadastro nao prossegue em silencio. Dizemos de quem
+          e a ficha e deixamos a escolha — abrir a existente ou corrigir o CPF e tentar de novo. */}
+      <Show when={b.duplicate()}>
+        {(d) => (
+          <div class={s.errorBanner} role="alert">
+            Este CPF já pertence a {d().name ?? 'uma pessoa cadastrada'}. Nada foi criado.{' '}
+            <button type="button" class={s.linkBtn} onClick={() => b.openDuplicate()}>
+              Abrir a ficha dela
+            </button>{' '}
+            ou corrija o CPF para cadastrar outra pessoa.
+          </div>
+        )}
+      </Show>
+
       <div class={s.form}>
         <TextField label="Nome completo" value={b.form.fullName} onInput={(v) => b.set({ fullName: v })} error={err('fullName')} autocomplete="name" />
         <TextField label="Data de nascimento" type="date" value={b.form.birthDate} onInput={(v) => b.set({ birthDate: v })} error={err('birthDate')} />

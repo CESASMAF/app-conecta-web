@@ -39,7 +39,14 @@ export type CreatePersonInput = Readonly<{
 }>
 export type UpdatePersonInput = Readonly<{ fullName: string; birthDate: string; cpf?: string; email?: string }>
 export type ProvisionLoginInput = Readonly<{ email?: string; initialPassword?: string }>
-export type CreatePersonResult = Readonly<{ id: string; idpProvisioned: boolean }> // 207 = criado, IdP falhou
+// 207 = criado, IdP falhou. `alreadyExisted` = o CPF ja pertencia a alguem e o upstream devolveu
+// ESSA pessoa (200, idempotencia por CPF) — nada foi criado e os dados digitados foram descartados.
+export type CreatePersonResult = Readonly<{
+  id: string
+  idpProvisioned: boolean
+  alreadyExisted: boolean
+  existingName?: string
+}>
 export type Role = Readonly<{
   id: string
   personId: string
@@ -181,7 +188,16 @@ export function createPeopleContextClient(baseUrl: string = env.peopleContextUrl
     async createPerson(token, actorId, input) {
       const r = await request(baseUrl, { method: 'POST', token, actorId, path: '/api/v1/people', body: input })
       if (!r.ok) return r
-      return ok({ id: dataOf<{ id: string }>(r.value.body).id, idpProvisioned: r.value.status !== 207 })
+      const d = dataOf<{ id: string; alreadyExisted?: boolean; fullName?: string }>(r.value.body)
+      // 200 (em vez de 201) = o upstream reusou uma pessoa existente por CPF; `alreadyExisted`
+      // confirma. Projecao explicita: so o nome atravessa, para a tela poder dizer DE QUEM e a ficha.
+      const alreadyExisted = d.alreadyExisted === true || r.value.status === 200
+      return ok({
+        id: d.id,
+        idpProvisioned: r.value.status !== 207,
+        alreadyExisted,
+        ...(alreadyExisted && d.fullName ? { existingName: d.fullName } : {}),
+      })
     },
 
     async updatePerson(token, actorId, personId, input) {

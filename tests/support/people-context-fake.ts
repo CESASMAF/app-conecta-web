@@ -62,7 +62,7 @@ export function makeFakePeople(cfg: PeopleFakeConfig = {}): PeopleContextClient 
     },
     async createPerson(token, actor, input) {
       mutate(token, actor)
-      return cfg.create ? cfg.create(token, actor, input) : ok({ id: 'person-1', idpProvisioned: true })
+      return cfg.create ? cfg.create(token, actor, input) : ok({ id: 'person-1', idpProvisioned: true, alreadyExisted: false })
     },
     async updatePerson(token, actor) {
       mutate(token, actor)

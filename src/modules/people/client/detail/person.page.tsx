@@ -37,6 +37,11 @@ function initials(name: string): string {
 export function PersonDetailPage() {
   const b = usePersonBinding()
   const [editing, setEditing] = createSignal(false)
+  // Desativar e redefinir senha executavam no PRIMEIRO clique. As duas tem efeito para fora da tela
+  // (a pessoa perde acesso; o reset publica evento e dispara e-mail para alguem real) e nao havia
+  // como voltar atras — um clique acidental ja bastava. Confirmacao em dois passos, na propria
+  // linha de acoes (sem `confirm()` nativo, que bloqueia a pagina).
+  const [confirming, setConfirming] = createSignal<'deactivate' | 'reset' | null>(null)
   const [assigning, setAssigning] = createSignal(false)
 
   return (
@@ -126,13 +131,28 @@ export function PersonDetailPage() {
 
               {/* Ações de acesso */}
               <div class={s.rowActions}>
+                {/* Reativar nao pede confirmacao: devolve acesso, nao tira. */}
                 <Show when={d().active} fallback={
                   <button type="button" class={s.btnPrimary} disabled={b.busy()} onClick={() => void b.setActive(true)}>Reativar</button>
                 }>
-                  <button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => void b.setActive(false)}>Desativar</button>
+                  <Show
+                    when={confirming() === 'deactivate'}
+                    fallback={<button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => setConfirming('deactivate')}>Desativar</button>}
+                  >
+                    <span class={s.confirmText}>Desativar {d().fullName}? A pessoa perde o acesso.</span>
+                    <button type="button" class={s.btnPrimary} disabled={b.busy()} onClick={() => { setConfirming(null); void b.setActive(false) }}>Confirmar</button>
+                    <button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => setConfirming(null)}>Cancelar</button>
+                  </Show>
                 </Show>
-                <button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => void b.requestPasswordReset()}>Redefinir senha</button>
-                <Show when={!editing()}>
+                <Show
+                  when={confirming() === 'reset'}
+                  fallback={<button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => setConfirming('reset')}>Redefinir senha</button>}
+                >
+                  <span class={s.confirmText}>Enviar redefinição de senha para {d().fullName}?</span>
+                  <button type="button" class={s.btnPrimary} disabled={b.busy()} onClick={() => { setConfirming(null); void b.requestPasswordReset() }}>Confirmar</button>
+                  <button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => setConfirming(null)}>Cancelar</button>
+                </Show>
+                <Show when={!editing() && confirming() === null}>
                   <button type="button" class={s.linkBtn} onClick={() => setEditing(true)}>Editar dados</button>
                 </Show>
               </div>
