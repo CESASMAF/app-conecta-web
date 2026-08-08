@@ -2,9 +2,10 @@
 // estado do login flow do Kratos: carregando · form (e-mail/senha, postando direto no Kratos) · expirado.
 // O app é a UI do Kratos: o form posta em `flow.action` com o `csrf_token` do flow (Authorization Code
 // segue no Hydra por trás). Estado local só de UI (mostrar senha).
-import { Show, Switch, Match, For, createSignal, onMount, onCleanup, type JSX } from 'solid-js'
+import { Show, Switch, Match, For, createSignal, type JSX } from 'solid-js'
 import type { LoginFlowResult, LoginFlowView } from '~/shared/domain/login-flow'
 import { Icon, P, BrandPanel } from '../auth-visuals'
+import { useSubmitLock } from '~/shared/ui/use-submit-lock'
 import { btnSpinner } from '~/shared/ui/kit.css'
 import * as s from './login-card.css'
 
@@ -27,21 +28,14 @@ function LoginForm(props: { view: LoginFlowView; errorMessage: string | null }):
   //
   // Guardamos o `method` (e não um booleano) porque há vários submit no mesmo form —
   // senha, código por e-mail, TOTP — e o spinner tem que ficar no que foi clicado.
-  const [sending, setSending] = createSignal<string | null>(null)
+  // A trava se desfaz sozinha quando a navegação não acontece — bfcache, submit abortado pela
+  // CSP ou falha sem redirect. Sem isso o botão fica preso para sempre (ver use-submit-lock).
+  const envio = useSubmitLock<string>()
+  const sending = envio.emEnvio
   const onSubmit = (e: SubmitEvent): void => {
     const method = (e.submitter as HTMLButtonElement | null)?.value
-    setSending(method ?? 'password')
+    envio.travar(method ?? 'password')
   }
-  // O bfcache do navegador restaura a página exatamente como saiu: se a pessoa volta
-  // (botão Voltar), o form reaparece com o botão travado em "Entrando…" para sempre.
-  // `pageshow` com `persisted` é o único evento que dispara nessa restauração.
-  onMount(() => {
-    const reset = (e: PageTransitionEvent): void => {
-      if (e.persisted) setSending(null)
-    }
-    window.addEventListener('pageshow', reset)
-    onCleanup(() => window.removeEventListener('pageshow', reset))
-  })
 
   return (
     <>

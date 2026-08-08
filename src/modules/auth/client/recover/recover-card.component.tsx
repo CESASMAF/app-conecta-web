@@ -1,8 +1,9 @@
 // Tela de recuperação de senha (ADR-0009) — recovery flow do Kratos (2 fases: e-mail → código).
 // Reusa a identidade e o CSS da tela de login. O form posta direto no Kratos (flow.action).
-import { Show, Switch, Match, For, createSignal, onMount, onCleanup, type JSX } from 'solid-js'
+import { Show, Switch, Match, For, type JSX } from 'solid-js'
 import type { RecoveryFlowResult, RecoveryFlowView } from '~/shared/domain/login-flow'
 import { Icon, P, BrandPanel } from '../auth-visuals'
+import { useSubmitLock } from '~/shared/ui/use-submit-lock'
 import { btnSpinner } from '~/shared/ui/kit.css'
 import * as s from '../login/login-card.css'
 
@@ -15,15 +16,10 @@ function RecoverForm(props: { view: RecoveryFlowView }): JSX.Element {
   // O form posta nativamente no Kratos e a resposta é uma navegação. Aqui o envio ainda
   // dispara um e-mail pelo courier, então demora mais que um POST comum — é exatamente
   // onde a pessoa reclica achando que não foi, e cada reclique manda outro código.
-  const [sending, setSending] = createSignal(false)
-  onMount(() => {
-    // bfcache: voltar para cá restauraria o botão travado em "Enviando…" (ver login-card).
-    const reset = (e: PageTransitionEvent): void => {
-      if (e.persisted) setSending(false)
-    }
-    window.addEventListener('pageshow', reset)
-    onCleanup(() => window.removeEventListener('pageshow', reset))
-  })
+  // A trava se desfaz sozinha quando a navegação não acontece — senão o erro do Kratos deixaria
+  // a pessoa presa na tela, sem conseguir tentar de novo (ver use-submit-lock).
+  const envio = useSubmitLock()
+  const sending = (): boolean => envio.emEnvio() !== null
   return (
     <>
       <a class={s.backLink} href="/login"><Icon d={P.back} size={16} /> Voltar ao login</a>
@@ -37,7 +33,7 @@ function RecoverForm(props: { view: RecoveryFlowView }): JSX.Element {
 
       <For each={errors()}>{(m) => <div class={s.errorBox} role="alert">{m.text}</div>}</For>
 
-      <form action={props.view.action} method="post" onSubmit={() => setSending(true)}>
+      <form action={props.view.action} method="post" onSubmit={() => envio.travar(true)}>
         <input type="hidden" name="csrf_token" value={props.view.csrfToken} />
         <input type="hidden" name="method" value="code" />
 
