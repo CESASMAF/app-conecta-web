@@ -5,6 +5,7 @@
 import type { AppDeps } from '~/server/deps'
 import { ok, isErr, type Result } from '~/shared/http/result'
 import type { AppError } from '~/shared/http/app-error'
+import { toIso8601 } from '~/shared/date'
 
 type MemberPerson = Readonly<{ fullName: string; birthDate: string; cpf?: string }>
 
@@ -47,6 +48,12 @@ export async function composeAddFamilyMember(
     birthDate = cmd.birthDate ?? ''
   }
 
+  // Os dois upstreams querem o MESMO campo em formatos OPOSTOS: o people-context valida `birthDate`
+  // como `format: date` (`yyyy-mm-dd`, senao PEO-001) e o social-care decodifica `TimeStamp` como
+  // ISO8601 completo (senao HTTP-400). Mandar o mesmo valor para os dois tornava o formulario
+  // IMPOSSIVEL de completar em qualquer formato — e, pior, a pessoa ja tinha sido criada no passo
+  // anterior, entao cada tentativa deixava uma pessoa ORFA no cadastro enquanto a tela dizia so
+  // "Dados invalidos". Converte na fronteira de quem exige ISO, mantendo cru para o outro.
   const r = await deps.socialCare.addFamilyMember(token, patientId, {
     memberPersonId,
     relationship: cmd.relationship ?? cmd.prRelationshipId, // o select de parentesco preenche ambos
@@ -54,7 +61,7 @@ export async function composeAddFamilyMember(
     isCaregiver: cmd.isCaregiver,
     hasDisability: cmd.hasDisability ?? false,
     requiredDocuments: cmd.requiredDocuments ?? [],
-    birthDate,
+    birthDate: toIso8601(birthDate),
     prRelationshipId: cmd.prRelationshipId,
   })
   if (isErr(r)) return r
