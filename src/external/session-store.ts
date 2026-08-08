@@ -14,6 +14,12 @@ export type Session = Readonly<{
   displayName: string | null
   accessToken: string
   refreshToken: string
+  // `id_token_hint` do RP-initiated logout. Sem ele o Hydra RECUSA um logout que traga
+  // `post_logout_redirect_uri` ("Logout failed because query parameter
+  // post_logout_redirect_uri is set but id_token_hint is missing" — verificado em produção),
+  // e sem encerrar a sessão do Hydra o `/authorize` seguinte faz `skip` e reloga o usuário.
+  // Opcional no tipo porque sessões criadas antes desta versão não têm o campo no Redis.
+  idToken?: string
   groups: readonly string[]
   createdAt: string
   lastSeenAt: string
@@ -22,7 +28,9 @@ export type Session = Readonly<{
   persistent: boolean
 }>
 
-export type SessionPatch = Partial<Pick<Session, 'lastSeenAt' | 'accessToken' | 'refreshToken' | 'accessExpiresAt'>>
+export type SessionPatch = Partial<
+  Pick<Session, 'lastSeenAt' | 'accessToken' | 'refreshToken' | 'accessExpiresAt' | 'idToken'>
+>
 
 export interface SessionStore {
   create(session: Session, ttlSeconds: number): Promise<void>
