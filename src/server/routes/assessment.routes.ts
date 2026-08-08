@@ -8,6 +8,7 @@ import { requireSession } from '~/modules/auth/server/guard'
 import { SESSION_COOKIE } from '~/server/session'
 import { isErr } from '~/shared/http/result'
 import { statusForKind, errorBody } from '~/server/routes/error-response'
+import { toIso8601 } from '~/shared/date'
 import type { AssessmentSection } from '~/external/social-care-client'
 
 const readSid = (raw: unknown): string | undefined => (typeof raw === 'string' ? raw : undefined)
@@ -200,7 +201,13 @@ export function assessmentRoutes(deps: AppDeps) {
           set.status = 401
           return { error: { code: 'AUTH-001', message: 'unauthorized', requestId } }
         }
-        return forward(session.accessToken, params.patientId, 'educational-status', body, set, requestId)
+        // O <input type=date> manda 'yyyy-mm-dd'; o social-care exige ISO8601 completo (mesma
+        // traducao do cadastro de paciente e do atendimento — ver shared/date).
+        const payload = {
+          ...body,
+          programOccurrences: body.programOccurrences.map((o) => ({ ...o, date: toIso8601(o.date) })),
+        }
+        return forward(session.accessToken, params.patientId, 'educational-status', payload, set, requestId)
       },
       { body: SCHEMAS['educational-status'] },
     )
