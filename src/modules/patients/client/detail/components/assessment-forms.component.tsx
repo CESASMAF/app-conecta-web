@@ -1,7 +1,7 @@
 // Formulários das 4 seções planas da Avaliação (US4): Moradia, Socioeconômico, Rede de apoio e Resumo
 // social-sanitário. Views com estado de UI próprio (form local) e validação por seção ANTES de salvar.
 // Os selects de moradia usam enums de CONTRATO (opções fixas); benefício usa catálogo de domínio.
-import { Show, For, createSignal, createMemo } from 'solid-js'
+import { Show, For, Index, createSignal, createMemo } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { tp } from '~/shared/i18n/patients'
 import { TextField, SelectField, CheckboxField } from '~/shared/ui/field.component'
@@ -236,16 +236,19 @@ export function SummarySectionForm(props: {
           + item
         </button>
       </div>
-      <For each={form.functionalDependencies}>
+      {/* Index, nao For: a lista e de STRINGS e o For chaveia pelo VALOR do item — a cada tecla o
+          item "M" vira "Me", o For considera outro item, destroi o input e o campo PERDE O FOCO
+          (so entrava uma letra por clique). O Index chaveia pela posicao, que aqui e o que importa. */}
+      <Index each={form.functionalDependencies}>
         {(dep, i) => (
           <div class={s.subRow}>
-            <TextField label={`Dependência ${i() + 1}`} value={dep} onInput={(v) => setForm('functionalDependencies', i(), v)} placeholder="Ex.: locomoção" />
-            <button type="button" class={s.dangerLink} onClick={() => setForm('functionalDependencies', (arr) => arr.filter((_, idx) => idx !== i()))}>
+            <TextField label={`Dependência ${i + 1}`} value={dep()} onInput={(v) => setForm('functionalDependencies', i, v)} placeholder="Ex.: locomoção" />
+            <button type="button" class={s.dangerLink} onClick={() => setForm('functionalDependencies', (arr) => arr.filter((_, idx) => idx !== i))}>
               remover
             </button>
           </div>
         )}
-      </For>
+      </Index>
       <FormActions busy={props.busy} onCancel={props.onCancel} onSave={() => void props.onSave(toSummaryInput(form))} />
     </div>
   )
@@ -482,16 +485,18 @@ export function HealthSectionForm(props: {
           + item
         </button>
       </div>
-      <For each={form.constantCareNeeds}>
+      {/* Index, nao For — mesma razao da lista de dependencias funcionais: chavear string por valor
+          destroi o input a cada tecla. */}
+      <Index each={form.constantCareNeeds}>
         {(need, i) => (
           <div class={s.subRow}>
-            <TextField label={`Item ${i() + 1}`} value={need} onInput={(v) => setForm('constantCareNeeds', i(), v)} placeholder="Ex.: medicação contínua" />
-            <button type="button" class={s.dangerLink} onClick={() => setForm('constantCareNeeds', (a) => a.filter((_, idx) => idx !== i()))}>
+            <TextField label={`Item ${i + 1}`} value={need()} onInput={(v) => setForm('constantCareNeeds', i, v)} placeholder="Ex.: medicação contínua" />
+            <button type="button" class={s.dangerLink} onClick={() => setForm('constantCareNeeds', (a) => a.filter((_, idx) => idx !== i))}>
               remover
             </button>
           </div>
         )}
-      </For>
+      </Index>
       <FormActions busy={props.busy} onCancel={props.onCancel} onSave={() => void submit()} />
     </div>
   )
