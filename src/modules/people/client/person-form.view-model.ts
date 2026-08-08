@@ -18,6 +18,23 @@ export const COMMON_ROLES = [
   { value: 'superadmin', label: 'Superadmin' },
 ] as const
 
+// A tela oferecia TODOS os sistemas e ate "Superadmin" a qualquer admin; o backend recusava e o
+// usuario so descobria depois do clique ("Voce nao tem permissao para esta acao"). Espelha as regras
+// de svc-people-context/src/routes/roles.ts:
+//   ROL-006 — so superadmin atribui "superadmin"
+//   ROL-007 — os demais so atribuem nos sistemas onde tem `<sistema>:admin`
+// ROL-008 (auto-atribuicao) fica so no backend: depende do idpUserId da pessoa alvo, que a ficha
+// nao expoe de proposito (PII na fronteira).
+const isSuperadmin = (groups: readonly string[]): boolean => groups.includes('superadmin')
+const adminSystems = (groups: readonly string[]): readonly string[] =>
+  groups.filter((g) => g.endsWith(':admin')).map((g) => g.slice(0, g.lastIndexOf(':')))
+
+export const assignableSystems = (groups: readonly string[]): readonly { value: string; label: string }[] =>
+  isSuperadmin(groups) ? [...ROLE_SYSTEMS] : ROLE_SYSTEMS.filter((s) => adminSystems(groups).includes(s.value))
+
+export const assignableRoles = (groups: readonly string[]): readonly { value: string; label: string }[] =>
+  isSuperadmin(groups) ? [...COMMON_ROLES] : COMMON_ROLES.filter((r) => r.value !== 'superadmin')
+
 const isIsoDate = (s: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(s)
 const isEmail = (s: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)
 

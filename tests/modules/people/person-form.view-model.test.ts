@@ -1,6 +1,8 @@
 // ViewModel da área de Pessoas (puro) — validação de criar/editar/atribuir papel e montagem dos corpos.
 import { test, expect, describe } from 'bun:test'
 import {
+  assignableSystems,
+  assignableRoles,
   emptyPerson,
   validatePersonCreate,
   validatePersonEdit,
@@ -60,5 +62,34 @@ describe('pessoas · atribuir papel', () => {
   test('exige system e role; toAssignRoleBody monta', () => {
     expect(validateAssignRole(emptyAssignRole()).system).toBe('people.field.required')
     expect(toAssignRoleBody({ system: 'social-care', role: 'worker' })).toEqual({ system: 'social-care', role: 'worker' })
+  })
+})
+
+// Espelha as regras de svc-people-context/src/routes/roles.ts (ROL-006/ROL-007). A tela oferecia
+// TODOS os sistemas e "Superadmin" a qualquer admin — o backend recusava e o usuario so descobria
+// depois do clique. Se estas regras mudarem no backend, estes testes devem quebrar junto.
+describe('pessoas · o que cada usuario pode atribuir', () => {
+  test('superadmin oferece todos os sistemas e todos os papeis', () => {
+    const g = ['superadmin']
+    expect(assignableSystems(g).map((s) => s.value)).toEqual(['social-care', 'people-context', 'analysis-bi'])
+    expect(assignableRoles(g).some((r) => r.value === 'superadmin')).toBe(true)
+  })
+
+  test('admin NAO oferece superadmin (ROL-006)', () => {
+    const g = ['social-care:admin', 'people-context:admin', 'analysis-bi:admin']
+    expect(assignableRoles(g).some((r) => r.value === 'superadmin')).toBe(false)
+    expect(assignableRoles(g)).toHaveLength(5)
+  })
+
+  test('admin so oferece os sistemas onde e admin (ROL-007)', () => {
+    expect(assignableSystems(['social-care:admin']).map((s) => s.value)).toEqual(['social-care'])
+  })
+
+  test('worker nao administra nada: nenhum sistema oferecido', () => {
+    expect(assignableSystems(['social-care:worker'])).toHaveLength(0)
+  })
+
+  test('`:owner` nao habilita atribuicao — so `:admin` conta, como no backend', () => {
+    expect(assignableSystems(['social-care:owner'])).toHaveLength(0)
   })
 })
