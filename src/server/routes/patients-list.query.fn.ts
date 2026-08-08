@@ -7,6 +7,7 @@ import { SESSION_COOKIE } from '~/server/session'
 import { isErr } from '~/shared/http/result'
 import { statusForKind, errorBody } from '~/server/routes/error-response'
 import type { PatientListParams } from '~/external/social-care-client'
+import { isPatientStatus } from '~/shared/domain/patient'
 
 export function patientsListRoute(deps: AppDeps) {
   return new Elysia().get(
@@ -24,6 +25,14 @@ export function patientsListRoute(deps: AppDeps) {
       if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
         set.status = 400
         return { error: { code: 'PAG-001', message: 'limit', requestId } }
+      }
+      // `status` vem da query string, então é string livre até prova em contrário. Aceitar
+      // qualquer coisa aqui foi o que deixou `ACTIVE` (a caixa do app) atravessar até o
+      // upstream, que fala minúsculo e responde 422 QLP-003. O filtro inválido agora morre na
+      // borda, com erro que diz o que houve — e o adapter traduz a caixa na saída.
+      if (query.status !== undefined && !isPatientStatus(query.status)) {
+        set.status = 400
+        return { error: { code: 'PAT-STATUS', message: 'status', requestId } }
       }
       const params: PatientListParams = {
         limit,

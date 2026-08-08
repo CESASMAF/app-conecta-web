@@ -17,7 +17,9 @@ const TIMEOUT_MS = 8_000
 
 export type PatientListParams = Readonly<{
   search?: string
-  status?: string
+  // Tipado, não `string` livre: era o `string` que deixava o valor do app (MAIÚSCULO) chegar
+  // cru na query string do upstream (que fala minúsculo) sem ninguém reparar.
+  status?: PatientStatus
   limit: number
   cursor?: string
 }>
@@ -296,8 +298,25 @@ async function createVia(baseUrl: string, token: string, path: string, body: unk
   return ok({ id: (b as StandardResponse<{ id: string }>).data.id })
 }
 
-// Normaliza o status do agregado (lowercase no backend) para o enum do app (UPPERCASE).
-function normStatus(raw: string): PatientStatus {
+// ─── Situação do paciente: as duas pontas da tradução ───────────
+//
+// O social-care fala minúsculo (`waitlisted|active|discharged`); o app fala MAIÚSCULO. Traduzir
+// é papel deste adapter — é a fronteira (ADR-0010).
+//
+// Existia só a metade da VOLTA. A IDA mandava o valor do app cru, então filtrar por situação
+// enviava `status=ACTIVE` e o upstream respondia 422 `QLP-003` ("Valores aceitos: waitlisted,
+// active, discharged"). O select de situação nunca funcionou — nem por SPA, nem por documento.
+//
+// As duas funções existem em par de propósito: tradução que só cobre um sentido é o defeito
+// mais recorrente deste produto, e um par nomeado deixa a falta óbvia na leitura.
+
+/** app → upstream. Usada em toda query string que carrega situação. */
+function toUpstreamStatus(s: PatientStatus): string {
+  return s.toLowerCase()
+}
+
+/** upstream → app. */
+function fromUpstreamStatus(raw: string): PatientStatus {
   return raw.toUpperCase() as PatientStatus
 }
 
@@ -310,7 +329,7 @@ export function createSocialCareClient(baseUrl: string = env.socialCareUrl): Soc
     async listPatients(token, params) {
       const qs = new URLSearchParams()
       if (params.search) qs.set('search', params.search)
-      if (params.status) qs.set('status', params.status)
+      if (params.status) qs.set('status', toUpstreamStatus(params.status))
       qs.set('limit', String(params.limit))
       if (params.cursor) qs.set('cursor', params.cursor)
       const r = await fetchJson(token, `/api/v1/patients?${qs.toString()}`)
@@ -350,7 +369,7 @@ export function createSocialCareClient(baseUrl: string = env.socialCareUrl): Soc
         patientId: d.patientId,
         personId: d.personId,
         fullName: pd ? `${pd.firstName} ${pd.lastName}`.trim() : '',
-        status: normStatus(d.status),
+        status: fromUpstreamStatus(d.status),
         socialIdentity: d.socialIdentity ?? null,
         familyMembers: d.familyMembers ?? [],
       })

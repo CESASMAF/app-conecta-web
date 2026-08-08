@@ -11,12 +11,12 @@ import type { AvailableTransition, FamilyMemberView, PatientOverview } from '~/s
 // Tipos da view-ready vivem em shared/domain (consumidos pelo client). Re-export p/ compatibilidade.
 export type { LifecycleAction, AvailableTransition, FamilyMemberView, PatientOverview } from '~/shared/domain/patient-overview'
 
+// Três situações — as do domínio do social-care. `Admitido`/`Retirado da fila` saíram daqui:
+// eram nomes de AÇÃO, não estados (admitir → `active`; retirar da fila → `discharged`).
 const STATUS_LABEL: Record<PatientStatus, string> = {
-  ACTIVE: 'Em atendimento',
   WAITLISTED: 'Em fila de espera',
-  ADMITTED: 'Admitido',
+  ACTIVE: 'Em atendimento',
   DISCHARGED: 'Desligado',
-  WITHDRAWN: 'Retirado da fila',
 }
 
 // Transições cabíveis à situação atual (data-model da 003). A UI só renderiza o que vem daqui.

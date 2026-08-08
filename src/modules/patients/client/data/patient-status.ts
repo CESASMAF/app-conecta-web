@@ -3,12 +3,13 @@
 import type { PatientStatus } from '~/shared/domain/patient'
 export { PATIENT_STATUSES, isPatientStatus, type PatientStatus } from '~/shared/domain/patient'
 
+// Só as três situações que o domínio conhece. `Admitido`/`Retirado` eram nomes de AÇÃO
+// aqui dentro: admitir leva a `active`, retirar-da-fila leva a `discharged`. Ver
+// `shared/domain/patient.ts`.
 const LABELS: Readonly<Record<PatientStatus, string>> = {
-  ACTIVE: 'Em atendimento',
   WAITLISTED: 'Em fila',
-  ADMITTED: 'Admitido',
+  ACTIVE: 'Em atendimento',
   DISCHARGED: 'Desligado',
-  WITHDRAWN: 'Retirado',
 }
 
 export const patientStatusLabel = (s: PatientStatus): string => LABELS[s]
@@ -17,10 +18,8 @@ export const patientStatusLabel = (s: PatientStatus): string => LABELS[s]
 // desligado/retirado ficam neutros (Modo Enxuto). Nomes batem com as chaves de `chipStatus`.
 export type PatientStatusVariant = 'acolhido' | 'fila' | 'alta' | 'neutral'
 const VARIANTS: Readonly<Record<PatientStatus, PatientStatusVariant>> = {
-  ACTIVE: 'acolhido',
   WAITLISTED: 'fila',
-  ADMITTED: 'alta',
+  ACTIVE: 'acolhido',
   DISCHARGED: 'neutral',
-  WITHDRAWN: 'neutral',
 }
 export const patientStatusVariant = (s: PatientStatus): PatientStatusVariant => VARIANTS[s]
