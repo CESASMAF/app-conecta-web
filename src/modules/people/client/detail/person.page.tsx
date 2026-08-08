@@ -1,7 +1,8 @@
 // Tela de detalhe da pessoa (Admin/RH): dados + status + ações de acesso (ativar/desativar, redefinir
 // senha) + papéis (atribuir / ativar / desativar) + editar dados. Toda mutação re-lê o estado (binding).
 import { Show, For, createSignal, createMemo } from 'solid-js'
-import { A } from '@solidjs/router'
+import { A, createAsync } from '@solidjs/router'
+import { getCurrentUserFn } from '~/modules/auth/public-api'
 import { createStore } from 'solid-js/store'
 import { usePersonBinding } from './person.binding'
 import { TextField, SelectField } from '~/shared/ui/field.component'
@@ -15,8 +16,8 @@ import {
   emptyAssignRole,
   validateAssignRole,
   toAssignRoleBody,
-  ROLE_SYSTEMS,
-  COMMON_ROLES,
+  assignableSystems,
+  assignableRoles,
   type PersonForm,
   type PersonField,
   type AssignRoleForm,
@@ -37,7 +38,14 @@ function initials(name: string): string {
 export function PersonDetailPage() {
   const b = usePersonBinding()
   const [editing, setEditing] = createSignal(false)
+  // Desativar e redefinir senha executavam no PRIMEIRO clique. As duas tem efeito para fora da tela
+  // (a pessoa perde acesso; o reset publica evento e dispara e-mail para alguem real) e nao havia
+  // como voltar atras — um clique acidental ja bastava. Confirmacao em dois passos, na propria
+  // linha de acoes (sem `confirm()` nativo, que bloqueia a pagina).
+  const [confirming, setConfirming] = createSignal<'deactivate' | 'reset' | null>(null)
   const [assigning, setAssigning] = createSignal(false)
+  // Papeis do usuario LOGADO — decidem o que ele pode oferecer no painel de atribuicao.
+  const currentUser = createAsync(() => getCurrentUserFn())
 
   return (
     <Show when={!b.pending()} fallback={<div class={s.panel}>Carregando…</div>}>
@@ -85,21 +93,69 @@ export function PersonDetailPage() {
                     <span class={s.dlabel}>Nascimento</span>
                     <span class={s.dvalue}>{formatDate(d().birthDate) || '—'}</span>
                   </div>
+                  <div class={s.dfield}>
+                    <span class={s.dlabel}>CPF</span>
+                    <span class={s.dvalue}>{d().cpf || '—'}</span>
+                  </div>
+                  <div class={s.dfield}>
+                    <span class={s.dlabel}>Acesso ao sistema</span>
+                    <span class={s.dvalue}>{d().hasLogin ? 'Sim' : 'Sem acesso'}</span>
+                  </div>
                 </div>
               </div>
+
+              {/* O provisionamento no IdP pode falhar DEPOIS da pessoa ser criada (a rota devolve
+                  207). Antes isso passava em silêncio: a pessoa nascia sem login e ninguém via.
+                  O estado fica visível sempre — não só no instante da criação — e traz o conserto
+                  junto, para quem já nasceu sem acesso. Só oferece quando há e-mail: sem ele o
+                  IdP não tem identificador de login. */}
+              <Show when={!d().hasLogin}>
+                <div class={s.warnBanner}>
+                  Esta pessoa não tem acesso ao sistema.
+                  <Show
+                    when={d().email}
+                    fallback={<> Cadastre um e-mail para poder criar o acesso.</>}
+                  >
+                    {' '}
+                    <button
+                      type="button"
+                      class={s.linkBtn}
+                      disabled={b.busy()}
+                      onClick={() => void b.provisionLogin()}
+                    >
+                      Criar acesso
+                    </button>
+                  </Show>
+                </div>
+              </Show>
 
               <Show when={b.errTag()}>{(t) => <div class={s.errorBanner} role="alert">{tpe(t())}</div>}</Show>
               <Show when={b.info()}>{(m) => <div class={s.warnBanner}>{m()}</div>}</Show>
 
               {/* Ações de acesso */}
               <div class={s.rowActions}>
+                {/* Reativar nao pede confirmacao: devolve acesso, nao tira. */}
                 <Show when={d().active} fallback={
                   <button type="button" class={s.btnPrimary} disabled={b.busy()} onClick={() => void b.setActive(true)}>Reativar</button>
                 }>
-                  <button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => void b.setActive(false)}>Desativar</button>
+                  <Show
+                    when={confirming() === 'deactivate'}
+                    fallback={<button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => setConfirming('deactivate')}>Desativar</button>}
+                  >
+                    <span class={s.confirmText}>Desativar {d().fullName}? A pessoa perde o acesso.</span>
+                    <button type="button" class={s.btnPrimary} disabled={b.busy()} onClick={() => { setConfirming(null); void b.setActive(false) }}>Confirmar</button>
+                    <button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => setConfirming(null)}>Cancelar</button>
+                  </Show>
                 </Show>
-                <button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => void b.requestPasswordReset()}>Redefinir senha</button>
-                <Show when={!editing()}>
+                <Show
+                  when={confirming() === 'reset'}
+                  fallback={<button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => setConfirming('reset')}>Redefinir senha</button>}
+                >
+                  <span class={s.confirmText}>Enviar redefinição de senha para {d().fullName}?</span>
+                  <button type="button" class={s.btnPrimary} disabled={b.busy()} onClick={() => { setConfirming(null); void b.requestPasswordReset() }}>Confirmar</button>
+                  <button type="button" class={s.btnGhost} disabled={b.busy()} onClick={() => setConfirming(null)}>Cancelar</button>
+                </Show>
+                <Show when={!editing() && confirming() === null}>
                   <button type="button" class={s.linkBtn} onClick={() => setEditing(true)}>Editar dados</button>
                 </Show>
               </div>
@@ -117,7 +173,7 @@ export function PersonDetailPage() {
                 </Show>
               </div>
               <Show when={assigning()}>
-                <AssignPanel b={b} onClose={() => setAssigning(false)} />
+                <AssignPanel b={b} onClose={() => setAssigning(false)} groups={currentUser()?.groups ?? []} />
               </Show>
               <Show when={b.roleList().length > 0} fallback={<p class={s.muted}>Nenhum papel atribuído.</p>}>
                 <ul class={s.list}>
@@ -147,7 +203,11 @@ export function PersonDetailPage() {
   )
 }
 
-function EditPanel(props: { b: ReturnType<typeof usePersonBinding>; initial: { fullName: string; birthDate: string }; onClose: () => void }) {
+function EditPanel(props: {
+  b: ReturnType<typeof usePersonBinding>
+  initial: { fullName: string; birthDate: string; cpf: string | null; email: string | null }
+  onClose: () => void
+}) {
   const [form, setForm] = createStore<PersonForm>(personFromOverview(props.initial))
   const [showErr, setShowErr] = createSignal(false)
   const errors = createMemo(() => validatePersonEdit(form, todayIso()))
@@ -179,7 +239,7 @@ function EditPanel(props: { b: ReturnType<typeof usePersonBinding>; initial: { f
   )
 }
 
-function AssignPanel(props: { b: ReturnType<typeof usePersonBinding>; onClose: () => void }) {
+function AssignPanel(props: { b: ReturnType<typeof usePersonBinding>; onClose: () => void; groups: readonly string[] }) {
   const [form, setForm] = createStore<AssignRoleForm>(emptyAssignRole())
   const [showErr, setShowErr] = createSignal(false)
   const errors = createMemo(() => validateAssignRole(form))
@@ -201,8 +261,9 @@ function AssignPanel(props: { b: ReturnType<typeof usePersonBinding>; onClose: (
   }
   return (
     <div class={s.panel}>
-      <SelectField label="Sistema" value={form.system} onChange={(v) => setForm({ system: v })} placeholder="Selecionar…" options={ROLE_SYSTEMS.map((o) => ({ id: o.value, label: o.label }))} error={err('system')} />
-      <SelectField label="Papel" value={form.role} onChange={(v) => setForm({ role: v })} placeholder="Selecionar…" options={COMMON_ROLES.map((o) => ({ id: o.value, label: o.label }))} error={err('role')} />
+      {/* Só o que ESTE usuário pode atribuir — ver assignableSystems/assignableRoles. */}
+      <SelectField label="Sistema" value={form.system} onChange={(v) => setForm({ system: v })} placeholder="Selecionar…" options={assignableSystems(props.groups).map((o) => ({ id: o.value, label: o.label }))} error={err('system')} />
+      <SelectField label="Papel" value={form.role} onChange={(v) => setForm({ role: v })} placeholder="Selecionar…" options={assignableRoles(props.groups).map((o) => ({ id: o.value, label: o.label }))} error={err('role')} />
       <div class={s.actions}>
         <button type="button" class={s.btnGhost} onClick={props.onClose}>Cancelar</button>
         <button type="button" class={s.btnPrimary} disabled={props.b.busy()} onClick={() => void save()}>Atribuir</button>

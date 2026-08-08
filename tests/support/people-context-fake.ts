@@ -18,7 +18,15 @@ export type PeopleFakeConfig = Partial<{
   create: (token: string, actor: string, input: CreatePersonInput) => Promise<Result<CreatePersonResult, AppError>>
 }>
 
-const samplePerson = (id: string): PersonRecord => ({ id, fullName: 'Maria Teste', birthDate: '1990-01-01', active: true })
+const samplePerson = (id: string): PersonRecord => ({
+  id,
+  fullName: 'Maria Teste',
+  birthDate: '1990-01-01',
+  active: true,
+  cpf: '52998224725',
+  email: null,
+  hasLogin: false,
+})
 const sampleRoles = (id: string): readonly Role[] => [
   { id: 'r1', personId: id, system: 'social-care', role: 'worker', active: true, assignedAt: '2025-01-01T00:00:00Z' },
 ]
@@ -54,7 +62,7 @@ export function makeFakePeople(cfg: PeopleFakeConfig = {}): PeopleContextClient 
     },
     async createPerson(token, actor, input) {
       mutate(token, actor)
-      return cfg.create ? cfg.create(token, actor, input) : ok({ id: 'person-1', idpProvisioned: true })
+      return cfg.create ? cfg.create(token, actor, input) : ok({ id: 'person-1', idpProvisioned: true, alreadyExisted: false })
     },
     async updatePerson(token, actor) {
       mutate(token, actor)

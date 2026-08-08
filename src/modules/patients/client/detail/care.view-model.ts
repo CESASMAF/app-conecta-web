@@ -85,7 +85,7 @@ function formatToInputDate(s: string | null): string {
   const m = /^(\d{4}-\d{2}-\d{2})/.exec(s)
   return m ? m[1]! : ''
 }
-export type RegistryErr = Partial<Record<'memberId' | 'startDate' | 'reason', PatientsTag>>
+export type RegistryErr = Partial<Record<'memberId' | 'startDate' | 'endDate' | 'reason', PatientsTag>>
 export type PlacementErrors = Readonly<{ registries: readonly RegistryErr[] }>
 export function validatePlacement(f: PlacementForm): PlacementErrors {
   return {
@@ -94,6 +94,12 @@ export function validatePlacement(f: PlacementForm): PlacementErrors {
       if (r.memberId.trim() === '') e.memberId = 'register.field.required'
       if (r.startDate.trim() === '') e.startDate = 'register.field.required'
       if (r.reason.trim() === '') e.reason = 'register.field.required'
+      // O dominio recusa acolhimento que termina antes de comecar, mas devolvia so um HTTP-422
+      // generico ("Dados invalidos") — sem dizer o campo nem a regra. Checar aqui aponta o campo.
+      // Comparacao lexicografica funciona: ambos sao 'yyyy-mm-dd' do <input type=date>.
+      if (r.endDate.trim() !== '' && r.startDate.trim() !== '' && r.endDate < r.startDate) {
+        e.endDate = 'care.placement.endBeforeStart'
+      }
       return e
     }),
   }

@@ -6,6 +6,7 @@ import { redirect } from '@solidjs/router'
 import { buildSecurityHeaders, isHttpsFromForwardedProto } from '~/shared/http/security-headers'
 import { newNonce } from '~/external/csp-nonce'
 import { isProtectedPagePath, loadCurrentUser } from '~/modules/auth/server/page-guard'
+import { requiredGroupForPath, rootViewModel } from '~/modules/shell/client/root/root.view-model'
 import { env } from '~/server/env'
 
 export default createMiddleware({
@@ -24,6 +25,13 @@ export default createMiddleware({
     if (isProtectedPagePath(path)) {
       const user = await loadCurrentUser(event.request.headers.get('cookie') ?? '')
       if (!user) return redirect('/login')
+      // RBAC de ROTA com a mesma fonte do menu (root.view-model). Sem isto, esconder a área do menu
+      // era cosmético: o worker abria /people por URL, listava as pessoas e criava uma nova.
+      // Manda para a landing do próprio papel — não para /login, que sugeriria sessão expirada.
+      const required = requiredGroupForPath(path)
+      if (!rootViewModel.canAccess(user.groups, required)) {
+        return redirect(rootViewModel.landingHref(user.groups))
+      }
       event.locals.user = user
     }
   },

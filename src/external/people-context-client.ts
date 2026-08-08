@@ -11,7 +11,19 @@ import { withTimeout } from '~/shared/with-timeout'
 
 const TIMEOUT_MS = 8_000
 
-export type PersonRecord = Readonly<{ id: string; fullName: string; birthDate: string; active: boolean }>
+// `cpf`/`email` entram porque a ficha precisa deles para editar sem apagar (o form abria vazio e o
+// PUT zerava o CPF). O que NAO entra e deliberado: `idpUserId` (id interno do IdP, correlaciona
+// sistemas) e `createdAt` — nenhuma tela usa e o upstream os devolve.
+export type PersonRecord = Readonly<{
+  id: string
+  fullName: string
+  birthDate: string
+  active: boolean
+  cpf: string | null
+  email: string | null
+  // derivado de `idpUserId` na projecao: a tela precisa saber SE ha acesso, nunca QUAL o id no IdP.
+  hasLogin: boolean
+}>
 export type PersonPage = Readonly<{
   items: readonly PersonRecord[]
   meta: Readonly<{ pageSize: number; totalCount: number; hasMore: boolean; nextCursor: string | null }>
@@ -27,7 +39,14 @@ export type CreatePersonInput = Readonly<{
 }>
 export type UpdatePersonInput = Readonly<{ fullName: string; birthDate: string; cpf?: string; email?: string }>
 export type ProvisionLoginInput = Readonly<{ email?: string; initialPassword?: string }>
-export type CreatePersonResult = Readonly<{ id: string; idpProvisioned: boolean }> // 207 = criado, IdP falhou
+// 207 = criado, IdP falhou. `alreadyExisted` = o CPF ja pertencia a alguem e o upstream devolveu
+// ESSA pessoa (200, idempotencia por CPF) — nada foi criado e os dados digitados foram descartados.
+export type CreatePersonResult = Readonly<{
+  id: string
+  idpProvisioned: boolean
+  alreadyExisted: boolean
+  existingName?: string
+}>
 export type Role = Readonly<{
   id: string
   personId: string
@@ -94,6 +113,25 @@ async function request(baseUrl: string, opts: RequestOpts): Promise<Result<{ sta
   return ok({ status: res.status, body })
 }
 
+// Projecao EXPLICITA da linha do upstream (LGPD — minimizacao).
+//
+// `dataOf<PersonRecord>` e so um cast: em runtime o objeto do people-context passa inteiro, com
+// `idpUserId` e `createdAt` junto. Era assim que `GET /api/people/by-cpf/:cpf` entregava PII
+// completa ao browser. Tipo nao filtra nada em runtime — a construcao campo a campo filtra.
+const asPersonRecord = (raw: unknown): PersonRecord => {
+  const p = (raw ?? {}) as Record<string, unknown>
+  return {
+    id: String(p.id ?? ''),
+    fullName: String(p.fullName ?? ''),
+    birthDate: String(p.birthDate ?? ''),
+    active: Boolean(p.active),
+    cpf: typeof p.cpf === 'string' ? p.cpf : null,
+    email: typeof p.email === 'string' ? p.email : null,
+    // o `idpUserId` cru morre AQUI: vira booleano e nao segue para o client.
+    hasLogin: typeof p.idpUserId === 'string' && p.idpUserId !== '',
+  }
+}
+
 export function createPeopleContextClient(baseUrl: string = env.peopleContextUrl): PeopleContextClient {
   const dataOf = <T>(body: unknown): T => (body as StandardResponse<T>).data
 
@@ -105,9 +143,10 @@ export function createPeopleContextClient(baseUrl: string = env.peopleContextUrl
       qs.set('limit', String(params.limit))
       const r = await request(baseUrl, { token, path: `/api/v1/people?${qs}` })
       if (!r.ok) return r
-      const env_ = r.value.body as PaginatedResponse<PersonRecord>
+      const env_ = r.value.body as PaginatedResponse<unknown>
       return ok({
-        items: env_.data,
+        // projeta cada linha: a listagem tambem recebia `idpUserId`/`createdAt` do upstream.
+        items: env_.data.map(asPersonRecord),
         meta: {
           pageSize: env_.meta.pageSize,
           totalCount: env_.meta.totalCount,
@@ -120,13 +159,13 @@ export function createPeopleContextClient(baseUrl: string = env.peopleContextUrl
     async getPerson(token, personId) {
       const r = await request(baseUrl, { token, path: `/api/v1/people/${encodeURIComponent(personId)}` })
       if (!r.ok) return r
-      return ok(dataOf<PersonRecord>(r.value.body))
+      return ok(asPersonRecord(dataOf<unknown>(r.value.body)))
     },
 
     async getByCpf(token, cpf) {
       const r = await request(baseUrl, { token, path: `/api/v1/people/by-cpf/${encodeURIComponent(cpf)}` })
       if (!r.ok) return r
-      return ok(dataOf<PersonRecord>(r.value.body))
+      return ok(asPersonRecord(dataOf<unknown>(r.value.body)))
     },
 
     async getRoles(token, personId, active) {
@@ -149,7 +188,16 @@ export function createPeopleContextClient(baseUrl: string = env.peopleContextUrl
     async createPerson(token, actorId, input) {
       const r = await request(baseUrl, { method: 'POST', token, actorId, path: '/api/v1/people', body: input })
       if (!r.ok) return r
-      return ok({ id: dataOf<{ id: string }>(r.value.body).id, idpProvisioned: r.value.status !== 207 })
+      const d = dataOf<{ id: string; alreadyExisted?: boolean; fullName?: string }>(r.value.body)
+      // 200 (em vez de 201) = o upstream reusou uma pessoa existente por CPF; `alreadyExisted`
+      // confirma. Projecao explicita: so o nome atravessa, para a tela poder dizer DE QUEM e a ficha.
+      const alreadyExisted = d.alreadyExisted === true || r.value.status === 200
+      return ok({
+        id: d.id,
+        idpProvisioned: r.value.status !== 207,
+        alreadyExisted,
+        ...(alreadyExisted && d.fullName ? { existingName: d.fullName } : {}),
+      })
     },
 
     async updatePerson(token, actorId, personId, input) {

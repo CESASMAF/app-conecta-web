@@ -4,6 +4,7 @@
 import { getRequestEvent } from 'solid-js/web'
 import { redirect } from '@solidjs/router'
 import { fetchLoginFlow, createLoginBrowserUrl } from '~/server/kratos'
+import { env } from '~/server/env'
 import type { LoginFlowResult } from '~/shared/domain/login-flow'
 
 export async function getLoginFlowFn(
@@ -27,7 +28,10 @@ export async function getLoginFlowFn(
       throw redirect(to)
     }
     // SEM return_to = usuário entrando do zero: inicia o OIDC no BFF (→ Hydra → bridge → volta aqui).
-    throw redirect('/api/auth/login')
+    // URL ABSOLUTA, não '/api/auth/login': com path relativo o SSR emite 200 + header Location — que o
+    // browser ignora — e cai no fallback `<script>window.location=…`, que a nossa própria CSP
+    // (`strict-dynamic`, script sem nonce) bloqueia. Resultado: spinner eterno (infra#14).
+    throw redirect(new URL('/api/auth/login', env.publicBaseUrl).toString())
   }
   // Repassa os cookies do browser p/ o Kratos casar o flow (o cookie do flow vive no domínio do Kratos).
   const event = getRequestEvent()

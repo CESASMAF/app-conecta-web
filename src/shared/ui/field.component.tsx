@@ -1,6 +1,6 @@
 // Componentes de campo BURROS compartilhados (ADR-0009: props → JSX). Sem reatividade própria; recebem
 // valor + erro já resolvido (string PT-BR) e emitem mudanças. Reusados por todas as áreas.
-import { Show, For } from 'solid-js'
+import { Show, For, createEffect } from 'solid-js'
 import * as s from './field.css'
 
 export function TextField(props: {
@@ -39,10 +39,22 @@ export function SelectField(props: {
   placeholder: string
   options: readonly { id: string; label: string }[]
 }) {
+  // As opcoes de catalogo chegam ASSINCRONAS (dominio_*). Ao abrir uma secao ja preenchida, o `value`
+  // e aplicado enquanto o <select> ainda so tem o placeholder: o browser DESCARTA valor que nao casa
+  // com nenhuma <option>, e quando as opcoes chegam nada reaplica — o campo ficava na primeira opcao
+  // e mostrava ao profissional um dado que nao era o registrado. Este efeito depende de options E de
+  // value, entao reaplica na chegada do catalogo.
+  let ref!: HTMLSelectElement
+  createEffect(() => {
+    const desired = props.value
+    props.options.length
+    if (ref.value !== desired) ref.value = desired
+  })
   return (
     <label class={s.field}>
       <span class={s.label}>{props.label}</span>
       <select
+        ref={ref}
         class={s.select}
         value={props.value}
         aria-invalid={props.error ? 'true' : undefined}

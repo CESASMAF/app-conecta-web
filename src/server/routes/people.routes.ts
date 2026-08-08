@@ -78,10 +78,21 @@ export function peopleRoutes(deps: AppDeps) {
           set.status = statusForKind(r.error.kind)
           return errorBody(r.error, requestId)
         }
-        set.status = 201
+        // 200 quando o CPF ja pertencia a alguem (nada foi criado) — a tela precisa AVISAR em vez de
+        // navegar para a ficha alheia como se tivesse cadastrado.
+        set.status = r.value.alreadyExisted ? 200 : 201
         return {
-          data: { id: r.value.id, idpProvisioned: r.value.idpProvisioned },
-          meta: { timestamp: now(), ...(r.value.idpProvisioned ? {} : { warning: 'idp-not-provisioned' }) },
+          data: {
+            id: r.value.id,
+            idpProvisioned: r.value.idpProvisioned,
+            alreadyExisted: r.value.alreadyExisted,
+            ...(r.value.existingName ? { existingName: r.value.existingName } : {}),
+          },
+          meta: {
+            timestamp: now(),
+            ...(r.value.idpProvisioned ? {} : { warning: 'idp-not-provisioned' }),
+            ...(r.value.alreadyExisted ? { warning: 'cpf-already-registered' } : {}),
+          },
         }
       },
       {
@@ -193,7 +204,13 @@ export function peopleRoutes(deps: AppDeps) {
         set.status = statusForKind(r.error.kind)
         return errorBody(r.error, requestId)
       }
-      return { data: r.value, meta: { timestamp: now() } }
+      // LGPD: devolve o minimo. O `cpf` fica porque o chamador o enviou na URL — nao revela nada
+      // novo. `email` e `hasLogin` ficam de fora: esta rota e uma busca, nao a ficha da pessoa.
+      const p = r.value
+      return {
+        data: { id: p.id, fullName: p.fullName, cpf: p.cpf, birthDate: p.birthDate, active: p.active },
+        meta: { timestamp: now() },
+      }
     })
 
     // POST /api/people/:id/request-password-reset — 202 SEM link (o link viaja por NATS — nunca no HTTP).

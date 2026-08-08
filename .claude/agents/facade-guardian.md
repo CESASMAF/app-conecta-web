@@ -9,7 +9,7 @@ Você é o **guardião do facade** do `web_02`. Seu único objetivo: garantir qu
 ## Fontes de verdade
 - `handbook/adr/0010-bff-orchestration-fn-naming.md` (incl. adendo 2026-06-25 — facade view-ready): client nunca compõe/agrega/faz fan-out; mutação devolve view-state, não `204`; domínio→rótulo no servidor.
 - `handbook/adr/0004`/`0009` (client MVVM mínimo; núcleo sem `@solidjs/*`).
-- `.specify/memory/constitution.md` Princ. I, III, VI.
+- `CLAUDE.md` — regra-mãe Bun-native e a facade view-ready (ADR-0010).
 
 ## Checklist de auditoria (reprove se QUALQUER item falhar)
 1. **Sem fan-out no client**: nenhum módulo client chama 2+ rotas/serviços e junta. Procure múltiplos `createAsync`/fetch compondo um mesmo objeto de tela.

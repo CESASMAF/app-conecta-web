@@ -57,7 +57,7 @@ describe('Pacientes · cadastro orquestrado (pessoa + paciente)', () => {
     const people = makeFakePeople({
       create: async (_t, _actor, input) => {
         captured.person = input
-        return ok({ id: 'person-9', idpProvisioned: true })
+        return ok({ id: 'person-9', idpProvisioned: true, alreadyExisted: false })
       },
     })
     const app = makeApp(sc, { peopleContext: people })
@@ -105,7 +105,7 @@ describe('Pacientes · cadastro orquestrado (pessoa + paciente)', () => {
 
   test('conflito de CPF já registrado (REGP-030) no paciente → 409', async () => {
     const sc = makeFakeSocialCare({ ...catalogCfg, create: async () => err(appError('conflict', 'REGP-030')) })
-    const people = makeFakePeople({ create: async () => ok({ id: 'person-9', idpProvisioned: true }) })
+    const people = makeFakePeople({ create: async () => ok({ id: 'person-9', idpProvisioned: true, alreadyExisted: false }) })
     const app = makeApp(sc, { peopleContext: people })
     const cookie = await driveSession(app)
 
@@ -118,7 +118,7 @@ describe('Pacientes · cadastro orquestrado (pessoa + paciente)', () => {
     const people = makeFakePeople({
       create: async () => {
         personCalled = true
-        return ok({ id: 'x', idpProvisioned: true })
+        return ok({ id: 'x', idpProvisioned: true, alreadyExisted: false })
       },
     })
     const app = makeApp(sc, { peopleContext: people })

@@ -5,7 +5,16 @@ export type PersonPageMeta = Readonly<{ pageSize: number; totalCount: number; ha
 export type PersonPage = Readonly<{ items: readonly PersonSummary[]; meta: PersonPageMeta }>
 
 // Cabeçalho da pessoa (visão composta do BFF — dados + flag active; `partial` se papéis caíram).
-export type PersonOverview = Readonly<{ id: string; fullName: string; birthDate: string; active: boolean; partial: boolean }>
+export type PersonOverview = Readonly<{
+  id: string
+  fullName: string
+  birthDate: string
+  active: boolean
+  cpf: string | null // alimenta o form de edicao — sem isso o PUT apagava o CPF
+  email: string | null
+  hasLogin: boolean // tem acesso ao sistema (derivado do IdP; o id interno nunca chega aqui)
+  partial: boolean
+}>
 
 // Papel (vínculo system:role) com id — necessário para desativar/reativar.
 export type PersonRole = Readonly<{ id: string; system: string; role: string; active: boolean }>

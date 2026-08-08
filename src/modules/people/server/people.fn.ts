@@ -56,7 +56,16 @@ export async function getPersonFn(id: string): Promise<Result<PersonOverview, Ap
   const r = await get(`/api/people/${enc(id)}`)
   if (!r.ok) return r
   const d = (r.value as { data: PersonOverview }).data
-  return ok({ id: d.id, fullName: d.fullName, birthDate: d.birthDate, active: d.active, partial: d.partial })
+  return ok({
+    id: d.id,
+    fullName: d.fullName,
+    birthDate: d.birthDate,
+    active: d.active,
+    cpf: d.cpf,
+    email: d.email,
+    hasLogin: d.hasLogin,
+    partial: d.partial,
+  })
 }
 
 export async function getPersonRolesFn(id: string): Promise<Result<readonly PersonRole[], AppError>> {
@@ -67,11 +76,20 @@ export async function getPersonRolesFn(id: string): Promise<Result<readonly Pers
 }
 
 // --- Mutações ---
-export async function createPersonFn(input: PersonCreateBody): Promise<Result<{ id: string; idpProvisioned: boolean }, AppError>> {
+export async function createPersonFn(
+  input: PersonCreateBody,
+): Promise<Result<{ id: string; idpProvisioned: boolean; alreadyExisted: boolean; existingName?: string }, AppError>> {
   const r = await mutate('POST', '/api/people', input)
   if (!r.ok) return r
-  const d = r.value as { id: string; idpProvisioned: boolean }
-  return ok({ id: d.id, idpProvisioned: d.idpProvisioned })
+  const d = r.value as { id: string; idpProvisioned: boolean; alreadyExisted?: boolean; existingName?: string }
+  // `alreadyExisted`: o CPF ja pertencia a alguem e o id devolvido e o DESSA pessoa. A tela precisa
+  // avisar em vez de navegar — os dados digitados nao foram gravados em lugar nenhum.
+  return ok({
+    id: d.id,
+    idpProvisioned: d.idpProvisioned,
+    alreadyExisted: d.alreadyExisted === true,
+    ...(d.existingName ? { existingName: d.existingName } : {}),
+  })
 }
 export async function updatePersonFn(id: string, input: PersonUpdateBody): Promise<Result<void, AppError>> {
   const r = await mutate('PUT', `/api/people/${enc(id)}`, input)
@@ -81,6 +99,16 @@ export async function setPersonActiveFn(id: string, active: boolean): Promise<Re
   const r = await mutate('PUT', `/api/people/${enc(id)}/${active ? 'reactivate' : 'deactivate'}`)
   return r.ok ? ok(undefined) : r
 }
+// Provisao de login retroativa: recupera a pessoa que foi criada mas cujo acesso nao chegou a ser
+// criado no IdP (a criacao devolve 207 nesse caso). E o conserto oferecido pela propria ficha.
+export async function provisionLoginFn(id: string): Promise<Result<void, AppError>> {
+  // `{}` e obrigatorio: a rota declara `body: t.Object({...})` com campos opcionais, entao um POST
+  // sem corpo nao satisfaz o schema e volta como 'validation' ("informacoes invalidas") — enganoso,
+  // porque nao ha campo nenhum para o usuario revisar. O e-mail ja esta na pessoa.
+  const r = await mutate('POST', `/api/people/${enc(id)}/login`, {})
+  return r.ok ? ok(undefined) : r
+}
+
 export async function requestPasswordResetFn(id: string): Promise<Result<void, AppError>> {
   const r = await mutate('POST', `/api/people/${enc(id)}/request-password-reset`)
   return r.ok ? ok(undefined) : r

@@ -32,6 +32,7 @@ export const patientsMessages = {
   'assessment.field.number': 'Informe um número válido (≥ 0).',
   // Cuidado/Proteção (US5)
   'care.appointment.narrative': 'Informe um resumo ou um plano de ação.',
+  'care.placement.endBeforeStart': 'A data de fim não pode ser anterior à de início.',
   'care.empty': 'Nada registrado ainda.',
   'care.error.load': 'Não foi possível carregar. Tente novamente.',
   // Ações do Resumo — erros do envio (mapeados do kind do BFF)

@@ -10,7 +10,7 @@ Você é o engenheiro da **fundação do BFF** do `web_02` (SolidStart + Elysia 
 - `handbook/bff-backend-surface.md` — superfície real dos 3 serviços, **política de auth por-serviço** e mapa de erro unificado.
 - `handbook/adr/0010-bff-orchestration-fn-naming.md` — facade view-ready (composição, domínio→rótulo no servidor, mutação devolve view-state).
 - `handbook/adr/0002-errors-as-values.md`, `0004`, `0009` — Result, MVVM×DDD, client mínimo.
-- `.specify/memory/constitution.md` — Bun-native/zero-npm (Princ. IV), TS estrito, sem mock em `src/`.
+- `CLAUDE.md` — regra-mãe Bun-native/zero-npm-utility, TS estrito, sem mock em `src/`.
 - `specs/002-patient-browse/` e `specs/003-patient-manage/` — o `SocialCareClient` existente e o padrão de composição.
 
 ## O que você constrói/mantém
@@ -29,4 +29,4 @@ Você é o engenheiro da **fundação do BFF** do `web_02` (SolidStart + Elysia 
 - Toda mudança termina com gates verdes: `bunx tsc --noEmit`, `bun test`, `bun audit --audit-level=high`.
 
 ## Saída
-Reporte: arquivos criados/alterados, decisões de política de ator aplicadas, e o resultado dos gates. Não escreva rotas de setor — deixe para `bff-social-care`/`bff-people-context`/`bff-analysis-bi`.
+Reporte: arquivos criados/alterados, decisões de política de ator aplicadas, e o resultado dos gates. Não escreva rotas de setor — deixe para `bff-social-care`/`bff-people-context`; o setor analysis-bi e coberto pelas skills `bff-add-endpoint` + `bff-guard-analysis-bi`.

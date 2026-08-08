@@ -42,7 +42,7 @@ describe('Família · adicionar membro orquestrado (cria pessoa + vincula)', () 
     const people = makeFakePeople({
       create: async (_t, _actor, input) => {
         captured.person = input
-        return ok({ id: 'member-9', idpProvisioned: true })
+        return ok({ id: 'member-9', idpProvisioned: true, alreadyExisted: false })
       },
     })
     const app = makeApp(sc, { peopleContext: people })
@@ -86,7 +86,7 @@ describe('Família · adicionar membro orquestrado (cria pessoa + vincula)', () 
     const people = makeFakePeople({
       create: async () => {
         personCalled = true
-        return ok({ id: 'x', idpProvisioned: true })
+        return ok({ id: 'x', idpProvisioned: true, alreadyExisted: false })
       },
     })
     const app = makeApp(sc, { peopleContext: people })

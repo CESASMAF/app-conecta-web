@@ -51,11 +51,13 @@ export const stubSocialCare: SocialCareClient = {
 // Stubs neutros dos demais backends (a maioria dos testes não os usa; quem testa injeta um fake configurado).
 export const stubPeopleContext: PeopleContextClient = {
   listPeople: async (_t, p) => ok({ items: [], meta: { pageSize: p.limit, totalCount: 0, hasMore: false, nextCursor: null } }),
-  getPerson: async (_t, id) => ok({ id, fullName: '', birthDate: '2000-01-01', active: true }),
-  getByCpf: async () => ok({ id: 'p1', fullName: '', birthDate: '2000-01-01', active: true }),
+  getPerson: async (_t, id) =>
+    ok({ id, fullName: '', birthDate: '2000-01-01', active: true, cpf: null, email: null, hasLogin: false }),
+  getByCpf: async () =>
+    ok({ id: 'p1', fullName: '', birthDate: '2000-01-01', active: true, cpf: null, email: null, hasLogin: false }),
   getRoles: async () => ok([]),
   listRoles: async () => ok([]),
-  createPerson: async () => ok({ id: 'person-1', idpProvisioned: true }),
+  createPerson: async () => ok({ id: 'person-1', idpProvisioned: true, alreadyExisted: false }),
   updatePerson: async () => ok(undefined),
   deactivatePerson: async () => ok(undefined),
   reactivatePerson: async () => ok(undefined),

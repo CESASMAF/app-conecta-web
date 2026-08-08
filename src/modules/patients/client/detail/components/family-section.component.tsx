@@ -23,6 +23,9 @@ const todayIso = (): string => new Date().toISOString().slice(0, 10)
 
 export function FamilySection(props: { overview: PatientOverview; b: PatientOverviewBinding }) {
   const [adding, setAdding] = createSignal(false)
+  // Remover membro executava no PRIMEIRO clique, sem volta — mesma classe das acoes de acesso da
+  // ficha de pessoa. Confirmacao em dois passos na propria linha, nomeando quem sai.
+  const [confirmingRemove, setConfirmingRemove] = createSignal<string | null>(null)
   const [form, setForm] = createSignal<AddMemberForm>(emptyAddMember())
   const [showErr, setShowErr] = createSignal(false)
   const set = (patch: Partial<AddMemberForm>) => setForm((prev) => ({ ...prev, ...patch }))
@@ -89,9 +92,22 @@ export function FamilySection(props: { overview: PatientOverview; b: PatientOver
                       tornar cuidador
                     </button>
                   </Show>
-                  <button type="button" class={s.dangerLink} disabled={props.b.busy()} onClick={() => void props.b.removeFamilyMember(m.memberPersonId)}>
-                    remover
-                  </button>
+                  <Show
+                    when={confirmingRemove() === m.memberPersonId}
+                    fallback={
+                      <button type="button" class={s.dangerLink} disabled={props.b.busy()} onClick={() => setConfirmingRemove(m.memberPersonId)}>
+                        remover
+                      </button>
+                    }
+                  >
+                    <span class={s.muted}>Remover {m.fullName || 'este membro'} do núcleo?</span>
+                    <button type="button" class={s.dangerLink} disabled={props.b.busy()} onClick={() => { setConfirmingRemove(null); void props.b.removeFamilyMember(m.memberPersonId) }}>
+                      confirmar
+                    </button>
+                    <button type="button" class={s.linkBtn} disabled={props.b.busy()} onClick={() => setConfirmingRemove(null)}>
+                      cancelar
+                    </button>
+                  </Show>
                 </span>
               </li>
             )}

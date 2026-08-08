@@ -19,11 +19,11 @@ describe('ações · motivo (alta/retirada)', () => {
     expect(validateReason({ reason: '', notes: '' })).toBe('actions.reason.required')
     expect(validateReason({ reason: 'other', notes: '' })).toBe('actions.notes.required')
     expect(validateReason({ reason: 'other', notes: 'detalhe' })).toBeNull()
-    expect(validateReason({ reason: 'improved', notes: '' })).toBeNull()
+    expect(validateReason({ reason: 'caseObjectiveAchieved', notes: '' })).toBeNull()
   })
 
   test('toReasonInput omite notes vazio e mantém quando presente', () => {
-    expect(toReasonInput({ reason: 'improved', notes: '  ' })).toEqual({ reason: 'improved' })
+    expect(toReasonInput({ reason: 'caseObjectiveAchieved', notes: '  ' })).toEqual({ reason: 'caseObjectiveAchieved' })
     expect(toReasonInput({ reason: 'other', notes: ' x ' })).toEqual({ reason: 'other', notes: 'x' })
   })
 })

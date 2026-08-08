@@ -1,7 +1,7 @@
 // Formulários das 4 seções planas da Avaliação (US4): Moradia, Socioeconômico, Rede de apoio e Resumo
 // social-sanitário. Views com estado de UI próprio (form local) e validação por seção ANTES de salvar.
 // Os selects de moradia usam enums de CONTRATO (opções fixas); benefício usa catálogo de domínio.
-import { Show, For, createSignal, createMemo } from 'solid-js'
+import { Show, For, Index, createSignal, createMemo } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { tp } from '~/shared/i18n/patients'
 import { TextField, SelectField, CheckboxField } from '~/shared/ui/field.component'
@@ -236,16 +236,19 @@ export function SummarySectionForm(props: {
           + item
         </button>
       </div>
-      <For each={form.functionalDependencies}>
+      {/* Index, nao For: a lista e de STRINGS e o For chaveia pelo VALOR do item — a cada tecla o
+          item "M" vira "Me", o For considera outro item, destroi o input e o campo PERDE O FOCO
+          (so entrava uma letra por clique). O Index chaveia pela posicao, que aqui e o que importa. */}
+      <Index each={form.functionalDependencies}>
         {(dep, i) => (
           <div class={s.subRow}>
-            <TextField label={`Dependência ${i() + 1}`} value={dep} onInput={(v) => setForm('functionalDependencies', i(), v)} placeholder="Ex.: locomoção" />
-            <button type="button" class={s.dangerLink} onClick={() => setForm('functionalDependencies', (arr) => arr.filter((_, idx) => idx !== i()))}>
+            <TextField label={`Dependência ${i + 1}`} value={dep()} onInput={(v) => setForm('functionalDependencies', i, v)} placeholder="Ex.: locomoção" />
+            <button type="button" class={s.dangerLink} onClick={() => setForm('functionalDependencies', (arr) => arr.filter((_, idx) => idx !== i))}>
               remover
             </button>
           </div>
         )}
-      </For>
+      </Index>
       <FormActions busy={props.busy} onCancel={props.onCancel} onSave={() => void props.onSave(toSummaryInput(form))} />
     </div>
   )
@@ -424,6 +427,11 @@ export function HealthSectionForm(props: {
     const tag = errors().deficiencies[i]?.[k]
     return tag ? tp(tag) : undefined
   }
+  const careErr = (i: number): string | undefined => {
+    if (!showErr()) return undefined
+    const tag = errors().constantCare[i]
+    return tag ? tp(tag) : undefined
+  }
   const gestErr = (i: number, k: 'memberId' | 'monthsGestation'): string | undefined => {
     if (!showErr()) return undefined
     const tag = errors().gestating[i]?.[k]
@@ -476,22 +484,29 @@ export function HealthSectionForm(props: {
           </div>
         )}
       </For>
+      {/* O dominio tipa isto como `[PersonId]` e o banco guarda em `hs_constant_care_member_ids`:
+          sao MEMBROS que precisam de cuidado constante, nao descricoes. O nome do campo
+          (`constantCareNeeds`) e que engana. A tela pedia texto livre com placeholder
+          "Ex.: medicacao continua" e o backend respondia `UHS-002 ID de pessoa invalido: medicacao
+          continua` — a secao Saude so salvava com a lista VAZIA.
+          Nao e redundante com `deficiencies[].needsConstantCare`: la o cuidado vem da deficiencia;
+          aqui marca quem precisa por qualquer razao (idoso acamado, gestante de risco). */}
       <div class={s.sectionHead}>
-        <span class={s.caption2}>Necessidades de cuidado constante ({form.constantCareNeeds.length})</span>
+        <span class={s.caption2}>Membros que precisam de cuidado constante ({form.constantCareNeeds.length})</span>
         <button type="button" class={s.linkBtn} onClick={() => setForm('constantCareNeeds', (a) => [...a, ''])}>
-          + item
+          + membro
         </button>
       </div>
-      <For each={form.constantCareNeeds}>
-        {(need, i) => (
+      <Index each={form.constantCareNeeds}>
+        {(memberId, i) => (
           <div class={s.subRow}>
-            <TextField label={`Item ${i() + 1}`} value={need} onInput={(v) => setForm('constantCareNeeds', i(), v)} placeholder="Ex.: medicação contínua" />
-            <button type="button" class={s.dangerLink} onClick={() => setForm('constantCareNeeds', (a) => a.filter((_, idx) => idx !== i()))}>
+            <SelectField label="Membro" value={memberId()} onChange={(v) => setForm('constantCareNeeds', i, v)} placeholder="Selecionar…" options={memberOpts()} error={careErr(i)} />
+            <button type="button" class={s.dangerLink} onClick={() => setForm('constantCareNeeds', (a) => a.filter((_, idx) => idx !== i))}>
               remover
             </button>
           </div>
         )}
-      </For>
+      </Index>
       <FormActions busy={props.busy} onCancel={props.onCancel} onSave={() => void submit()} />
     </div>
   )

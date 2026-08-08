@@ -4,17 +4,28 @@ import type { PatientsTag } from '~/shared/i18n/patients'
 import { isValidCpf } from '../create/patient-create.view-model'
 
 // --- Ciclo de vida: motivos (enums do CONTRATO, não catálogo de domínio → labels no código é OK) ---
+//
+// Os `value` sao os casos REAIS de `DischargeReason`/`WithdrawReason` no dominio Swift. A tela
+// oferecia um vocabulario proprio ('improved', 'deceased', 'transferred', 'abandoned' /
+// 'refused_service', 'moved_location') que NAO existia no dominio: so `other` casava, entao dar alta
+// ou desligar por qualquer motivo REAL falhava com "Dados invalidos". Mesmo padrao do tipo de
+// violacao e do servico de destino. Ao mexer aqui, conferir os enums antes dos rotulos.
 export const DISCHARGE_REASONS = [
-  { value: 'improved', label: 'Melhora clínica' },
-  { value: 'deceased', label: 'Óbito' },
-  { value: 'transferred', label: 'Transferência' },
-  { value: 'abandoned', label: 'Abandono' },
+  { value: 'caseObjectiveAchieved', label: 'Objetivo do caso alcançado' },
+  { value: 'transferredToAnotherService', label: 'Transferido para outro serviço' },
+  { value: 'patientRequestedDischarge', label: 'A pedido do paciente' },
+  { value: 'lossOfContact', label: 'Perda de contato' },
+  { value: 'relocation', label: 'Mudança de endereço' },
+  { value: 'death', label: 'Óbito' },
   { value: 'other', label: 'Outro motivo' },
 ] as const
 
 export const WITHDRAW_REASONS = [
-  { value: 'refused_service', label: 'Recusou o serviço' },
-  { value: 'moved_location', label: 'Mudou de localidade' },
+  { value: 'patientDeclined', label: 'Recusou o serviço' },
+  { value: 'noResponse', label: 'Sem resposta' },
+  { value: 'duplicateRecord', label: 'Cadastro duplicado' },
+  { value: 'ineligible', label: 'Não elegível' },
+  { value: 'transferredBeforeAdmit', label: 'Transferido antes da admissão' },
   { value: 'other', label: 'Outro motivo' },
 ] as const
 

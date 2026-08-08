@@ -38,6 +38,7 @@ export async function createSession(
   const session: Session = {
     sessionId: crypto.randomUUID() as SessionId,
     idpSub: claims.sub,
+    displayName: claims.name,
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
     groups: claims.groups,
@@ -68,7 +69,7 @@ export async function getSession(store: SessionStore, sessionId: string | undefi
 }
 
 export function toAuthenticatedUser(session: Session): AuthenticatedUser {
-  return { userId: session.idpSub, displayName: null, groups: session.groups }
+  return { userId: session.idpSub, displayName: session.displayName, groups: session.groups }
 }
 
 // Janela de inatividade DESLIZANTE: cada atividade renova `lastSeenAt` (throttle de 60s p/ evitar

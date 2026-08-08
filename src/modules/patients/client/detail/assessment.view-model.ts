@@ -15,6 +15,14 @@ import type {
 
 export type Option = Readonly<{ value: string; label: string }>
 
+// O paciente aparece na lista de pessoas E como membro do proprio nucleo familiar, com o mesmo
+// personId — o select mostrava duas linhas identicas. Mantem a primeira ocorrencia (a rotulada
+// "(paciente)"), que e a mais informativa.
+export const dedupById = <T extends { value: string }>(items: readonly T[]): T[] => {
+  const seen = new Set<string>()
+  return items.filter((i) => !seen.has(i.value) && seen.add(i.value))
+}
+
 export type SectionMeta = Readonly<{ key: AssessmentSectionKey; label: string; tier: 'now' | 'soon' }>
 export const SECTIONS: readonly SectionMeta[] = [
   { key: 'housingCondition', label: 'Moradia', tier: 'now' },
@@ -416,7 +424,13 @@ export const healthFromData = (d: HealthStatusData): HealthForm => ({
 
 export type DeficiencyErr = Partial<Record<'memberId' | 'deficiencyTypeId', PatientsTag>>
 export type GestatingErr = Partial<Record<'memberId' | 'monthsGestation', PatientsTag>>
-export type HealthErrors = Readonly<{ deficiencies: readonly DeficiencyErr[]; gestating: readonly GestatingErr[] }>
+// `constantCare`: um por item da lista de membros com cuidado constante — sao PersonIds, e um item
+// vazio virava `UHS-002 ID de pessoa invalido` no backend em vez de erro no campo.
+export type HealthErrors = Readonly<{
+  deficiencies: readonly DeficiencyErr[]
+  gestating: readonly GestatingErr[]
+  constantCare: readonly (PatientsTag | null)[]
+}>
 const monthsInvalid = (s: string): boolean => {
   const n = Number(s)
   return s.trim() === '' || !Number.isInteger(n) || n < 0 || n > 12
@@ -435,10 +449,13 @@ export function validateHealth(f: HealthForm): HealthErrors {
       if (monthsInvalid(g.monthsGestation)) e.monthsGestation = 'assessment.field.number'
       return e
     }),
+    constantCare: f.constantCareNeeds.map((id) => (id.trim() === '' ? ('register.field.required' as PatientsTag) : null)),
   }
 }
 export const healthHasErrors = (e: HealthErrors): boolean =>
-  e.deficiencies.some((x) => Object.keys(x).length > 0) || e.gestating.some((g) => Object.keys(g).length > 0)
+  e.deficiencies.some((x) => Object.keys(x).length > 0) ||
+  e.gestating.some((g) => Object.keys(g).length > 0) ||
+  e.constantCare.some((c) => c !== null)
 export function toHealthInput(f: HealthForm) {
   return {
     foodInsecurity: f.foodInsecurity,
