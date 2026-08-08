@@ -41,6 +41,7 @@ import {
   toReferralInput,
 } from '../care.view-model'
 import * as s from '../prontuario.css'
+import { btnSpinner } from '~/shared/ui/kit.css'
 
 export type Picker = Readonly<{ value: string; label: string }>
 const opt = (arr: readonly Picker[]) => arr.map((o) => ({ id: o.value, label: o.label }))
@@ -53,6 +54,7 @@ function Actions(props: { busy: boolean; onCancel: () => void; onSave: () => voi
         Cancelar
       </button>
       <button type="button" class={s.actionBtn} disabled={props.busy} onClick={props.onSave}>
+        <Show when={props.busy}><span class={btnSpinner} aria-hidden="true" /></Show>
         {props.busy ? 'Salvando…' : (props.label ?? 'Salvar')}
       </button>
     </div>

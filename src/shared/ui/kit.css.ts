@@ -1,7 +1,7 @@
 // Kit de primitivos visuais compartilhados — vanilla-extract token-only (ADR-0007).
 // Portado do protótipo hi-fi RORAIMA_DESIGN (Raros Boa Vista). Default = Modo Enxuto/HIG:
 // superfícies chapadas (hairline antes de sombra), cor só onde há significado.
-import { style, styleVariants } from '@vanilla-extract/css'
+import { style, styleVariants, keyframes } from '@vanilla-extract/css'
 import { vars } from './tokens/theme.css'
 
 // ---------------------------------------------------------------- Panel (card)
@@ -184,3 +184,28 @@ export const btnSm = style({ height: '32px', padding: `0 ${vars.space.md}`, font
 
 // Divisória fina
 export const hr = style({ height: vars.border.hairline, background: vars.color.border.soft, border: 'none', margin: 0 })
+
+// ------------------------------------------------- Estado ocupado (botão de ação)
+// Um botão que só fica `disabled` durante a gravação apaga e não explica nada: quem
+// clicou não sabe se o clique pegou, e a reação natural é clicar de novo. Em mutação
+// isso vira registro duplicado. O spinner transforma "nada acontece" em "está indo".
+const spin = keyframes({ to: { transform: 'rotate(360deg)' } })
+
+export const btnSpinner = style({
+  width: '14px',
+  height: '14px',
+  flex: 'none',
+  borderRadius: vars.radius.full,
+  border: '2px solid currentColor',
+  borderTopColor: 'transparent',
+  opacity: 0.85,
+  animation: `${spin} 0.7s linear infinite`,
+  // Respeita quem pediu menos movimento: sem girar, o anel parcial ainda comunica
+  // "ocupado" — e o texto do botão muda junto, então nada depende só da animação.
+  '@media': { '(prefers-reduced-motion: reduce)': { animation: 'none' } },
+})
+
+// O botão não pode encolher/crescer ao trocar "Salvar" por "Salvando…": isso desloca o
+// que está ao lado e move o alvo do clique no exato instante em que a pessoa ainda pode
+// estar mirando nele.
+export const btnBusy = style({ minWidth: '11ch', justifyContent: 'center' })

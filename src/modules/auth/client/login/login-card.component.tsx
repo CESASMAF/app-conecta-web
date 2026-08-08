@@ -2,9 +2,10 @@
 // estado do login flow do Kratos: carregando · form (e-mail/senha, postando direto no Kratos) · expirado.
 // O app é a UI do Kratos: o form posta em `flow.action` com o `csrf_token` do flow (Authorization Code
 // segue no Hydra por trás). Estado local só de UI (mostrar senha).
-import { Show, Switch, Match, For, createSignal, type JSX } from 'solid-js'
+import { Show, Switch, Match, For, createSignal, onMount, onCleanup, type JSX } from 'solid-js'
 import type { LoginFlowResult, LoginFlowView } from '~/shared/domain/login-flow'
 import { Icon, P, BrandPanel } from '../auth-visuals'
+import { btnSpinner } from '~/shared/ui/kit.css'
 import * as s from './login-card.css'
 
 export type LoginCardProps = Readonly<{
@@ -19,6 +20,28 @@ function LoginForm(props: { view: LoginFlowView; errorMessage: string | null }):
   const errors = () => props.view.messages.filter((m) => m.type === 'error')
   const infos = () => props.view.messages.filter((m) => m.type !== 'error')
   const mode = (): 'totp' | 'code' | 'password' => (props.view.aal2 ? 'totp' : props.view.codePhase ? 'code' : 'password')
+
+  // Qual botão está submetendo. O form posta NATIVAMENTE no Kratos e a resposta é uma
+  // navegação — que passa por Hydra e consent-bridge e pode levar segundos. Sem sinal
+  // nenhum a tela fica parada, e a leitura natural é "não funcionou; clico de novo".
+  //
+  // Guardamos o `method` (e não um booleano) porque há vários submit no mesmo form —
+  // senha, código por e-mail, TOTP — e o spinner tem que ficar no que foi clicado.
+  const [sending, setSending] = createSignal<string | null>(null)
+  const onSubmit = (e: SubmitEvent): void => {
+    const method = (e.submitter as HTMLButtonElement | null)?.value
+    setSending(method ?? 'password')
+  }
+  // O bfcache do navegador restaura a página exatamente como saiu: se a pessoa volta
+  // (botão Voltar), o form reaparece com o botão travado em "Entrando…" para sempre.
+  // `pageshow` com `persisted` é o único evento que dispara nessa restauração.
+  onMount(() => {
+    const reset = (e: PageTransitionEvent): void => {
+      if (e.persisted) setSending(null)
+    }
+    window.addEventListener('pageshow', reset)
+    onCleanup(() => window.removeEventListener('pageshow', reset))
+  })
 
   return (
     <>
@@ -43,7 +66,7 @@ function LoginForm(props: { view: LoginFlowView; errorMessage: string | null }):
       <Show when={props.errorMessage}>{(msg) => <div class={s.errorBox} role="alert">{msg()}</div>}</Show>
       <For each={errors()}>{(m) => <div class={s.errorBox} role="alert">{m.text}</div>}</For>
 
-      <form action={props.view.action} method="post">
+      <form action={props.view.action} method="post" onSubmit={onSubmit}>
         <input type="hidden" name="csrf_token" value={props.view.csrfToken} />
 
         <Switch>
@@ -53,7 +76,10 @@ function LoginForm(props: { view: LoginFlowView; errorMessage: string | null }):
               <label class={s.label} for="login-totp">Código do autenticador</label>
               <input class={s.codeInput} id="login-totp" name="totp_code" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" required />
             </div>
-            <button class={s.submit} type="submit" name="method" value="totp">Verificar <Icon d={P.arrow} size={16} /></button>
+            <button class={s.submit} type="submit" name="method" value="totp" disabled={sending() !== null}>
+              <Show when={sending() === 'totp'}><span class={btnSpinner} aria-hidden="true" /></Show>
+              {sending() === 'totp' ? 'Verificando…' : 'Verificar'} <Show when={sending() !== 'totp'}><Icon d={P.arrow} size={16} /></Show>
+            </button>
           </Match>
 
           {/* código por e-mail (2ª fase: informar o código recebido) */}
@@ -63,7 +89,10 @@ function LoginForm(props: { view: LoginFlowView; errorMessage: string | null }):
               <input class={s.codeInput} id="login-code" name="code" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" required />
               <For each={infos()}>{(m) => <p class={s.hint}>{m.text}</p>}</For>
             </div>
-            <button class={s.submit} type="submit" name="method" value="code">Confirmar <Icon d={P.arrow} size={16} /></button>
+            <button class={s.submit} type="submit" name="method" value="code" disabled={sending() !== null}>
+              <Show when={sending() === 'code'}><span class={btnSpinner} aria-hidden="true" /></Show>
+              {sending() === 'code' ? 'Confirmando…' : 'Confirmar'} <Show when={sending() !== 'code'}><Icon d={P.arrow} size={16} /></Show>
+            </button>
           </Match>
 
           {/* senha (padrão) */}
@@ -89,12 +118,14 @@ function LoginForm(props: { view: LoginFlowView; errorMessage: string | null }):
               <span />
               <a class={s.link} href="/recover">Esqueci minha senha</a>
             </div>
-            <button class={s.submit} type="submit" name="method" value="password" data-testid="login-button">
-              Entrar <Icon d={P.arrow} size={16} />
+            <button class={s.submit} type="submit" name="method" value="password" data-testid="login-button" disabled={sending() !== null}>
+              <Show when={sending() === 'password'}><span class={btnSpinner} aria-hidden="true" /></Show>
+              {sending() === 'password' ? 'Entrando…' : 'Entrar'} <Show when={sending() !== 'password'}><Icon d={P.arrow} size={16} /></Show>
             </button>
             <Show when={props.view.methods.code}>
-              <button class={s.ssoBtn} type="submit" name="method" value="code" formnovalidate>
-                <Icon d={P.mail} size={18} /> Entrar com código por e-mail
+              <button class={s.ssoBtn} type="submit" name="method" value="code" formnovalidate disabled={sending() !== null}>
+                <Show when={sending() === 'code'} fallback={<Icon d={P.mail} size={18} />}><span class={btnSpinner} aria-hidden="true" /></Show>
+                {sending() === 'code' ? 'Enviando código…' : 'Entrar com código por e-mail'}
               </button>
             </Show>
           </Match>
