@@ -64,6 +64,7 @@ import {
   emptyGestating,
 } from '../assessment.view-model'
 import * as s from '../prontuario.css'
+import { btnSpinner } from '~/shared/ui/kit.css'
 
 const opt = (arr: readonly Option[]) => arr.map((o) => ({ id: o.value, label: o.label }))
 
@@ -74,6 +75,7 @@ function FormActions(props: { busy: boolean; onCancel: () => void; onSave: () =>
         Cancelar
       </button>
       <button type="button" class={s.actionBtn} disabled={props.busy} onClick={props.onSave}>
+        <Show when={props.busy}><span class={btnSpinner} aria-hidden="true" /></Show>
         {props.busy ? 'Salvando…' : (props.saveLabel ?? 'Salvar')}
       </button>
     </div>

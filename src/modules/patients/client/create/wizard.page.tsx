@@ -7,6 +7,7 @@ import { IdentificationStep } from './steps/identification.step'
 import { DiagnosisStep } from './steps/diagnosis.step'
 import { tp } from '~/shared/i18n/patients'
 import * as s from './wizard.css'
+import { btnSpinner } from '~/shared/ui/kit.css'
 
 export function PatientCreatePage() {
   const b = usePatientCreateBinding()
@@ -49,6 +50,7 @@ export function PatientCreatePage() {
           when={b.step() === 1}
           fallback={
             <button type="button" class={s.btnPrimary} disabled={b.pending()} onClick={() => void b.submitForm()}>
+              <Show when={b.pending()}><span class={btnSpinner} aria-hidden="true" /></Show>
               {b.pending() ? 'Criando…' : 'Criar paciente'}
             </button>
           }
