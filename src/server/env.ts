@@ -28,8 +28,9 @@ function required(value: string | undefined, key: string): string {
 
 export type Env = Readonly<{
   isProd: boolean
-  oidcIssuer: string // Hydra issuer público (= 'iss' dos tokens; discovery + authorize/token aqui)
+  oidcIssuer: string // Hydra issuer público (= 'iss' dos tokens; é para onde o BROWSER vai)
   oidcJwksUrl: string // JWKS p/ validar o JWT (pode ser interno; iss continua público)
+  oidcTokenUrl: string // token endpoint — quem chama é o SERVIDOR, então tem que ser alcançável dele
   oidcClientId: string
   oidcClientSecret: string
   oidcAudiences: readonly string[] // audiences pedidas no /authorize → viram o `aud` do access_token
@@ -51,6 +52,11 @@ export const env: Env = {
   isProd,
   oidcIssuer: required(oidcIssuerRaw, 'OIDC_ISSUER'),
   oidcJwksUrl: process.env.OIDC_JWKS_URL ?? `${oidcIssuerRaw ?? ''}/.well-known/jwks.json`,
+  // Mesmo par do JWKS, pela mesma razão: a `app-net` é `internal: true` (sem egress), então o
+  // container NÃO alcança o endereço público do Hydra. Sem OIDC_TOKEN_URL a troca code→token
+  // ia para https://auth.<domínio> e morria em "Unable to connect" — o login autenticava, voltava
+  // com o `code` e quebrava no último passo, cuspindo AUTH-IDP na tela. Verificado em produção.
+  oidcTokenUrl: process.env.OIDC_TOKEN_URL ?? `${oidcIssuerRaw ?? ''}/oauth2/token`,
   oidcClientId: required(process.env.OIDC_CLIENT_ID, 'OIDC_CLIENT_ID'),
   oidcClientSecret: required(readSecret('OIDC_CLIENT_SECRET'), 'OIDC_CLIENT_SECRET'),
   oidcAudiences: (process.env.OIDC_AUDIENCES ?? 'social-care people-context analysis-bi')
@@ -71,13 +77,19 @@ export const env: Env = {
   analysisBiUrl: required(process.env.ANALYSIS_BI_URL, 'ANALYSIS_BI_URL'),
 }
 
-// Endpoints OIDC do Hydra — derivados da raiz do issuer (paths padrão OAuth2/OIDC).
+// Endpoints OIDC do Hydra. A divisão é a MESMA do Kratos logo abaixo, e pela mesma razão —
+// quem faz a requisição decide o endereço:
+//   • browser  → público (`authorize`, `endSession`): é o usuário que navega até lá;
+//   • servidor → alcançável de dentro da malha (`jwks`, `token`, `revoke`): a app-net não
+//     tem egress, então o endereço público simplesmente não responde.
+// O `issuer` fica público sempre: ele é o `iss` que validamos, não um destino de rede.
 export const oidcEndpoints = {
   issuer: env.oidcIssuer,
   jwks: env.oidcJwksUrl,
   authorize: `${env.oidcIssuer}/oauth2/auth`,
-  token: `${env.oidcIssuer}/oauth2/token`,
-  revoke: `${env.oidcIssuer}/oauth2/revoke`, // revogação back-channel do refresh (L1)
+  token: env.oidcTokenUrl,
+  // Deriva do token endpoint (mesma face do Hydra), não do issuer: também é back-channel (L1).
+  revoke: env.oidcTokenUrl.replace(/\/oauth2\/token$/, '/oauth2/revoke'),
   endSession: `${env.oidcIssuer}/oauth2/sessions/logout`, // RP-initiated logout
   redirectUri: `${env.publicBaseUrl}/api/auth/callback`,
 } as const
