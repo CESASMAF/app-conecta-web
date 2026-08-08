@@ -173,7 +173,7 @@ describe('avaliação · educação (por membro)', () => {
 })
 
 describe('avaliação · saúde (por membro)', () => {
-  test('deficiência exige membro/tipo; gestação valida 0–12; toHealthInput omite cuidador vazio e filtra needs', () => {
+  test('deficiência exige membro/tipo; gestação valida 0–12; toHealthInput omite cuidador vazio', () => {
     const bad = {
       ...emptyHealth(),
       deficiencies: [emptyDeficiency()],
@@ -188,12 +188,21 @@ describe('avaliação · saúde (por membro)', () => {
       foodInsecurity: true,
       deficiencies: [{ memberId: 'm-1', deficiencyTypeId: 'def-1', needsConstantCare: true, responsibleCaregiverName: '  ' }],
       gestatingMembers: [{ memberId: 'm-2', monthsGestation: '5', startedPrenatalCare: true }],
-      constantCareNeeds: [' fralda ', ''],
+      // `constantCareNeeds` sao PersonIds (coluna `hs_constant_care_member_ids`), nao descricoes —
+      // o teste antigo passava ' fralda ' e fixava o contrato errado, que a tela reproduzia.
+      constantCareNeeds: ['m-2'],
     }
     expect(healthHasErrors(validateHealth(ok))).toBe(false)
     const body = toHealthInput(ok)
     expect('responsibleCaregiverName' in body.deficiencies[0]!).toBe(false)
     expect(body.gestatingMembers[0]!.monthsGestation).toBe(5)
-    expect(body.constantCareNeeds).toEqual(['fralda'])
+    expect(body.constantCareNeeds).toEqual(['m-2'])
+  })
+
+  test('membro vazio na lista de cuidado constante e erro de CAMPO, nao 422 do backend', () => {
+    const f = { ...emptyHealth(), constantCareNeeds: [''] }
+    const e = validateHealth(f)
+    expect(healthHasErrors(e)).toBe(true)
+    expect(e.constantCare[0]).toBe('register.field.required')
   })
 })

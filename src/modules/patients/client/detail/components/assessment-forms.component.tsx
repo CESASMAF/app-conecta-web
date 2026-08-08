@@ -427,6 +427,11 @@ export function HealthSectionForm(props: {
     const tag = errors().deficiencies[i]?.[k]
     return tag ? tp(tag) : undefined
   }
+  const careErr = (i: number): string | undefined => {
+    if (!showErr()) return undefined
+    const tag = errors().constantCare[i]
+    return tag ? tp(tag) : undefined
+  }
   const gestErr = (i: number, k: 'memberId' | 'monthsGestation'): string | undefined => {
     if (!showErr()) return undefined
     const tag = errors().gestating[i]?.[k]
@@ -479,18 +484,23 @@ export function HealthSectionForm(props: {
           </div>
         )}
       </For>
+      {/* O dominio tipa isto como `[PersonId]` e o banco guarda em `hs_constant_care_member_ids`:
+          sao MEMBROS que precisam de cuidado constante, nao descricoes. O nome do campo
+          (`constantCareNeeds`) e que engana. A tela pedia texto livre com placeholder
+          "Ex.: medicacao continua" e o backend respondia `UHS-002 ID de pessoa invalido: medicacao
+          continua` — a secao Saude so salvava com a lista VAZIA.
+          Nao e redundante com `deficiencies[].needsConstantCare`: la o cuidado vem da deficiencia;
+          aqui marca quem precisa por qualquer razao (idoso acamado, gestante de risco). */}
       <div class={s.sectionHead}>
-        <span class={s.caption2}>Necessidades de cuidado constante ({form.constantCareNeeds.length})</span>
+        <span class={s.caption2}>Membros que precisam de cuidado constante ({form.constantCareNeeds.length})</span>
         <button type="button" class={s.linkBtn} onClick={() => setForm('constantCareNeeds', (a) => [...a, ''])}>
-          + item
+          + membro
         </button>
       </div>
-      {/* Index, nao For — mesma razao da lista de dependencias funcionais: chavear string por valor
-          destroi o input a cada tecla. */}
       <Index each={form.constantCareNeeds}>
-        {(need, i) => (
+        {(memberId, i) => (
           <div class={s.subRow}>
-            <TextField label={`Item ${i + 1}`} value={need()} onInput={(v) => setForm('constantCareNeeds', i, v)} placeholder="Ex.: medicação contínua" />
+            <SelectField label="Membro" value={memberId()} onChange={(v) => setForm('constantCareNeeds', i, v)} placeholder="Selecionar…" options={memberOpts()} error={careErr(i)} />
             <button type="button" class={s.dangerLink} onClick={() => setForm('constantCareNeeds', (a) => a.filter((_, idx) => idx !== i))}>
               remover
             </button>
