@@ -87,4 +87,42 @@ export default createMiddleware({
       event.locals.user = user
     }
   },
+  // Content-Type explícito na resposta das server functions (RPC do SolidStart).
+  //
+  // ⚠️ ANDA JUNTO COM `serialization: { mode: 'json' }` do app.config.ts. Quem remover um
+  // quebra o outro — e a quebra é silenciosa.
+  //
+  // No `server-handler` do SolidStart só o modo `js` carimba Content-Type (`text/javascript`);
+  // o modo `json` marca a resposta APENAS com `x-serialized: true`, sem Content-Type nenhum.
+  // Estamos em `json` porque o modo `js` exigiria `unsafe-eval` na CSP (ADR-0006) — ou seja,
+  // foi uma decisão de SEGURANÇA que colocou o app no caminho exposto.
+  //
+  // O cliente RPC decide o que fazer NESTA ordem:
+  //
+  //     if (ct?.startsWith('text/plain'))        → await res.text()
+  //     else if (ct?.startsWith('application/json')) → await res.json()
+  //     else if (res.headers.get('x-serialized')) → deserializa (seroval)
+  //
+  // Content-Type vem ANTES de `x-serialized`. E resposta sem Content-Type que atravessa um
+  // servidor escrito em Go sofre sniffing automático (`http.DetectContentType`, disparado
+  // justamente pela ausência do header) — o Caddy é Go e carimba `text/plain; charset=utf-8`.
+  // Confirmado em produção: a resposta chega ao browser com os DOIS headers.
+  //
+  // Resultado: o cliente cai no primeiro ramo, faz `.text()` e entrega ao binding a STRING
+  // crua `;0x000000f0;{…}` em vez do objeto. Sem erro, sem exceção — `f.ok` é `undefined`,
+  // todo `isOk()` reprova e TODA tela abre em "não foi possível carregar". SSR não sofre:
+  // ali a função roda in-process e nunca passa por esta fronteira. Foi o que fez o bug ter a
+  // cara de "SPA quebrada, F5 funciona" e mandou a investigação para o payload, que estava
+  // íntegro o tempo todo.
+  //
+  // `application/octet-stream` porque só precisa NÃO casar com os dois prefixos acima —
+  // `application/json` seria pior que o problema: o cliente faria `.json()` sobre um corpo
+  // que começa com `;0x…;` e estouraria SyntaxError.
+  //
+  // Corrigido aqui, na origem, e não no Caddy: assim vale para qualquer proxy no caminho.
+  onBeforeResponse: (event) => {
+    if (!new URL(event.request.url).pathname.startsWith('/_server')) return
+    if (event.response.headers.has('content-type')) return
+    event.response.headers.set('content-type', 'application/octet-stream')
+  },
 })
