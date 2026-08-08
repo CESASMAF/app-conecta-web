@@ -11,6 +11,7 @@ export type AuthEvent =
   // Erro de fluxo do Kratos. O `reason` dele é o texto mais útil do diagnóstico e o mais
   // sensível (embute a URL rejeitada, com login_challenge) — fica aqui, nunca na tela.
   | 'flow.error'
+  | 'recovery.submit'
 
 export function logAuthEvent(event: AuthEvent, fields: Readonly<Record<string, string>>): void {
   console.log(JSON.stringify({ ts: new Date().toISOString(), kind: 'auth', event, ...fields }))

@@ -13,6 +13,7 @@ import { loginRoute } from '~/server/routes/login.service.fn'
 import { callbackRoute } from '~/server/routes/callback.service.fn'
 import { meRoute } from '~/server/routes/me.query.fn'
 import { logoutRoute } from '~/server/routes/logout.service.fn'
+import { kratosSubmitRoute } from '~/server/routes/kratos-submit.service.fn'
 import { patientsListRoute } from '~/server/routes/patients-list.query.fn'
 import { patientGetRoute } from '~/server/routes/patient-get.query.fn'
 import { domainsGetRoute } from '~/server/routes/domains-get.query.fn'
@@ -63,6 +64,7 @@ export function createApp(deps: AppDeps) {
     .use(callbackRoute(deps))
     .use(meRoute(deps))
     .use(logoutRoute(deps))
+    .use(kratosSubmitRoute(deps))
     .use(patientsListRoute(deps))
     .use(patientGetRoute(deps))
     .use(domainsGetRoute(deps))

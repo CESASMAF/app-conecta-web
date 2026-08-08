@@ -23,6 +23,16 @@ type KratosLoginFlow = Readonly<{ id?: string; ui?: KratosUi; refresh?: boolean;
 
 const asString = (v: unknown): string => (typeof v === 'string' ? v : '')
 
+// O `ui.action` do Kratos aponta para ele mesmo (https://id.<domínio>/self-service/...), e a
+// CSP da aplicação (`form-action 'self'`) faz o navegador ABORTAR um POST para outra origem —
+// silenciosamente, sem erro na tela. Reescrevemos para a rota de repasse do BFF, mesma origem,
+// que devolve status, Location e Set-Cookie do Kratos sem reinterpretar nada.
+// O `csrf_token` do flow continua indo no corpo, como o Kratos exige.
+function acaoNoBff(kind: 'login' | 'recovery', flowId: string): string {
+  return `/api/auth/kratos/${kind}?flow=${encodeURIComponent(flowId)}`
+}
+
+
 export function parseLoginFlow(flow: KratosLoginFlow): LoginFlowView | null {
   const ui = flow.ui
   if (!flow.id || !ui?.action) return null
@@ -32,7 +42,7 @@ export function parseLoginFlow(flow: KratosLoginFlow): LoginFlowView | null {
   const nodeMessages = nodes.flatMap((n) => n.messages ?? [])
   return {
     id: flow.id,
-    action: ui.action,
+    action: acaoNoBff('login', flow.id),
     method: ui.method ?? 'POST',
     csrfToken: asString(csrf?.attributes?.value),
     messages: [...(ui.messages ?? []), ...nodeMessages],
@@ -81,7 +91,7 @@ export function parseRecoveryFlow(flow: KratosLoginFlow): RecoveryFlowView | nul
   const hasCode = nodes.some((n) => n.attributes?.name === 'code')
   return {
     id: flow.id,
-    action: ui.action,
+    action: acaoNoBff('recovery', flow.id),
     csrfToken: asString(csrf?.attributes?.value),
     messages: [...(ui.messages ?? []), ...nodes.flatMap((n) => n.messages ?? [])],
     phase: hasCode ? 'code' : 'email',
