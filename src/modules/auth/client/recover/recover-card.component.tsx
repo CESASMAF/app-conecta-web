@@ -1,8 +1,9 @@
 // Tela de recuperação de senha (ADR-0009) — recovery flow do Kratos (2 fases: e-mail → código).
 // Reusa a identidade e o CSS da tela de login. O form posta direto no Kratos (flow.action).
-import { Show, Switch, Match, For, type JSX } from 'solid-js'
+import { Show, Switch, Match, For, createSignal, onMount, onCleanup, type JSX } from 'solid-js'
 import type { RecoveryFlowResult, RecoveryFlowView } from '~/shared/domain/login-flow'
 import { Icon, P, BrandPanel } from '../auth-visuals'
+import { btnSpinner } from '~/shared/ui/kit.css'
 import * as s from '../login/login-card.css'
 
 export type RecoverCardProps = Readonly<{ result: RecoveryFlowResult | undefined }>
@@ -10,6 +11,19 @@ export type RecoverCardProps = Readonly<{ result: RecoveryFlowResult | undefined
 function RecoverForm(props: { view: RecoveryFlowView }): JSX.Element {
   const errors = () => props.view.messages.filter((m) => m.type === 'error')
   const infos = () => props.view.messages.filter((m) => m.type !== 'error')
+
+  // O form posta nativamente no Kratos e a resposta é uma navegação. Aqui o envio ainda
+  // dispara um e-mail pelo courier, então demora mais que um POST comum — é exatamente
+  // onde a pessoa reclica achando que não foi, e cada reclique manda outro código.
+  const [sending, setSending] = createSignal(false)
+  onMount(() => {
+    // bfcache: voltar para cá restauraria o botão travado em "Enviando…" (ver login-card).
+    const reset = (e: PageTransitionEvent): void => {
+      if (e.persisted) setSending(false)
+    }
+    window.addEventListener('pageshow', reset)
+    onCleanup(() => window.removeEventListener('pageshow', reset))
+  })
   return (
     <>
       <a class={s.backLink} href="/login"><Icon d={P.back} size={16} /> Voltar ao login</a>
@@ -23,7 +37,7 @@ function RecoverForm(props: { view: RecoveryFlowView }): JSX.Element {
 
       <For each={errors()}>{(m) => <div class={s.errorBox} role="alert">{m.text}</div>}</For>
 
-      <form action={props.view.action} method="post">
+      <form action={props.view.action} method="post" onSubmit={() => setSending(true)}>
         <input type="hidden" name="csrf_token" value={props.view.csrfToken} />
         <input type="hidden" name="method" value="code" />
 
@@ -37,7 +51,10 @@ function RecoverForm(props: { view: RecoveryFlowView }): JSX.Element {
                 <input class={s.input} id="recover-email" name="email" type="email" placeholder="nome@cesasmaf.app.br" autocomplete="email" required />
               </div>
             </div>
-            <button class={s.submit} type="submit">Enviar código <Icon d={P.arrow} size={16} /></button>
+            <button class={s.submit} type="submit" disabled={sending()}>
+              <Show when={sending()}><span class={btnSpinner} aria-hidden="true" /></Show>
+              {sending() ? 'Enviando código…' : 'Enviar código'} <Show when={!sending()}><Icon d={P.arrow} size={16} /></Show>
+            </button>
           </Match>
 
           {/* fase 2 — informar o código recebido */}
@@ -47,7 +64,10 @@ function RecoverForm(props: { view: RecoveryFlowView }): JSX.Element {
               <input class={s.codeInput} id="recover-code" name="code" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" required />
               <For each={infos()}>{(m) => <p class={s.hint}>{m.text}</p>}</For>
             </div>
-            <button class={s.submit} type="submit">Confirmar <Icon d={P.arrow} size={16} /></button>
+            <button class={s.submit} type="submit" disabled={sending()}>
+              <Show when={sending()}><span class={btnSpinner} aria-hidden="true" /></Show>
+              {sending() ? 'Confirmando…' : 'Confirmar'} <Show when={!sending()}><Icon d={P.arrow} size={16} /></Show>
+            </button>
           </Match>
         </Switch>
       </form>
