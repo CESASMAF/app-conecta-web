@@ -4,6 +4,7 @@
 // app e Kratos precisam compartilhar domínio registrável em prod (gateway/Caddy sob ${DOMAIN}).
 import { kratosEndpoints } from '~/server/env'
 import { logAuthEvent } from '~/shared/log'
+import { traduzirMensagens } from '~/shared/domain/kratos-messages'
 import type {
   KratosMessage,
   LoginFlowView,
@@ -45,7 +46,7 @@ export function parseLoginFlow(flow: KratosLoginFlow): LoginFlowView | null {
     action: acaoNoBff('login', flow.id),
     method: ui.method ?? 'POST',
     csrfToken: asString(csrf?.attributes?.value),
-    messages: [...(ui.messages ?? []), ...nodeMessages],
+    messages: traduzirMensagens([...(ui.messages ?? []), ...nodeMessages]),
     refresh: Boolean(flow.refresh),
     aal2: flow.requested_aal === 'aal2',
     codePhase: nodes.some((n) => n.attributes?.name === 'code'),
@@ -93,7 +94,7 @@ export function parseRecoveryFlow(flow: KratosLoginFlow): RecoveryFlowView | nul
     id: flow.id,
     action: acaoNoBff('recovery', flow.id),
     csrfToken: asString(csrf?.attributes?.value),
-    messages: [...(ui.messages ?? []), ...nodes.flatMap((n) => n.messages ?? [])],
+    messages: traduzirMensagens([...(ui.messages ?? []), ...nodes.flatMap((n) => n.messages ?? [])]),
     phase: hasCode ? 'code' : 'email',
   }
 }

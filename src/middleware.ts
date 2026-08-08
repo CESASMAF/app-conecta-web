@@ -7,7 +7,7 @@ import { buildSecurityHeaders, isHttpsFromForwardedProto } from '~/shared/http/s
 import { newNonce } from '~/external/csp-nonce'
 import { isProtectedPagePath, loadCurrentUser } from '~/modules/auth/server/page-guard'
 import { requiredGroupForPath, rootViewModel } from '~/modules/shell/client/root/root.view-model'
-import { env } from '~/server/env'
+import { env, authFormActionOrigins } from '~/server/env'
 
 export default createMiddleware({
   onRequest: async (event) => {
@@ -15,7 +15,13 @@ export default createMiddleware({
     event.locals.nonce = nonce
     const isHttps = isHttpsFromForwardedProto(event.request.headers.get('x-forwarded-proto'))
     // prod: style-src sem 'unsafe-inline' (CSS estático do vanilla-extract) — L5.
-    const headers = buildSecurityHeaders({ nonce, isHttps, styleUnsafeInline: !env.isProd })
+    const headers = buildSecurityHeaders({
+      nonce,
+      isHttps,
+      styleUnsafeInline: !env.isProd,
+      // sem as origens do IdP o 303 pós-login é abortado pelo navegador — ver security-headers.
+      formActionOrigins: authFormActionOrigins,
+    })
     for (const [key, value] of Object.entries(headers)) {
       event.response.headers.set(key, value)
     }

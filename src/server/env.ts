@@ -2,6 +2,7 @@
 // Fail-fast em produção: sem as envs OIDC/Kratos, o boot NÃO sobe (research D9).
 // IdP = Ory (migração Authentik → Ory): Hydra emite o JWT (OIDC), Kratos guarda a identidade (login).
 import { readFileSync } from 'node:fs'
+import { formActionOriginsFrom } from '~/shared/http/security-headers'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -105,6 +106,16 @@ export const kratosEndpoints = {
   logoutBrowser: `${env.kratosBrowserUrl}/self-service/logout/browser`,
   whoami: `${env.kratosPublicUrl}/sessions/whoami`,
 } as const
+
+// Origens para onde os formulários de AUTENTICAÇÃO navegam legitimamente — via os redirects
+// que o Kratos devolve. Alimentam `form-action` da CSP, que é reavaliada a cada salto: sem
+// elas o navegador aborta o submit em silêncio e o login não completa (ver security-headers).
+export const authFormActionOrigins: readonly string[] = formActionOriginsFrom({
+  kratosBrowserUrl: env.kratosBrowserUrl,
+  oidcIssuer: env.oidcIssuer,
+  publicBaseUrl: env.publicBaseUrl,
+  consentBaseUrl: process.env.CONSENT_BASE_URL,
+})
 
 // Origem permitida para checagem de CSRF por Origin nas mutações (L3).
 export const allowedOrigin: string = (() => {

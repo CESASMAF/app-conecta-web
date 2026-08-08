@@ -51,12 +51,19 @@ test('o rótulo ocupado está no gerúndio, não anuncia sucesso', () => {
   }
 })
 
-// O bfcache restaura a página como ela saiu: sem este reset, voltar para a tela de login
-// mostra o botão travado em "Entrando…" para sempre, e não há como tentar de novo.
-test('as telas que postam nativamente resetam o estado ao voltar pelo bfcache', () => {
+// Nos forms que postam NATIVAMENTE a resposta é uma navegação — e quando ela não acontece, o
+// botão travado vira um beco sem saída: a pessoa não consegue tentar de novo sem recarregar.
+// O destravamento é um só, no helper; as telas não podem reimplementá-lo pela metade (a
+// primeira versão só cobria bfcache e deixava o login preso quando a CSP abortava o submit).
+test('as telas que postam nativamente usam a trava que se desfaz sozinha', () => {
   for (const f of COBERTOS.filter((f) => f.includes('/auth/'))) {
-    const src = read(f)
-    expect(src).toContain('pageshow')
-    expect(src).toContain('persisted')
+    expect(read(f)).toContain('useSubmitLock')
   }
+})
+
+test('a trava cobre as três formas de o submit morrer sem navegar', () => {
+  const src = read('shared/ui/use-submit-lock.ts')
+  expect(src).toContain('pageshow') // bfcache / restauração
+  expect(src).toContain('securitypolicyviolation') // form-action abortando o redirect
+  expect(src).toContain('setTimeout') // prazo: falha que não emite evento nenhum
 })
