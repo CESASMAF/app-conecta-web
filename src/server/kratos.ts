@@ -3,7 +3,14 @@
 // que posta direto no Kratos (ui.action). CSRF é o token do próprio flow + cookie do Kratos — por isso
 // app e Kratos precisam compartilhar domínio registrável em prod (gateway/Caddy sob ${DOMAIN}).
 import { kratosEndpoints } from '~/server/env'
-import type { KratosMessage, LoginFlowView, RecoveryFlowView } from '~/shared/domain/login-flow'
+import { logAuthEvent } from '~/shared/log'
+import type {
+  KratosMessage,
+  LoginFlowView,
+  RecoveryFlowView,
+  FlowErrorKind,
+  FlowErrorResult,
+} from '~/shared/domain/login-flow'
 
 // ---- shape mínimo do JSON do Kratos que consumimos (parcial, tolerante) ----
 type KratosNode = Readonly<{
@@ -90,5 +97,57 @@ export async function fetchRecoveryFlow(flowId: string, cookie: string): Promise
     return parseRecoveryFlow((await res.json()) as KratosLoginFlow)
   } catch {
     return null
+  }
+}
+
+// ─── Erro de fluxo ───────────────────────────────────────────────────────────
+// O Kratos manda o browser para `ui_url` do flow `error` com só um `?id=`; o conteúdo
+// vive na Public API. Traduzimos o `error.id` dele para um `kind` nosso, e o `reason`
+// fica de fora do retorno DE PROPÓSITO: ele embute a URL rejeitada, com login_challenge
+// e return_to. Isso é sensível e não pode chegar ao browser (Princ. I) — vai ao log.
+type KratosFlowError = Readonly<{
+  id?: string
+  error?: Readonly<{ id?: string; code?: number; status?: string; reason?: string; message?: string }>
+}>
+
+// Os `error.id` que o Kratos nomeia. Fora desta lista, 'unknown' — a tela ainda mostra
+// algo útil (o id, para o suporte), em vez de engolir o erro.
+const FLOW_ERROR_KINDS: Readonly<Record<string, FlowErrorKind>> = {
+  self_service_flow_return_to_forbidden: 'returnToForbidden',
+  self_service_flow_expired: 'flowExpired',
+  security_csrf_violation: 'csrf',
+  security_identity_mismatch: 'identityMismatch',
+  session_already_available: 'alreadyLoggedIn',
+}
+
+export async function fetchFlowError(errorId: string): Promise<FlowErrorResult> {
+  try {
+    const res = await fetch(`${kratosEndpoints.flowError}?id=${encodeURIComponent(errorId)}`, {
+      headers: { accept: 'application/json' },
+    })
+    // 404 = id desconhecido ou já descartado pelo Kratos (ele não guarda para sempre).
+    if (!res.ok) return { kind: 'notFound' }
+    const body = (await res.json()) as KratosFlowError
+    const inner = body.error
+    if (!inner) return { kind: 'notFound' }
+
+    // O `reason` é o texto mais útil para NÓS e o mais perigoso para a tela — só log.
+    logAuthEvent('flow.error', {
+      errorId,
+      kratosId: inner.id ?? '(sem id)',
+      status: String(inner.code ?? 0),
+      reason: inner.reason ?? inner.message ?? '',
+    })
+
+    return {
+      kind: 'error',
+      view: {
+        id: body.id ?? errorId,
+        kind: FLOW_ERROR_KINDS[inner.id ?? ''] ?? 'unknown',
+        status: inner.code ?? 0,
+      },
+    }
+  } catch {
+    return { kind: 'notFound' }
   }
 }
