@@ -11,6 +11,12 @@ export default defineConfig({
   },
   // O middleware do SolidStart NÃO é auto-descoberto — precisa ser registrado aqui (ADR-0006).
   middleware: 'src/middleware.ts',
+  // ⚠️ ANDA JUNTO com o carimbo de Content-Type em `src/middleware.ts` (onBeforeResponse).
+  // Só o modo `js` do SolidStart carimba Content-Type na resposta do `/_server`; o modo `json`
+  // manda só `x-serialized: true`. Sem Content-Type, um proxy Go (o Caddy) fareja e escreve
+  // `text/plain`, e o cliente RPC — que testa Content-Type ANTES de `x-serialized` — passa a
+  // ler a resposta como TEXTO. Toda tela abre em "não foi possível carregar", sem erro no
+  // servidor e com o corpo íntegro. Derrubou a produção em 2026-08-08.
   serialization: {
     mode: 'json',
   },

@@ -89,9 +89,15 @@ export default createMiddleware({
   },
   // Content-Type explícito na resposta das server functions (RPC do SolidStart).
   //
-  // O SolidStart serializa o retorno com seroval e marca a resposta APENAS com
-  // `x-serialized: true`, sem Content-Type nenhum. O cliente RPC dele decide o que fazer
-  // NESTA ordem:
+  // ⚠️ ANDA JUNTO COM `serialization: { mode: 'json' }` do app.config.ts. Quem remover um
+  // quebra o outro — e a quebra é silenciosa.
+  //
+  // No `server-handler` do SolidStart só o modo `js` carimba Content-Type (`text/javascript`);
+  // o modo `json` marca a resposta APENAS com `x-serialized: true`, sem Content-Type nenhum.
+  // Estamos em `json` porque o modo `js` exigiria `unsafe-eval` na CSP (ADR-0006) — ou seja,
+  // foi uma decisão de SEGURANÇA que colocou o app no caminho exposto.
+  //
+  // O cliente RPC decide o que fazer NESTA ordem:
   //
   //     if (ct?.startsWith('text/plain'))        → await res.text()
   //     else if (ct?.startsWith('application/json')) → await res.json()
